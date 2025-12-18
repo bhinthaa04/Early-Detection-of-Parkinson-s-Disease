@@ -7,12 +7,13 @@ import { FileImage, FileAudio, Sparkles, Brain, ArrowRight, Loader2, AlertCircle
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { apiService } from "@/lib/api-service";
+import { StepProgress } from "@/components/step-progress";
+import { BackendConfigButton } from "@/components/backend-config";
 
 export default function Prediction() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -28,23 +29,49 @@ export default function Prediction() {
     }
 
     setLoading(true);
-    setProgress(10);
     setError(null);
 
+    // Navigate to analysis page immediately to show animation
+    // We pass the files via state or just mock the upload for the prototype
+    // Since we can't easily pass File objects via URL, we'll assume for this prototype
+    // that the analysis page handles the API call or we do it here and redirect on success.
+    // For better UX with the animation, let's do the API call here but redirect to analysis
+    // which then redirects to result. 
+    // OR: Redirect to analysis, and have analysis page trigger the API call.
+    // Given the constraints and simplicity, let's trigger it here, wait for result, 
+    // BUT to show the "Analysis" screen properly, we should probably redirect first.
+    
+    // BETTER APPROACH FOR PROTOTYPE:
+    // 1. User clicks Analyze
+    // 2. Redirect to /analysis
+    // 3. /analysis page simulates delay (or actual call) then goes to /result
+    // But we need the data in /result.
+    // Let's keep the API call here, but maybe redirect to /analysis while "loading"?
+    // No, that's complicated with React Router state.
+    
+    // Let's stick to: Call API -> Save to Session -> Redirect to Analysis -> Redirect to Result
+    
     try {
-      setProgress(30);
       const result = await apiService.predict(imageFile, audioFile);
-      setProgress(100);
+      
+      // Save to local storage for history (as requested)
+      const historyItem = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString(),
+        prediction: result.prediction ? "Positive" : "Negative",
+        confidence: Math.round(result.confidence * 100),
+        stage: result.stage
+      };
+      
+      const existingHistory = JSON.parse(localStorage.getItem('predictionHistory') || '[]');
+      localStorage.setItem('predictionHistory', JSON.stringify([historyItem, ...existingHistory]));
 
-      // Store result and navigate to results page
+      // Store result for result page
       sessionStorage.setItem('predictionResult', JSON.stringify(result));
       
-      setTimeout(() => {
-        setLocation("/result");
-      }, 500);
+      setLocation("/analysis");
     } catch (err) {
       setLoading(false);
-      setProgress(0);
       const errorMsg = err instanceof Error ? err.message : "Failed to analyze";
       setError(errorMsg);
       toast({
@@ -55,14 +82,22 @@ export default function Prediction() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 relative overflow-hidden font-sans">
-      {/* Background */}
-      <div className="absolute inset-0 z-0 opacity-10">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl" />
-      </div>
+  const steps = [
+    { id: 1, label: "Upload", icon: "📤" },
+    { id: 2, label: "Analyze", icon: "🔬" },
+    { id: 3, label: "Results", icon: "📊" },
+    { id: 4, label: "Report", icon: "📄" },
+  ];
 
-      <div className="container mx-auto px-4 py-12 max-w-3xl relative z-10">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 relative overflow-hidden font-sans transition-colors duration-300">
+      <BackendConfigButton />
+      
+      <div className="container mx-auto px-4 py-8 max-w-4xl relative z-10">
+        <div className="mb-12">
+          <StepProgress steps={steps} currentStep={1} />
+        </div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
@@ -76,7 +111,7 @@ export default function Prediction() {
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-foreground mb-4">
             Submit Your <span className="gradient-text">Samples</span>
           </h1>
-          <p className="text-lg text-gray-700">
+          <p className="text-lg text-gray-700 dark:text-gray-300">
             Upload a spiral drawing image and a voice recording for analysis
           </p>
         </motion.div>
@@ -92,9 +127,6 @@ export default function Prediction() {
             <div>
               <p className="font-semibold text-red-900 mb-1">Connection Error</p>
               <p className="text-sm text-red-800">{error}</p>
-              <p className="text-xs text-red-700 mt-2">
-                💡 <strong>Fix:</strong> Click the settings icon (⚙️) at bottom-right to configure your backend URL
-              </p>
             </div>
           </motion.div>
         )}
@@ -106,15 +138,15 @@ export default function Prediction() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="h-full glass-panel hover:shadow-lg transition-all">
+            <Card className="h-full glass-panel hover:shadow-lg transition-all dark:bg-slate-800/50 dark:border-slate-700">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100/50 text-blue-600 rounded-lg">
+                  <div className="p-2 bg-blue-100/50 text-blue-600 rounded-lg dark:bg-blue-900/30 dark:text-blue-400">
                     <FileImage className="w-5 h-5" />
                   </div>
                   <CardTitle>Spiral Drawing</CardTitle>
                 </div>
-                <p className="text-xs text-gray-600 mt-2">PNG, JPG - Max 10MB</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">PNG, JPG - Max 10MB</p>
               </CardHeader>
               <CardContent>
                 <FileUpload
@@ -135,15 +167,15 @@ export default function Prediction() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="h-full glass-panel hover:shadow-lg transition-all">
+            <Card className="h-full glass-panel hover:shadow-lg transition-all dark:bg-slate-800/50 dark:border-slate-700">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-100/50 text-indigo-600 rounded-lg">
+                  <div className="p-2 bg-indigo-100/50 text-indigo-600 rounded-lg dark:bg-indigo-900/30 dark:text-indigo-400">
                     <FileAudio className="w-5 h-5" />
                   </div>
                   <CardTitle>Voice Recording</CardTitle>
                 </div>
-                <p className="text-xs text-gray-600 mt-2">WAV, MP3 - Max 10MB</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">WAV, MP3 - Max 10MB</p>
               </CardHeader>
               <CardContent>
                 <FileUpload
@@ -159,30 +191,6 @@ export default function Prediction() {
             </Card>
           </motion.div>
         </div>
-
-        {/* Progress Bar */}
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-8"
-          >
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="font-medium text-foreground">Processing...</span>
-                <span className="text-gray-600">{progress}%</span>
-              </div>
-              <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-linear-to-r from-primary to-secondary"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progress}%` }}
-                  transition={{ duration: 0.5 }}
-                />
-              </div>
-            </div>
-          </motion.div>
-        )}
 
         {/* Action Buttons */}
         <motion.div
@@ -201,12 +209,12 @@ export default function Prediction() {
             {loading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Analyzing...
+                Processing...
               </>
             ) : (
               <>
                 <Sparkles className="w-5 h-5 mr-2" />
-                Analyze Now
+                Start Analysis
                 <ArrowRight className="w-5 h-5 ml-2" />
               </>
             )}
@@ -224,34 +232,6 @@ export default function Prediction() {
           >
             Clear Files
           </Button>
-        </motion.div>
-
-        {/* Instructions */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-12 bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-border"
-        >
-          <h3 className="font-heading font-semibold text-foreground mb-4">Instructions</h3>
-          <ul className="space-y-3 text-sm text-gray-700">
-            <li className="flex items-start gap-3">
-              <span className="text-primary font-bold">1.</span>
-              <span>Draw a spiral pattern on paper and take a clear image of it</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-primary font-bold">2.</span>
-              <span>Record yourself saying a standard phrase or reading a paragraph for 10-15 seconds</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-primary font-bold">3.</span>
-              <span>Upload both files using the upload areas above</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-primary font-bold">4.</span>
-              <span>Click "Analyze Now" and wait for results (usually 2-5 seconds)</span>
-            </li>
-          </ul>
         </motion.div>
       </div>
     </div>

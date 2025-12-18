@@ -3,7 +3,7 @@ import { API_ENDPOINTS } from './api-config';
 export interface PredictionResponse {
   prediction: boolean;
   confidence: number;
-  stage: 'Early' | 'Mid' | 'Advanced';
+  stage: 'Early' | 'Mid' | 'Advanced' | 'Healthy';
   message?: string;
 }
 
