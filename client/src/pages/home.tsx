@@ -1,180 +1,177 @@
-import { useState } from "react";
-import { FileUpload } from "@/components/file-upload";
-import { PredictionResult } from "@/components/prediction-result";
-import { Button } from "@/components/ui/button";
-import { FileImage, FileAudio, Sparkles, Stethoscope, ArrowRight, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Brain, Activity, Shield, TrendingUp } from "lucide-react";
+import { useLocation } from "wouter";
 import heroBg from "@assets/generated_images/abstract_medical_ai_network_background.png";
 
 export default function Home() {
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  const { toast } = useToast();
-
-  const handlePredict = async () => {
-    if (!imageFile || !audioFile) {
-      toast({
-        title: "Missing Files",
-        description: "Please upload both an image and an audio file to proceed.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    setResult(null);
-
-    // Simulate API call and processing delay
-    setTimeout(() => {
-      // Mock logic: 
-      // If image file name contains "positive", return positive.
-      // Else random, but weighted towards healthy for demo unless specified.
-      const isPositive = Math.random() > 0.5;
-      
-      const mockResult = {
-        prediction: isPositive ? "Parkinson's Detected" : "Healthy Control",
-        confidence: 0.85 + Math.random() * 0.14,
-        details: {
-          imageScore: isPositive ? 0.8 + Math.random() * 0.1 : 0.1 + Math.random() * 0.2,
-          audioScore: isPositive ? 0.75 + Math.random() * 0.15 : 0.15 + Math.random() * 0.2,
-        }
-      };
-
-      setResult(mockResult);
-      setLoading(false);
-      
-      toast({
-        title: "Analysis Complete",
-        description: "The multimodal model has finished processing your inputs.",
-      });
-    }, 3000);
-  };
+  const [, setLocation] = useLocation();
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden font-sans">
-      {/* Background Decor */}
-      <div 
-        className="absolute inset-0 z-[-10] opacity-30"
-        style={{
-          backgroundImage: `url(${heroBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          mixBlendMode: 'multiply'
-        }}
-      />
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-50/80 to-transparent z-[-5]" />
-      
-      <div className="container mx-auto px-4 py-12 max-w-4xl relative z-10">
-        {/* Header */}
-        <motion.div 
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 relative overflow-hidden font-sans">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 z-0 opacity-10">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary rounded-full blur-3xl" />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Navigation */}
+        <motion.nav
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16 space-y-4"
+          className="py-6 flex justify-between items-center"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4 backdrop-blur-sm border border-primary/20">
-            <Stethoscope className="w-4 h-4" />
-            <span>AI-Powered Diagnostics Prototype</span>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary rounded-lg text-white">
+              <Brain className="w-6 h-6" />
+            </div>
+            <span className="text-2xl font-heading font-bold gradient-text">NeuroScan AI</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-heading font-bold tracking-tight text-foreground drop-shadow-sm">
-            NeuroScan <span className="gradient-text">AI</span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Early detection of Parkinson's Disease using multimodal deep learning analysis of spiral drawings and voice patterns.
-          </p>
-        </motion.div>
-
-        {/* Main Interface */}
-        <div className="grid gap-8 mb-12">
-          <div className="grid md:grid-cols-2 gap-6">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <div className="glass-panel rounded-2xl p-6 h-full hover:shadow-primary/5 transition-all">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-blue-100/50 text-blue-600 rounded-lg">
-                    <FileImage className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-heading font-semibold">Spiral Drawing</h3>
-                    <p className="text-xs text-muted-foreground">Upload spiral test image</p>
-                  </div>
-                </div>
-                <FileUpload
-                  id="image-upload"
-                  accept="image/*"
-                  label=""
-                  icon={FileImage}
-                  file={imageFile}
-                  setFile={setImageFile}
-                />
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="glass-panel rounded-2xl p-6 h-full hover:shadow-primary/5 transition-all">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-indigo-100/50 text-indigo-600 rounded-lg">
-                    <FileAudio className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-heading font-semibold">Voice Recording</h3>
-                    <p className="text-xs text-muted-foreground">Upload voice sample (wav/mp3)</p>
-                  </div>
-                </div>
-                <FileUpload
-                  id="audio-upload"
-                  accept="audio/*"
-                  label=""
-                  icon={FileAudio}
-                  file={audioFile}
-                  setFile={setAudioFile}
-                />
-              </div>
-            </motion.div>
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={() => setLocation("/")} data-testid="nav-home">Home</Button>
+            <Button variant="ghost" onClick={() => setLocation("/prediction")} data-testid="nav-predict">Test</Button>
           </div>
+        </motion.nav>
 
+        {/* Hero Section */}
+        <div className="grid md:grid-cols-2 gap-12 items-center py-20">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="flex justify-center"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-8"
           >
-            <Button
-              size="lg"
-              className="px-8 py-6 text-lg font-medium shadow-lg hover:shadow-primary/20 transition-all rounded-full min-w-[200px] cursor-pointer"
-              onClick={handlePredict}
-              disabled={loading || (!imageFile && !audioFile)}
-              data-testid="button-analyze"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Run Analysis
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </>
-              )}
-            </Button>
+            <div>
+              <div className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+                🚀 AI-Powered Healthcare Innovation
+              </div>
+              <h1 className="text-5xl md:text-7xl font-heading font-bold text-foreground leading-tight mb-4">
+                Early Detection of <span className="gradient-text">Parkinson's Disease</span>
+              </h1>
+              <p className="text-lg text-gray-700 leading-relaxed">
+                Harness the power of artificial intelligence for early and accurate detection of Parkinson's disease using multimodal analysis of spiral drawings and voice patterns.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-4">
+              <Button
+                size="lg"
+                className="px-8 py-6 text-lg shadow-lg hover:shadow-primary/40 rounded-full"
+                onClick={() => setLocation("/prediction")}
+                data-testid="btn-cta-predict"
+              >
+                Check for Parkinson's
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="px-8 py-6 text-lg rounded-full"
+                data-testid="btn-learn-more"
+              >
+                Learn More
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-gray-700">
+              <Shield className="w-5 h-5 text-primary" />
+              <span>Secure, private, and HIPAA-compliant testing</span>
+            </div>
+          </motion.div>
+
+          {/* Hero Image */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="hidden md:block"
+          >
+            <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl">
+              <img 
+                src={heroBg} 
+                alt="Medical AI" 
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20" />
+            </div>
           </motion.div>
         </div>
 
-        {/* Results Section */}
-        <div className="max-w-2xl mx-auto">
-          <PredictionResult loading={loading} result={result} />
-        </div>
+        {/* Features Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="grid md:grid-cols-4 gap-6 py-12"
+        >
+          {[
+            {
+              icon: Brain,
+              title: 'AI Analysis',
+              desc: 'Advanced neural network for accurate predictions',
+            },
+            {
+              icon: Activity,
+              title: 'Multimodal Input',
+              desc: 'Spiral drawing + voice analysis combined',
+            },
+            {
+              icon: TrendingUp,
+              title: 'Disease Stage',
+              desc: 'Early, Mid, or Advanced classification',
+            },
+            {
+              icon: Shield,
+              title: 'Confidential',
+              desc: 'Your data stays private and secure',
+            },
+          ].map((feature, idx) => {
+            const Icon = feature.icon;
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 + idx * 0.1 }}
+                className="p-6 rounded-xl bg-white shadow-sm border border-border hover:shadow-md transition-all"
+              >
+                <div className="p-3 bg-primary/10 text-primary rounded-lg w-fit mb-4">
+                  <Icon className="w-6 h-6" />
+                </div>
+                <h3 className="font-heading font-semibold text-foreground mb-2">{feature.title}</h3>
+                <p className="text-sm text-gray-700">{feature.desc}</p>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Info Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8 md:p-12 my-12 border border-primary/20"
+        >
+          <h2 className="text-3xl font-heading font-bold mb-6 text-foreground">How It Works</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="space-y-3">
+              <div className="text-4xl font-heading font-bold text-primary">1</div>
+              <h3 className="font-heading font-semibold text-lg">Upload Samples</h3>
+              <p className="text-gray-700">Submit a spiral drawing image and a voice recording.</p>
+            </div>
+            <div className="space-y-3">
+              <div className="text-4xl font-heading font-bold text-primary">2</div>
+              <h3 className="font-heading font-semibold text-lg">AI Analysis</h3>
+              <p className="text-gray-700">Our model analyzes patterns for Parkinson's markers.</p>
+            </div>
+            <div className="space-y-3">
+              <div className="text-4xl font-heading font-bold text-primary">3</div>
+              <h3 className="font-heading font-semibold text-lg">Get Results</h3>
+              <p className="text-gray-700">Receive comprehensive analysis and recommendations.</p>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
