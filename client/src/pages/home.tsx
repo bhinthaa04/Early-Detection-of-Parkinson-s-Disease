@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Brain, Activity, Shield, TrendingUp, BarChart3 } from "lucide-react";
 import { useLocation } from "wouter";
+import { BackendConfigButton } from "@/components/backend-config";
 import heroBg from "@assets/generated_images/abstract_medical_ai_network_background.png";
 
 export default function Home() {
@@ -14,6 +15,9 @@ export default function Home() {
         <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary rounded-full blur-3xl" />
       </div>
+
+      {/* Backend Config Button */}
+      <BackendConfigButton />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Navigation */}
@@ -28,7 +32,7 @@ export default function Home() {
             </div>
             <span className="text-2xl font-heading font-bold gradient-text">NeuroScan AI</span>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <Button variant="ghost" onClick={() => setLocation("/")} data-testid="nav-home">Home</Button>
             <Button variant="ghost" onClick={() => setLocation("/prediction")} data-testid="nav-predict">Test</Button>
             <Button variant="ghost" onClick={() => setLocation("/dashboard")} data-testid="nav-dashboard">Dashboard</Button>

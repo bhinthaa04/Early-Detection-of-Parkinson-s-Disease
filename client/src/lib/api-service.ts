@@ -18,16 +18,23 @@ export const apiService = {
     formData.append('image', imageFile);
     formData.append('audio', audioFile);
 
-    const response = await fetch(API_ENDPOINTS.predict, {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const response = await fetch(API_ENDPOINTS.predict, {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (!response.ok) {
-      throw new Error(`Prediction failed: ${response.statusText}`);
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to analyze';
+      throw new Error(`Backend Error: ${message}. Check if backend is running at ${API_ENDPOINTS.predict}`);
     }
-
-    return response.json();
   },
 
   async downloadReport(prediction: PredictionResponse): Promise<Blob> {
@@ -37,14 +44,19 @@ export const apiService = {
       stage: prediction.stage,
     });
 
-    const response = await fetch(`${API_ENDPOINTS.downloadReport}?${params}`, {
-      method: 'GET',
-    });
+    try {
+      const response = await fetch(`${API_ENDPOINTS.downloadReport}?${params}`, {
+        method: 'GET',
+      });
 
-    if (!response.ok) {
-      throw new Error(`Download failed: ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return response.blob();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to download';
+      throw new Error(`Download Error: ${message}`);
     }
-
-    return response.blob();
   },
 };

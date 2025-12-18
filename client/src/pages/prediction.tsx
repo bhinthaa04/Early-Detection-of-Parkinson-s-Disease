@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { FileUpload } from "@/components/file-upload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileImage, FileAudio, Loader2, ArrowRight, Brain } from "lucide-react";
+import { FileImage, FileAudio, Sparkles, Brain, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { apiService } from "@/lib/api-service";
@@ -13,6 +13,7 @@ export default function Prediction() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -28,6 +29,7 @@ export default function Prediction() {
 
     setLoading(true);
     setProgress(10);
+    setError(null);
 
     try {
       setProgress(30);
@@ -40,12 +42,14 @@ export default function Prediction() {
       setTimeout(() => {
         setLocation("/result");
       }, 500);
-    } catch (error) {
+    } catch (err) {
       setLoading(false);
       setProgress(0);
+      const errorMsg = err instanceof Error ? err.message : "Failed to analyze";
+      setError(errorMsg);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to analyze. Please check backend connection.",
+        description: errorMsg,
         variant: "destructive",
       });
     }
@@ -76,6 +80,24 @@ export default function Prediction() {
             Upload a spiral drawing image and a voice recording for analysis
           </p>
         </motion.div>
+
+        {/* Error Alert */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3"
+          >
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-red-900 mb-1">Connection Error</p>
+              <p className="text-sm text-red-800">{error}</p>
+              <p className="text-xs text-red-700 mt-2">
+                💡 <strong>Fix:</strong> Click the settings icon (⚙️) at bottom-right to configure your backend URL
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Upload Section */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -183,6 +205,7 @@ export default function Prediction() {
               </>
             ) : (
               <>
+                <Sparkles className="w-5 h-5 mr-2" />
                 Analyze Now
                 <ArrowRight className="w-5 h-5 ml-2" />
               </>
@@ -192,10 +215,14 @@ export default function Prediction() {
             variant="outline"
             size="lg"
             className="px-8 py-6 text-lg rounded-full"
-            onClick={() => setLocation("/")}
-            data-testid="btn-back"
+            onClick={() => {
+              setImageFile(null);
+              setAudioFile(null);
+              setError(null);
+            }}
+            data-testid="btn-clear"
           >
-            Back to Home
+            Clear Files
           </Button>
         </motion.div>
 
