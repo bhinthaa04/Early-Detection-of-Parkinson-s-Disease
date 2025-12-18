@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Brain, Activity, Shield, TrendingUp } from "lucide-react";
+import { ArrowRight, Brain, Activity, Shield, TrendingUp, BarChart3 } from "lucide-react";
 import { useLocation } from "wouter";
 import heroBg from "@assets/generated_images/abstract_medical_ai_network_background.png";
 
@@ -31,6 +31,7 @@ export default function Home() {
           <div className="flex gap-3">
             <Button variant="ghost" onClick={() => setLocation("/")} data-testid="nav-home">Home</Button>
             <Button variant="ghost" onClick={() => setLocation("/prediction")} data-testid="nav-predict">Test</Button>
+            <Button variant="ghost" onClick={() => setLocation("/dashboard")} data-testid="nav-dashboard">Dashboard</Button>
           </div>
         </motion.nav>
 
@@ -68,9 +69,10 @@ export default function Home() {
                 variant="outline"
                 size="lg"
                 className="px-8 py-6 text-lg rounded-full"
-                data-testid="btn-learn-more"
+                onClick={() => setLocation("/dashboard")}
+                data-testid="btn-view-dashboard"
               >
-                Learn More
+                View Dashboard
               </Button>
             </div>
 
@@ -122,9 +124,9 @@ export default function Home() {
               desc: 'Early, Mid, or Advanced classification',
             },
             {
-              icon: Shield,
-              title: 'Confidential',
-              desc: 'Your data stays private and secure',
+              icon: BarChart3,
+              title: 'Dashboard',
+              desc: 'Track history and visualize trends',
             },
           ].map((feature, idx) => {
             const Icon = feature.icon;

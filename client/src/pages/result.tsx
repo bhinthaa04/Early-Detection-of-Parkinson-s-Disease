@@ -8,11 +8,13 @@ import { useLocation } from "wouter";
 import { DiseaseStageCard } from "@/components/disease-stage-card";
 import { Precautions } from "@/components/precautions";
 import { DoctorCTA } from "@/components/doctor-cta";
+import { EmergencyAlert } from "@/components/emergency-alert";
 import { apiService, PredictionResponse } from "@/lib/api-service";
 
 export default function Result() {
   const [result, setResult] = useState<PredictionResponse | null>(null);
   const [downloadingReport, setDownloadingReport] = useState(false);
+  const [showEmergencyAlert, setShowEmergencyAlert] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -72,6 +74,13 @@ export default function Result() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 relative overflow-hidden font-sans">
+      {/* Emergency Alert - triggers when confidence > 85% and positive */}
+      <EmergencyAlert 
+        confidence={result.confidence} 
+        prediction={isPositive}
+        onClose={() => setShowEmergencyAlert(true)}
+      />
+
       {/* Background */}
       <div className="absolute inset-0 z-0 opacity-10">
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary rounded-full blur-3xl" />
