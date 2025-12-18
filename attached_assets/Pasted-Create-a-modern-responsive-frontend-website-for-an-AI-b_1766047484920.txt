@@ -1,0 +1,70 @@
+Create a modern, responsive frontend website for an AI-based Parkinson’s Disease Detection System.
+
+Backend is already available as a REST API hosted on Google Colab using Flask and ngrok.
+The backend endpoint is:
+POST /predict
+It accepts:
+- image file (spiral drawing)
+- audio file (voice recording)
+And returns JSON with:
+- prediction (string)
+- confidence (percentage)
+- disease_stage (Early / Mid / Advanced)
+- pdf_download_url
+
+⚠️ Do NOT change or implement backend logic. Focus only on frontend UI/UX.
+
+Frontend Requirements:
+
+1. Landing Page
+- Professional medical AI theme
+- Hero section explaining Parkinson’s Disease and early detection
+- Call-to-action button: “Start Detection”
+
+2. Upload Page
+- Image upload (spiral image)
+- Voice upload (audio file)
+- File validation (type, size)
+- Upload progress animation
+- Clear success/error messages
+
+3. AI Analysis Screen
+- Animated brain / waveform / scanning animation
+- Text: “AI is analyzing image and voice patterns…”
+- Loader while waiting for API response
+
+4. Results Page
+- Display prediction result in clear human language
+- Animated confidence meter (speedometer or circular gauge)
+- Disease stage shown using a timeline (Early / Mid / Advanced)
+- Color coding (Green / Yellow / Red)
+- Friendly explanation of the result
+
+5. Report Section
+- Medical-style report preview (A4 layout)
+- Button: “Download Report (PDF)” using the provided URL
+- Include date, confidence, stage, and recommendation summary
+
+6. Additional Frontend Features
+- Dark Mode / Light Mode toggle
+- Step progress tracker (Upload → Analyze → Result → Report)
+- Accessibility-friendly fonts and contrast
+- Smooth animations and transitions
+- Mobile responsive design
+
+7. Educational Section
+- What is Parkinson’s Disease
+- Symptoms and early signs
+- Importance of early diagnosis
+
+8. Local History (Frontend Only)
+- Store previous results using browser localStorage
+- Display recent detections with date and confidence
+
+Tech Stack:
+- HTML, CSS, JavaScript
+- Use modern UI design
+- Optional: React if needed
+- No backend logic or database required
+
+The website should look professional, innovative, medical-grade, and suitable for a final-year AI healthcare project demo.
