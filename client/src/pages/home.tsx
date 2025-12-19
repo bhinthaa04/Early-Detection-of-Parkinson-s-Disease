@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Brain, Activity, Shield, TrendingUp, BarChart3, Info, AlertTriangle } from "lucide-react";
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
-import { ThemeToggle } from "@/components/theme-toggle";
 import heroBg from "@assets/generated_images/abstract_medical_ai_network_background.png";
 
 export default function Home() {
@@ -36,7 +35,6 @@ export default function Home() {
             <Button variant="ghost" onClick={() => setLocation("/")} data-testid="nav-home">Home</Button>
             <Button variant="ghost" onClick={() => setLocation("/prediction")} data-testid="nav-predict">Test</Button>
             <Button variant="ghost" onClick={() => setLocation("/dashboard")} data-testid="nav-dashboard">Dashboard</Button>
-            <ThemeToggle />
           </div>
         </motion.nav>
 
