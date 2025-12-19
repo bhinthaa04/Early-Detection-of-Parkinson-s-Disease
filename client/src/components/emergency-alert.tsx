@@ -65,7 +65,7 @@ export function EmergencyAlert({ confidence, prediction, onClose }: EmergencyAle
                   <p className="text-lg font-semibold text-red-900">
                     Confidence Score: <span className="text-red-600">{(confidence * 100).toFixed(1)}%</span>
                   </p>
-                  <p className="text-gray-700">
+                  <p className="text-black">
                     Your test results show a high confidence score for Parkinson's disease. 
                     Immediate medical consultation is strongly recommended.
                   </p>
@@ -73,7 +73,7 @@ export function EmergencyAlert({ confidence, prediction, onClose }: EmergencyAle
 
                 <div className="bg-white border-l-4 border-red-500 p-4 rounded">
                   <h3 className="font-semibold text-gray-900 mb-2">Recommended Actions:</h3>
-                  <ul className="space-y-1 text-sm text-gray-700">
+                  <ul className="space-y-1 text-sm text-black">
                     <li>✓ Contact a neurologist within 24 hours</li>
                     <li>✓ Download and review your medical report</li>
                     <li>✓ Schedule a professional neurological evaluation</li>
@@ -100,7 +100,7 @@ export function EmergencyAlert({ confidence, prediction, onClose }: EmergencyAle
                   </Button>
                 </div>
 
-                <p className="text-xs text-gray-600 text-center">
+                <p className="text-xs text-black text-center">
                   This alert is for informational purposes. Always consult with a healthcare professional.
                 </p>
               </div>

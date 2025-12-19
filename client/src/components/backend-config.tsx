@@ -76,13 +76,13 @@ export function BackendConfigButton() {
                 <div className="p-6 space-y-4">
                   <div>
                     <h2 className="text-xl font-heading font-bold text-foreground mb-2">Backend Configuration</h2>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-black">
                       Enter your Flask backend URL (local or ngrok)
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Backend URL</label>
+                    <label className="text-sm font-medium text-black">Backend URL</label>
                     <Input
                       type="url"
                       placeholder="http://localhost:5000"
@@ -93,7 +93,7 @@ export function BackendConfigButton() {
                       }}
                       data-testid="input-backend-url"
                     />
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-black">
                       Examples: http://localhost:5000 or https://your-ngrok-url.ngrok.io
                     </p>
                   </div>

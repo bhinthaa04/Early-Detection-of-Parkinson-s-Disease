@@ -61,19 +61,19 @@ export function PredictionHistory() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">{item.date}</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Test taken</p>
+                    <p className="text-xs text-black dark:text-black">Test taken</p>
                   </div>
                 </div>
 
                 <div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Result</p>
+                  <p className="text-xs text-black dark:text-black">Result</p>
                   <p className={`font-semibold ${item.prediction === 'Positive' ? 'text-red-600' : 'text-green-600'}`}>
                     {item.prediction}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Confidence</p>
+                  <p className="text-xs text-black dark:text-black">Confidence</p>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                       <motion.div
@@ -88,7 +88,7 @@ export function PredictionHistory() {
                 </div>
 
                 <div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Stage</p>
+                  <p className="text-xs text-black dark:text-black">Stage</p>
                   <p className="font-semibold text-foreground">{item.stage}</p>
                 </div>
 

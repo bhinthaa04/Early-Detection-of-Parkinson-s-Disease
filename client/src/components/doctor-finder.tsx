@@ -100,7 +100,7 @@ export function DoctorFinder() {
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-sm text-gray-700">
+                  <div className="space-y-2 text-sm text-black">
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
                       <span>{doctor.distance} km away</span>
@@ -130,10 +130,10 @@ export function DoctorFinder() {
               <CardContent className="p-0 h-full flex items-center justify-center text-center">
                 <div className="space-y-2">
                   <Globe className="w-12 h-12 mx-auto text-primary opacity-50" />
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-black">
                     {selectedDoctor ? `📍 ${selectedDoctor.name}` : "📍 Select a doctor to see location"}
                   </p>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-black">
                     {selectedDoctor ? selectedDoctor.address : "Map integration available"}
                   </p>
                 </div>
@@ -153,15 +153,15 @@ export function DoctorFinder() {
                   <CardContent className="space-y-4">
                     <div className="grid gap-3">
                       <div>
-                        <p className="text-xs text-gray-600 font-semibold">Specialty</p>
+                        <p className="text-xs text-black font-semibold">Specialty</p>
                         <p className="text-sm text-foreground">{selectedDoctor.specialty}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-600 font-semibold">Address</p>
+                        <p className="text-xs text-black font-semibold">Address</p>
                         <p className="text-sm text-foreground">{selectedDoctor.address}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-600 font-semibold">Next Available</p>
+                        <p className="text-xs text-black font-semibold">Next Available</p>
                         <p className="text-sm text-foreground">{selectedDoctor.availability}</p>
                       </div>
                     </div>

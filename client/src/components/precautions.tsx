@@ -103,7 +103,7 @@ export function Precautions({ stage }: PrecautionsProps) {
                 <CardContent>
                   <ul className="space-y-2">
                     {item.tips.map((tip, tipIdx) => (
-                      <li key={tipIdx} className="flex items-start gap-2 text-sm text-gray-700">
+                      <li key={tipIdx} className="flex items-start gap-2 text-sm text-black">
                         <span className="text-primary mt-1">→</span>
                         <span>{tip}</span>
                       </li>

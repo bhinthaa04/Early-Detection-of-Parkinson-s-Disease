@@ -35,7 +35,7 @@ export function StepProgress({ steps, currentStep }: StepProgressProps) {
                     ? "bg-primary border-primary text-white"
                     : isCurrent
                     ? "bg-white dark:bg-slate-800 border-primary text-primary"
-                    : "bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-gray-600 text-gray-400"
+                    : "bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-gray-600 text-black"
                 }`}
                 initial={false}
                 animate={{
@@ -50,7 +50,7 @@ export function StepProgress({ steps, currentStep }: StepProgressProps) {
               </motion.div>
               <span
                 className={`text-xs font-semibold ${
-                  isCurrent ? "text-primary" : "text-gray-500 dark:text-gray-400"
+                  isCurrent ? "text-primary" : "text-black dark:text-black"
                 }`}
               >
                 {step.label}

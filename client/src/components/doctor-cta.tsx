@@ -27,7 +27,7 @@ export function DoctorCTA({ stage, urgency }: DoctorCTAProps) {
               <h3 className={`text-2xl font-heading font-bold ${textClass} mb-2`}>
                 {isAdvanced ? '⚠️ Immediate Medical Attention Required' : 'Consult a Healthcare Professional'}
               </h3>
-              <p className="text-gray-700">
+              <p className="text-black">
                 {isAdvanced
                   ? 'Your test results indicate advanced-stage Parkinson\'s. Please contact a neurologist immediately.'
                   : 'Schedule an appointment with a neurologist for comprehensive evaluation and personalized treatment plan.'}
@@ -38,21 +38,21 @@ export function DoctorCTA({ stage, urgency }: DoctorCTAProps) {
               <div className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg">
                 <Phone className="w-5 h-5 text-primary" />
                 <div className="text-left">
-                  <p className="text-xs text-gray-600">Emergency</p>
+                  <p className="text-xs text-black">Emergency</p>
                   <p className="font-semibold">911 (if needed)</p>
                 </div>
               </div>
               <div className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg">
                 <Clock className="w-5 h-5 text-primary" />
                 <div className="text-left">
-                  <p className="text-xs text-gray-600">Book Within</p>
+                  <p className="text-xs text-black">Book Within</p>
                   <p className="font-semibold">{isAdvanced ? '24 Hours' : '1-2 Weeks'}</p>
                 </div>
               </div>
               <div className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg">
                 <MapPin className="w-5 h-5 text-primary" />
                 <div className="text-left">
-                  <p className="text-xs text-gray-600">Specialist</p>
+                  <p className="text-xs text-black">Specialist</p>
                   <p className="font-semibold">Neurologist</p>
                 </div>
               </div>

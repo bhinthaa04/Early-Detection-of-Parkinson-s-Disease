@@ -38,7 +38,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-4xl font-heading font-bold text-foreground mb-2">Dashboard</h1>
-              <p className="text-gray-700">Your Parkinson's disease monitoring overview</p>
+              <p className="text-black">Your Parkinson's disease monitoring overview</p>
             </div>
             <Button
               onClick={() => setLocation("/prediction")}
@@ -65,7 +65,7 @@ export default function Dashboard() {
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
+                        <p className="text-sm text-black mb-1">{stat.label}</p>
                         <p className="text-3xl font-heading font-bold text-foreground">{stat.value}</p>
                       </div>
                       <div className={`p-3 rounded-lg ${stat.color}`}>
@@ -117,20 +117,20 @@ export default function Dashboard() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-700">Last Test</span>
+                    <span className="text-sm text-black">Last Test</span>
                     <span className="font-semibold">Dec 18, 2024</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Result</span>
+                    <span className="text-sm text-black dark:text-black">Result</span>
                     <span className="font-semibold text-red-600">Positive</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Stage</span>
+                    <span className="text-sm text-black dark:text-black">Stage</span>
                     <span className="font-semibold text-orange-600">Mid</span>
                   </div>
                   <div className="h-px bg-border my-3" />
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Next Checkup</span>
+                    <span className="text-sm text-black dark:text-black">Next Checkup</span>
                     <span className="font-semibold text-primary">Dec 25, 2024</span>
                   </div>
                 </div>

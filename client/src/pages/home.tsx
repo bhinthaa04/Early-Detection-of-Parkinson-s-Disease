@@ -53,7 +53,7 @@ export default function Home() {
               <h1 className="text-5xl md:text-7xl font-heading font-bold text-foreground leading-tight mb-4">
                 Early Detection of <span className="gradient-text">Parkinson's Disease</span>
               </h1>
-              <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+              <p className="text-lg text-black dark:text-black leading-relaxed">
                 Harness the power of artificial intelligence for early and accurate detection of Parkinson's disease using multimodal analysis of spiral drawings and voice patterns.
               </p>
             </div>
@@ -79,7 +79,7 @@ export default function Home() {
               </Button>
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-400">
+            <div className="flex items-center gap-2 text-sm text-black dark:text-black">
               <Shield className="w-5 h-5 text-primary" />
               <span>Secure, private, and HIPAA-compliant testing</span>
             </div>
@@ -145,7 +145,7 @@ export default function Home() {
                   <Icon className="w-6 h-6" />
                 </div>
                 <h3 className="font-heading font-semibold text-foreground mb-2">{feature.title}</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-400">{feature.desc}</p>
+                <p className="text-sm text-black dark:text-black">{feature.desc}</p>
               </motion.div>
             );
           })}
@@ -160,7 +160,7 @@ export default function Home() {
         >
           <div className="text-center mb-12">
             <h2 className="text-3xl font-heading font-bold text-foreground mb-4">Understanding Parkinson's Disease</h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-black dark:text-black max-w-2xl mx-auto">
               Early detection is crucial for better management and quality of life. Learn about the signs and why regular screening matters.
             </p>
           </div>
@@ -171,7 +171,7 @@ export default function Home() {
                 <Info className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold mb-3 text-foreground">What is Parkinson's?</h3>
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              <p className="text-black dark:text-black leading-relaxed">
                 A progressive nervous system disorder that affects movement. Symptoms start gradually, sometimes starting with a barely noticeable tremor in just one hand.
               </p>
             </div>
@@ -181,7 +181,7 @@ export default function Home() {
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold mb-3 text-foreground">Common Symptoms</h3>
-              <ul className="space-y-2 text-gray-600 dark:text-gray-400">
+              <ul className="space-y-2 text-black dark:text-black">
                 <li>• Tremors or shaking</li>
                 <li>• Slowed movement (bradykinesia)</li>
                 <li>• Rigid muscles</li>
@@ -195,7 +195,7 @@ export default function Home() {
                 <Activity className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold mb-3 text-foreground">Why Early Detection?</h3>
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              <p className="text-black dark:text-black leading-relaxed">
                 While there is no cure, medications might significantly improve symptoms. Detecting it early allows for lifestyle changes and treatments that can delay progression.
               </p>
             </div>
@@ -214,17 +214,17 @@ export default function Home() {
             <div className="space-y-3">
               <div className="text-4xl font-heading font-bold text-primary">1</div>
               <h3 className="font-heading font-semibold text-lg text-foreground">Upload Samples</h3>
-              <p className="text-gray-700 dark:text-gray-300">Submit a spiral drawing image and a voice recording.</p>
+              <p className="text-black dark:text-black">Submit a spiral drawing image and a voice recording.</p>
             </div>
             <div className="space-y-3">
               <div className="text-4xl font-heading font-bold text-primary">2</div>
               <h3 className="font-heading font-semibold text-lg text-foreground">AI Analysis</h3>
-              <p className="text-gray-700 dark:text-gray-300">Our model analyzes patterns for Parkinson's markers.</p>
+              <p className="text-black dark:text-black">Our model analyzes patterns for Parkinson's markers.</p>
             </div>
             <div className="space-y-3">
               <div className="text-4xl font-heading font-bold text-primary">3</div>
               <h3 className="font-heading font-semibold text-lg text-foreground">Get Results</h3>
-              <p className="text-gray-700 dark:text-gray-300">Receive comprehensive analysis and recommendations.</p>
+              <p className="text-black dark:text-black">Receive comprehensive analysis and recommendations.</p>
             </div>
           </div>
         </motion.div>

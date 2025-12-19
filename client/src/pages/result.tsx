@@ -115,7 +115,7 @@ export default function Result() {
                   <h1 className={`text-4xl font-heading font-bold ${colorClass} mb-2`}>
                     {isPositive ? "Parkinson's Detected" : "Healthy Control"}
                   </h1>
-                  <p className="text-lg text-gray-700 dark:text-gray-300">
+                  <p className="text-lg text-black dark:text-black">
                     {isPositive
                       ? "The analysis has detected indicators consistent with Parkinson's disease."
                       : "The analysis shows no significant indicators of Parkinson's disease."}
@@ -127,7 +127,7 @@ export default function Result() {
               <div className="grid md:grid-cols-2 gap-8 mb-8">
                 {/* Gauge */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-border shadow-sm text-center">
-                  <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-4">AI CONFIDENCE SCORE</p>
+                  <p className="text-sm font-semibold text-black dark:text-black mb-4">AI CONFIDENCE SCORE</p>
                   <div className="relative w-48 h-24 mx-auto mb-4 overflow-hidden">
                     <div className="absolute w-48 h-48 rounded-full border-[12px] border-gray-100 dark:border-slate-700 box-border top-0 left-0" />
                     <motion.div 
@@ -141,12 +141,12 @@ export default function Result() {
                       <span className="text-4xl font-bold">{confidencePercent}%</span>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500">Probability of accuracy based on model training</p>
+                  <p className="text-xs text-black">Probability of accuracy based on model training</p>
                 </div>
 
                 {/* Timeline */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-border shadow-sm">
-                  <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-6">DISEASE PROGRESSION STAGE</p>
+                  <p className="text-sm font-semibold text-black dark:text-black mb-6">DISEASE PROGRESSION STAGE</p>
                   <div className="relative pt-4">
                     <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 dark:bg-gray-700 transform -translate-y-1/2 rounded-full" />
                     <div className="flex justify-between relative z-10">
@@ -162,7 +162,7 @@ export default function Result() {
                               animate={{ scale: isActive ? 1.25 : 1 }}
                               transition={{ delay: 0.5 + (idx * 0.1) }}
                             />
-                            <span className={`text-xs font-medium ${isActive ? 'text-primary font-bold' : 'text-gray-500'}`}>
+                            <span className={`text-xs font-medium ${isActive ? 'text-primary font-bold' : 'text-black'}`}>
                               {stage}
                             </span>
                           </div>

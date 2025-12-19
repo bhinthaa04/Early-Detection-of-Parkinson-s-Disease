@@ -35,7 +35,7 @@ export function PredictionCharts() {
         <Card className="glass-panel">
           <CardHeader>
             <CardTitle className="text-lg">Confidence Trend (30 days)</CardTitle>
-            <p className="text-xs text-gray-600 mt-1">Your test confidence scores over time</p>
+            <p className="text-xs text-black mt-1">Your test confidence scores over time</p>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -74,7 +74,7 @@ export function PredictionCharts() {
         <Card className="glass-panel">
           <CardHeader>
             <CardTitle className="text-lg">Results Distribution</CardTitle>
-            <p className="text-xs text-gray-600 mt-1">Your test results breakdown by stage</p>
+            <p className="text-xs text-black mt-1">Your test results breakdown by stage</p>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>

@@ -69,7 +69,7 @@ export function DiseaseStageCard({ stage }: DiseaseStageCardProps) {
             </div>
             <div>
               <CardTitle className={config.color}>{config.title}</CardTitle>
-              <p className="text-sm text-gray-600 mt-1">{config.description}</p>
+              <p className="text-sm text-black mt-1">{config.description}</p>
             </div>
           </div>
         </CardHeader>
@@ -81,7 +81,7 @@ export function DiseaseStageCard({ stage }: DiseaseStageCardProps) {
                 {config.tips.map((tip, idx) => (
                   <li key={idx} className="flex items-start gap-3">
                     <div className={`${config.color} mt-1`}>✓</div>
-                    <span className="text-sm text-gray-700">{tip}</span>
+                    <span className="text-sm text-black">{tip}</span>
                   </li>
                 ))}
               </ul>

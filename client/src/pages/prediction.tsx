@@ -111,7 +111,7 @@ export default function Prediction() {
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-foreground mb-4">
             Submit Your <span className="gradient-text">Samples</span>
           </h1>
-          <p className="text-lg text-gray-700 dark:text-gray-300">
+          <p className="text-lg text-black dark:text-black">
             Upload a spiral drawing image and a voice recording for analysis
           </p>
         </motion.div>
@@ -146,7 +146,7 @@ export default function Prediction() {
                   </div>
                   <CardTitle>Spiral Drawing</CardTitle>
                 </div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">PNG, JPG - Max 10MB</p>
+                <p className="text-xs text-black dark:text-black mt-2">PNG, JPG - Max 10MB</p>
               </CardHeader>
               <CardContent>
                 <FileUpload
@@ -175,7 +175,7 @@ export default function Prediction() {
                   </div>
                   <CardTitle>Voice Recording</CardTitle>
                 </div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">WAV, MP3 - Max 10MB</p>
+                <p className="text-xs text-black dark:text-black mt-2">WAV, MP3 - Max 10MB</p>
               </CardHeader>
               <CardContent>
                 <FileUpload

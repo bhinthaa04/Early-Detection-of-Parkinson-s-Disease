@@ -70,7 +70,7 @@ export function AIAnalysisScreen() {
         AI Analysis in Progress
       </motion.h2>
 
-      <div className="space-y-2 text-gray-600 dark:text-gray-300">
+      <div className="space-y-2 text-black dark:text-black">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
