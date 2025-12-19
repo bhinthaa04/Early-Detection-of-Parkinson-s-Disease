@@ -139,13 +139,13 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 + idx * 0.1 }}
-                className="p-6 rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-border hover:shadow-md transition-all"
+                className="p-6 rounded-xl bg-slate-800 shadow-sm border border-slate-700 hover:shadow-md transition-all"
               >
-                <div className="p-3 bg-primary/10 text-primary rounded-lg w-fit mb-4">
+                <div className="p-3 bg-primary/20 text-primary rounded-lg w-fit mb-4">
                   <Icon className="w-6 h-6" />
                 </div>
-                <h3 className="font-heading font-semibold text-foreground mb-2">{feature.title}</h3>
-                <p className="text-sm text-black dark:text-black">{feature.desc}</p>
+                <h3 className="font-heading font-semibold text-white mb-2">{feature.title}</h3>
+                <p className="text-sm text-gray-200">{feature.desc}</p>
               </motion.div>
             );
           })}
