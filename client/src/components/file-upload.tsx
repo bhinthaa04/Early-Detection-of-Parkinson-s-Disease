@@ -120,7 +120,7 @@ export function FileUpload({ accept, label, icon: Icon, file, setFile, id }: Fil
                 <Upload className="w-6 h-6" />
               </div>
               <p className="text-sm font-medium">Click to upload or drag & drop</p>
-              <p className="text-xs opacity-70">
+              <p className="text-xs opacity-100">
                 {accept === "image/*" ? "PNG, JPG up to 10MB" : "MP3, WAV up to 10MB"}
               </p>
             </motion.div>

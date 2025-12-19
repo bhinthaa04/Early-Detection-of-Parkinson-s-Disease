@@ -129,7 +129,7 @@ export function DoctorFinder() {
             <Card className="bg-gradient-to-br from-blue-100 to-teal-100 h-64 relative overflow-hidden">
               <CardContent className="p-0 h-full flex items-center justify-center text-center">
                 <div className="space-y-2">
-                  <Globe className="w-12 h-12 mx-auto text-primary opacity-50" />
+                  <Globe className="w-12 h-12 mx-auto text-primary opacity-100" />
                   <p className="text-sm text-black">
                     {selectedDoctor ? `📍 ${selectedDoctor.name}` : "📍 Select a doctor to see location"}
                   </p>

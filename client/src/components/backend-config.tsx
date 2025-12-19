@@ -49,7 +49,7 @@ export function BackendConfigButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 p-3 bg-primary text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-30"
+        className="fixed bottom-6 right-6 p-3 bg-primary text-black rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-30"
         title="Configure backend URL"
         data-testid="btn-backend-config"
       >

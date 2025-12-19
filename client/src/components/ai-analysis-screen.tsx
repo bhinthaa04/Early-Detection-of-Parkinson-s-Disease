@@ -49,7 +49,7 @@ export function AIAnalysisScreen() {
 
         {/* Scanning Effect */}
         <motion.div
-          className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-70"
+          className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-100"
           animate={{
             top: ["0%", "100%", "0%"],
           }}

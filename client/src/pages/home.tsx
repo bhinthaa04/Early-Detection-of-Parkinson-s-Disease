@@ -26,7 +26,7 @@ export default function Home() {
           className="py-6 flex justify-between items-center"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary rounded-lg text-white">
+            <div className="p-2 bg-primary rounded-lg text-black">
               <Brain className="w-6 h-6" />
             </div>
             <span className="text-2xl font-heading font-bold gradient-text">NeuroScan AI</span>

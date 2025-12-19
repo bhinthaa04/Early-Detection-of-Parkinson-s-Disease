@@ -18,7 +18,7 @@
   --color-secondary-foreground: hsl(0 0% 100%);
   
   --color-muted: hsl(150 30% 92%);
-  --color-muted-foreground: hsl(160 10% 50%);
+  --color-muted-foreground: hsl(0 0% 20%);
   
   --color-accent: hsl(150 60% 85%);
   --color-accent-foreground: hsl(150 70% 25%);

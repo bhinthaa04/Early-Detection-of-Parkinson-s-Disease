@@ -32,7 +32,7 @@ export function StepProgress({ steps, currentStep }: StepProgressProps) {
               <motion.div
                 className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors duration-300 ${
                   isCompleted
-                    ? "bg-primary border-primary text-white"
+                    ? "bg-primary border-primary text-black"
                     : isCurrent
                     ? "bg-white dark:bg-slate-800 border-primary text-primary"
                     : "bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-gray-600 text-black"

@@ -44,7 +44,7 @@ export function EmergencyAlert({ confidence, prediction, onClose }: EmergencyAle
             className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md mx-4"
           >
             <div className="bg-red-50 border-4 border-red-500 rounded-2xl shadow-2xl overflow-hidden">
-              <div className="bg-red-500 text-white px-6 py-4 flex items-center gap-3">
+              <div className="bg-red-500 text-black px-6 py-4 flex items-center gap-3">
                 <motion.div
                   animate={{ rotate: [0, -5, 5, 0] }}
                   transition={{ repeat: Infinity, duration: 0.5 }}
@@ -83,7 +83,7 @@ export function EmergencyAlert({ confidence, prediction, onClose }: EmergencyAle
 
                 <div className="space-y-2">
                   <Button
-                    className="w-full bg-red-600 hover:bg-red-700 text-white rounded-lg py-6 text-base font-semibold"
+                    className="w-full bg-red-600 hover:bg-red-700 text-black rounded-lg py-6 text-base font-semibold"
                     onClick={() => window.open("tel:911")}
                     data-testid="btn-emergency-911"
                   >

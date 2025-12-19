@@ -60,7 +60,7 @@ export function DoctorCTA({ stage, urgency }: DoctorCTAProps) {
 
             <div className="flex gap-3 justify-center flex-wrap">
               <Button 
-                className={`${buttonClass} text-white`}
+                className={`${buttonClass} text-black`}
                 size="lg"
                 onClick={() => alert('Redirect to doctor booking platform')}
                 data-testid="btn-find-doctor"
