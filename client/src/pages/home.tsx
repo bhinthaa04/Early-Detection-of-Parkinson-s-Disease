@@ -166,22 +166,22 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-border">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
+            <div className="bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-700">
+              <div className="w-12 h-12 bg-blue-900/30 rounded-full flex items-center justify-center mb-6 text-blue-300">
                 <Info className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-foreground">What is Parkinson's?</h3>
-              <p className="text-black dark:text-black leading-relaxed">
+              <h3 className="text-xl font-bold mb-3 text-white">What is Parkinson's?</h3>
+              <p className="text-gray-200 leading-relaxed">
                 A progressive nervous system disorder that affects movement. Symptoms start gradually, sometimes starting with a barely noticeable tremor in just one hand.
               </p>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-border">
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mb-6 text-orange-600 dark:text-orange-400">
+            <div className="bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-700">
+              <div className="w-12 h-12 bg-orange-900/30 rounded-full flex items-center justify-center mb-6 text-orange-300">
                 <AlertTriangle className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-foreground">Common Symptoms</h3>
-              <ul className="space-y-2 text-black dark:text-black">
+              <h3 className="text-xl font-bold mb-3 text-white">Common Symptoms</h3>
+              <ul className="space-y-2 text-gray-200">
                 <li>• Tremors or shaking</li>
                 <li>• Slowed movement (bradykinesia)</li>
                 <li>• Rigid muscles</li>
@@ -190,12 +190,12 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-border">
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6 text-green-600 dark:text-green-400">
+            <div className="bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-700">
+              <div className="w-12 h-12 bg-green-900/30 rounded-full flex items-center justify-center mb-6 text-green-300">
                 <Activity className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-foreground">Why Early Detection?</h3>
-              <p className="text-black dark:text-black leading-relaxed">
+              <h3 className="text-xl font-bold mb-3 text-white">Why Early Detection?</h3>
+              <p className="text-gray-200 leading-relaxed">
                 While there is no cure, medications might significantly improve symptoms. Detecting it early allows for lifestyle changes and treatments that can delay progression.
               </p>
             </div>
