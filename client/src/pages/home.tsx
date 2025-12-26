@@ -4,7 +4,7 @@ import {
   ArrowRight, Brain, Activity, Shield, TrendingUp, 
   BarChart3, Info, AlertTriangle, ChevronDown, 
   ChevronUp, HeartPulse, User, MapPin, 
-  Play, Pause, Volume2
+  Play, Pause, Volume2, X
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
@@ -12,6 +12,7 @@ import heroBg from "@assets/generated_images/abstract_medical_ai_network_backgro
 import { useState, useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Float, Sphere, MeshDistortMaterial } from "@react-three/drei";
+import parkinsonsVideo from "@assets/generated_videos/parkinsons_edu.mp4";
 
 function BrainModel() {
   const meshRef = useRef<any>();
@@ -35,6 +36,7 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [severity, setSeverity] = useState(0);
+  const [showVideo, setShowVideo] = useState(false);
 
   const stages = [
     { label: "Early Stage", color: "text-green-500", icon: "🟢", desc: "Mild symptoms, often overlooked. Tremors might start." },
@@ -106,12 +108,39 @@ export default function Home() {
                 variant="outline"
                 size="lg"
                 className="px-8 py-6 text-lg rounded-full"
-                onClick={() => setLocation("/dashboard")}
-                data-testid="btn-view-dashboard"
+                onClick={() => setShowVideo(true)}
+                data-testid="btn-watch-video"
               >
-                View History
+                <Play className="w-5 h-5 mr-2 fill-current" />
+                Watch Overview
               </Button>
             </div>
+
+            <AnimatePresence>
+              {showVideo && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl"
+                  >
+                    <button 
+                      onClick={() => setShowVideo(false)}
+                      className="absolute top-4 right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                    <video 
+                      src={parkinsonsVideo} 
+                      controls 
+                      autoPlay 
+                      className="w-full h-full object-contain"
+                    />
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
 
             <div className="flex items-center gap-2 text-sm text-black">
               <Shield className="w-5 h-5 text-primary" />
