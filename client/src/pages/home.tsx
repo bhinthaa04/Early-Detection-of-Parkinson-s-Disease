@@ -9,6 +9,7 @@ import {
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
 import heroBg from "@assets/generated_images/abstract_medical_ai_network_background.png";
+import parkinsonsBrainImg from "@assets/generated_images/3d_parkinsons_brain_visualization.png";
 import { useState, useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Float, Sphere, MeshDistortMaterial } from "@react-three/drei";
@@ -148,22 +149,21 @@ export default function Home() {
             </div>
           </motion.div>
 
-          {/* Hero Image / 3D Model */}
+          {/* Hero Image / Brain Visualization */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
             className="hidden md:block h-[500px] relative"
           >
-            <div className="absolute inset-0 bg-primary/5 rounded-3xl overflow-hidden shadow-2xl">
-              <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-                <ambientLight intensity={0.5} />
-                <pointLight position={[10, 10, 10]} />
-                <BrainModel />
-                <OrbitControls enableZoom={false} />
-              </Canvas>
+            <div className="absolute inset-0 bg-white/50 backdrop-blur-sm rounded-3xl overflow-hidden shadow-2xl border border-primary/20">
+              <img 
+                src={parkinsonsBrainImg} 
+                alt="3D Parkinson's Brain" 
+                className="w-full h-full object-contain p-8 animate-float"
+              />
               <div className="absolute bottom-4 left-4 right-4 bg-white/80 backdrop-blur p-4 rounded-xl text-xs text-center border border-primary/20">
-                Interactive 3D Neural Visualization - Rotate to explore
+                AI Visualization of Substantia Nigra Degeneration
               </div>
             </div>
           </motion.div>
