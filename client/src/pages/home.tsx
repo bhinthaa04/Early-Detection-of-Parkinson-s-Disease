@@ -10,6 +10,7 @@ import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
 import heroBg from "@assets/generated_images/abstract_medical_ai_network_background.png";
 import parkinsonsBrainImg from "@assets/generated_images/3d_parkinsons_brain_visualization.png";
+import medicalInfographic from "@assets/generated_images/medical_brain_infographic.png";
 import { useState, useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Float, Sphere, MeshDistortMaterial } from "@react-three/drei";
@@ -317,11 +318,57 @@ export default function Home() {
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
-          className="bg-primary text-black rounded-3xl p-12 text-center mb-20 shadow-2xl"
+          className="bg-primary text-black rounded-3xl p-12 text-center mb-12 shadow-2xl"
         >
           <Volume2 className="w-12 h-12 mx-auto mb-6 opacity-80" />
           <h2 className="text-3xl font-heading font-bold mb-4">"Parkinson's can be managed, stay active and positive."</h2>
           <p className="text-lg opacity-90 max-w-xl mx-auto">Early detection and proactive lifestyle changes make a world of difference. You are not alone on this journey.</p>
+        </motion.div>
+
+        {/* Clinical Infographic Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="mb-20 overflow-hidden rounded-3xl bg-white shadow-xl border border-border"
+        >
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="p-8 md:p-12 space-y-6">
+              <div className="inline-block px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-bold uppercase tracking-wider">
+                Clinical Insight
+              </div>
+              <h2 className="text-4xl font-heading font-bold text-foreground leading-tight">
+                Anatomical Impact & <span className="text-primary">Neuro-Degeneration</span>
+              </h2>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Parkinson's primarily affects the substantia nigra, where dopamine-producing neurons are lost. This visualization highlights the critical pathways and regions monitored by our AI models.
+              </p>
+              <ul className="space-y-4">
+                {[
+                  { title: "Substantia Nigra", desc: "Primary site of dopamine cell loss" },
+                  { title: "Neural Pathways", desc: "Disrupted signaling affecting motor control" },
+                  { title: "Dopamine Levels", desc: "Chemical imbalance leading to tremors" }
+                ].map((item, idx) => (
+                  <li key={idx} className="flex gap-4">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-foreground">{item.title}</h4>
+                      <p className="text-sm text-gray-500">{item.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="relative h-full min-h-[400px]">
+              <img 
+                src={medicalInfographic} 
+                alt="Medical Brain Infographic" 
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/5 to-white/40 md:to-transparent" />
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>
