@@ -9,6 +9,9 @@ import Prediction from "@/pages/prediction";
 import Result from "@/pages/result";
 import Dashboard from "@/pages/dashboard";
 import Analysis from "@/pages/analysis";
+import RealTimeAssist from "@/pages/real-time-assist";
+import CaregiverConnect from "@/pages/caregiver-connect";
+import GuidanceTherapy from "@/pages/guidance-therapy";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +22,9 @@ function Router() {
       <Route path="/analysis" component={Analysis} />
       <Route path="/result" component={Result} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/assist" component={RealTimeAssist} />
+      <Route path="/caregiver" component={CaregiverConnect} />
+      <Route path="/therapy" component={GuidanceTherapy} />
       <Route component={NotFound} />
     </Switch>
   );

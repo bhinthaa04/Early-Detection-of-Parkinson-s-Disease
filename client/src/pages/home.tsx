@@ -4,7 +4,7 @@ import {
   ArrowRight, Brain, Activity, Shield, TrendingUp, 
   BarChart3, Info, AlertTriangle, ChevronDown, 
   ChevronUp, HeartPulse, User, MapPin, 
-  Play, Pause, Volume2, X
+  Play, Pause, Volume2, X, Sparkles, Users, BookOpen
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
@@ -314,17 +314,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Motivational Section */}
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          className="bg-primary text-black rounded-3xl p-12 text-center mb-12 shadow-2xl"
-        >
-          <Volume2 className="w-12 h-12 mx-auto mb-6 opacity-80" />
-          <h2 className="text-3xl font-heading font-bold mb-4">"Parkinson's can be managed, stay active and positive."</h2>
-          <p className="text-lg opacity-90 max-w-xl mx-auto">Early detection and proactive lifestyle changes make a world of difference. You are not alone on this journey.</p>
-        </motion.div>
-
         {/* Clinical Infographic Section */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -369,6 +358,68 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/5 to-white/40 md:to-transparent" />
             </div>
           </div>
+        </motion.div>
+
+        {/* New Advanced Feature Access */}
+        <div className="py-20">
+          <h2 className="text-3xl font-heading font-bold text-center mb-12">Patient Support Ecosystem</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <motion.div 
+              whileHover={{ y: -10 }}
+              onClick={() => setLocation("/assist")}
+              className="p-8 bg-slate-900 text-white rounded-3xl border border-white/5 shadow-2xl cursor-pointer group"
+            >
+              <div className="p-4 bg-primary rounded-2xl w-fit mb-6 text-black group-hover:scale-110 transition-transform">
+                <Sparkles className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Real-Time Assist</h3>
+              <p className="text-gray-400 mb-6">Live tremor detection, voice feedback, and AI-powered movement coaching.</p>
+              <Button className="w-full bg-white/10 hover:bg-white/20 border-white/10 group-hover:bg-primary group-hover:text-black">
+                Launch Assist
+              </Button>
+            </motion.div>
+
+            <motion.div 
+              whileHover={{ y: -10 }}
+              onClick={() => setLocation("/caregiver")}
+              className="p-8 bg-white rounded-3xl border border-border shadow-xl cursor-pointer group"
+            >
+              <div className="p-4 bg-blue-100 rounded-2xl w-fit mb-6 text-blue-600 group-hover:scale-110 transition-transform">
+                <Users className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-foreground">Caregiver Connect</h3>
+              <p className="text-gray-500 mb-6">Share reports, setup emergency alerts, and sync with your medical team.</p>
+              <Button variant="outline" className="w-full border-primary text-primary group-hover:bg-primary group-hover:text-black">
+                Open Connect
+              </Button>
+            </motion.div>
+
+            <motion.div 
+              whileHover={{ y: -10 }}
+              onClick={() => setLocation("/therapy")}
+              className="p-8 bg-primary/10 rounded-3xl border border-primary/20 shadow-xl cursor-pointer group"
+            >
+              <div className="p-4 bg-primary rounded-2xl w-fit mb-6 text-black group-hover:scale-110 transition-transform">
+                <BookOpen className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-foreground">Guidance & Therapy</h3>
+              <p className="text-gray-600 mb-6">AI-guided speech therapy, hand exercises, and daily wellness tasks.</p>
+              <Button className="w-full group-hover:bg-black group-hover:text-white transition-colors">
+                Start Therapy
+              </Button>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Motivational Section */}
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          className="bg-primary text-black rounded-3xl p-12 text-center mb-20 shadow-2xl"
+        >
+          <Volume2 className="w-12 h-12 mx-auto mb-6 opacity-80" />
+          <h2 className="text-3xl font-heading font-bold mb-4">"Parkinson's can be managed, stay active and positive."</h2>
+          <p className="text-lg opacity-90 max-w-xl mx-auto">Early detection and proactive lifestyle changes make a world of difference. You are not alone on this journey.</p>
         </motion.div>
       </div>
     </div>
