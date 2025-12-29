@@ -12,6 +12,12 @@ import Analysis from "@/pages/analysis";
 import RealTimeAssist from "@/pages/real-time-assist";
 import CaregiverConnect from "@/pages/caregiver-connect";
 import GuidanceTherapy from "@/pages/guidance-therapy";
+import SpeechClarity from "@/pages/therapy-speech";
+import HandStability from "@/pages/therapy-hand";
+import BreathingRelaxation from "@/pages/therapy-breathing";
+import MovementRoutine from "@/pages/therapy-movement";
+import AwarenessLearning from "@/pages/therapy-awareness";
+import SpiralTest from "@/pages/therapy-spiral";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -25,6 +31,12 @@ function Router() {
       <Route path="/assist" component={RealTimeAssist} />
       <Route path="/caregiver" component={CaregiverConnect} />
       <Route path="/therapy" component={GuidanceTherapy} />
+      <Route path="/therapy/speech" component={SpeechClarity} />
+      <Route path="/therapy/hand" component={HandStability} />
+      <Route path="/therapy/breathing" component={BreathingRelaxation} />
+      <Route path="/therapy/movement" component={MovementRoutine} />
+      <Route path="/therapy/awareness" component={AwarenessLearning} />
+      <Route path="/therapy/spiral" component={SpiralTest} />
       <Route component={NotFound} />
     </Switch>
   );
