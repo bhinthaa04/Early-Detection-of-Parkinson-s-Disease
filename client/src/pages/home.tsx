@@ -72,6 +72,7 @@ export default function Home() {
           <div className="flex items-center gap-3 flex-wrap">
             <Button variant="ghost" onClick={() => setLocation("/")} data-testid="nav-home">Home</Button>
             <Button variant="ghost" onClick={() => setLocation("/prediction")} data-testid="nav-predict">Test</Button>
+            <Button variant="ghost" onClick={() => setLocation("/education")} data-testid="nav-education">Education</Button>
             <Button variant="ghost" onClick={() => setLocation("/dashboard")} data-testid="nav-dashboard">Dashboard</Button>
           </div>
         </motion.nav>
