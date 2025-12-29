@@ -10,7 +10,7 @@ export default function BreathingRelaxation() {
   const [phase, setPhase] = useState<"Inhale" | "Hold" | "Exhale">("Inhale");
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: any;
     if (isActive) {
       const runCycle = () => {
         setPhase("Inhale");
