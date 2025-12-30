@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
-import heroBg from "@assets/generated_images/medical_ai_background_with_neurons_and_waves.png";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 
 export default function Education() {
   const [, setLocation] = useLocation();

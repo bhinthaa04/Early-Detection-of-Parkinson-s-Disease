@@ -57,3 +57,23 @@
 .gradient-text {
   @apply bg-clip-text text-transparent bg-linear-to-r from-primary to-secondary;
 }
+
+@keyframes slow-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-slow-float {
+  animation: slow-float 6s ease-in-out infinite;
+}
+
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 500ms, transform 500ms;
+}

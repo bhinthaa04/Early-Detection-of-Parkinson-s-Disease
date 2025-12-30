@@ -12,6 +12,7 @@ import { EmergencyAlert } from "@/components/emergency-alert";
 import { apiService, PredictionResponse } from "@/lib/api-service";
 import { StepProgress } from "@/components/step-progress";
 import { BackendConfigButton } from "@/components/backend-config";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 
 export default function Result() {
   const [result, setResult] = useState<PredictionResponse | null>(null);
@@ -86,7 +87,13 @@ export default function Result() {
   const currentStageIndex = stages.indexOf(result.stage === "Healthy" && !isPositive ? "Healthy" : result.stage);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-cyan-50 to-teal-50 relative overflow-hidden font-sans">
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-30 pointer-events-none"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+
       <BackendConfigButton />
       <EmergencyAlert 
         confidence={result.confidence} 

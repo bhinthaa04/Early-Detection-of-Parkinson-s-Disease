@@ -9,6 +9,7 @@ import { useLocation } from "wouter";
 import { apiService } from "@/lib/api-service";
 import { StepProgress } from "@/components/step-progress";
 import { BackendConfigButton } from "@/components/backend-config";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 
 export default function Prediction() {
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -90,7 +91,13 @@ export default function Prediction() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-cyan-50 to-teal-50 relative overflow-hidden font-sans">
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-30 pointer-events-none"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      
       <BackendConfigButton />
       
       <div className="container mx-auto px-4 py-8 max-w-4xl relative z-10">
