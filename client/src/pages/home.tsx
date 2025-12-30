@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
-import heroBg from "@assets/generated_images/abstract_medical_ai_network_background.png";
+import heroBg from "@assets/generated_images/medical_ai_background_with_neurons_and_waves.png";
 import parkinsonsBrainImg from "@assets/generated_images/3d_parkinsons_brain_visualization.png";
 import medicalInfographic from "@assets/generated_images/medical_brain_infographic.png";
 import { useState, useRef, useEffect } from "react";
@@ -47,11 +47,55 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-cyan-50 to-teal-50 relative overflow-hidden font-sans">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary rounded-full blur-3xl animate-pulse" />
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 transition-opacity duration-1000"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      
+      {/* Animated Medical Elements */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <motion.div
+          animate={{
+            x: [0, 50, 0],
+            opacity: [0.1, 0.3, 0.1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -30, 0],
+            opacity: [0.05, 0.2, 0.05],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-[100px]"
+        />
+        
+        {/* Floating ECG/Wave lines (SVG Overlays) */}
+        <svg className="absolute inset-0 w-full h-full opacity-10">
+          <motion.path
+            d="M0 100 Q 250 50 500 100 T 1000 100"
+            stroke="currentColor"
+            strokeWidth="1"
+            fill="transparent"
+            className="text-primary"
+            animate={{
+              x: [-20, 20, -20],
+              opacity: [0.2, 0.5, 0.2]
+            }}
+            transition={{ duration: 10, repeat: Infinity }}
+          />
+        </svg>
       </div>
 
       <BackendConfigButton />

@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
+import heroBg from "@assets/generated_images/medical_ai_background_with_neurons_and_waves.png";
 
 export default function Education() {
   const [, setLocation] = useLocation();
@@ -32,7 +33,25 @@ export default function Education() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F0F7FF] font-sans">
+    <div className="min-h-screen relative font-sans overflow-hidden">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20 pointer-events-none"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      
+      {/* Animated Glows */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <motion.div
+          animate={{
+            x: [-20, 20, -20],
+            opacity: [0.1, 0.2, 0.1],
+          }}
+          transition={{ duration: 12, repeat: Infinity }}
+          className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-[150px]"
+        />
+      </div>
+
       <BackendConfigButton />
       
       {/* Navigation */}
