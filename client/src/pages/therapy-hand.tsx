@@ -71,7 +71,7 @@ export default function HandStability() {
               <div className="p-3 bg-teal-100 text-teal-600 rounded-2xl">
                 <Hand className="w-8 h-8" />
               </div>
-              <h1 className="text-3xl font-heading font-bold text-slate-900">Hand Stability Training</h1>
+              <h1 className="text-3xl font-heading font-bold text-black">Hand Stability Training</h1>
             </div>
             <Button variant="outline" onClick={() => setPoints([])} className="rounded-xl">
               <RefreshCw className="w-4 h-4 mr-2" /> Reset

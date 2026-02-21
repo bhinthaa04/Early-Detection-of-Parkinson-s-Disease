@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
-import heroBg from "@assets/generated_images/community_support_and_healthcare_unity.png";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 import parkinsonsBrainImg from "@assets/generated_images/3d_parkinsons_brain_visualization.png";
 import medicalInfographic from "@assets/generated_images/medical_brain_infographic.png";
 import { useState, useRef, useEffect } from "react";
@@ -22,7 +22,7 @@ function BrainModel() {
     <Float speed={2} rotationIntensity={1} floatIntensity={2}>
       <Sphere ref={meshRef} args={[1, 100, 100]} scale={1.5}>
         <MeshDistortMaterial
-          color="hsl(150, 70%, 45%)"
+          color="hsl(154, 61%, 37%)"
           attach="material"
           distort={0.4}
           speed={1.5}
@@ -47,19 +47,55 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden font-sans bg-slate-50">
-      {/* Subtle Background Neural Pattern */}
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
       <div 
-        className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
-        style={{ 
-          backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }}
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 transition-opacity duration-1000"
+        style={{ backgroundImage: `url(${heroBg})` }}
       />
       
-      {/* Soft Gradient Overlays */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-50/50 via-transparent to-beige-50/30" />
+      {/* Animated Medical Elements */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <motion.div
+          animate={{
+            x: [0, 50, 0],
+            opacity: [0.1, 0.3, 0.1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -30, 0],
+            opacity: [0.05, 0.2, 0.05],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-[100px]"
+        />
+        
+        {/* Floating ECG/Wave lines (SVG Overlays) */}
+        <svg className="absolute inset-0 w-full h-full opacity-10">
+          <motion.path
+            d="M0 100 Q 250 50 500 100 T 1000 100"
+            stroke="currentColor"
+            strokeWidth="1"
+            fill="transparent"
+            className="text-primary"
+            animate={{
+              x: [-20, 20, -20],
+              opacity: [0.2, 0.5, 0.2]
+            }}
+            transition={{ duration: 10, repeat: Infinity }}
+          />
+        </svg>
       </div>
 
       <BackendConfigButton />
@@ -72,68 +108,108 @@ export default function Home() {
           className="py-6 flex justify-between items-center"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary rounded-lg text-black">
+            <div className="p-2 bg-primary rounded-lg text-white">
               <Brain className="w-6 h-6" />
             </div>
-            <span className="text-2xl font-heading font-bold gradient-text">NeuroScan AI</span>
+            <span className="text-2xl font-heading font-bold text-cyan-300">NeuroScan AI</span>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <Button variant="ghost" onClick={() => setLocation("/")} data-testid="nav-home" className="text-slate-600 hover:text-primary">Home</Button>
-            <Button variant="ghost" onClick={() => setLocation("/education")} data-testid="nav-education" className="text-slate-600 hover:text-primary">About Parkinson's</Button>
-            <Button variant="ghost" onClick={() => setLocation("/prediction")} data-testid="nav-predict" className="text-slate-600 hover:text-primary">Detection Tool</Button>
-            <Button variant="ghost" onClick={() => setLocation("/therapy")} data-testid="nav-therapy" className="text-slate-600 hover:text-primary">Awareness</Button>
+            <Button variant="ghost" onClick={() => setLocation("/")} data-testid="nav-home" className="text-white hover:bg-white/10">Home</Button>
+            <Button variant="ghost" onClick={() => setLocation("/prediction")} data-testid="nav-predict" className="text-white hover:bg-white/10">Test</Button>
+            <Button variant="ghost" onClick={() => setLocation("/education")} data-testid="nav-education" className="text-white hover:bg-white/10">Education</Button>
+            <Button variant="ghost" onClick={() => setLocation("/dashboard")} data-testid="nav-dashboard" className="text-white hover:bg-white/10">Dashboard</Button>
           </div>
         </motion.nav>
 
         {/* Hero Section */}
-        <div className="relative rounded-[2.5rem] overflow-hidden mb-20 shadow-2xl min-h-[600px] flex items-center">
-          <div className="absolute inset-0 z-0">
-            <img 
-              src={heroBg} 
-              alt="Together We Move Better" 
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-transparent" />
-          </div>
-
+        <div className="grid md:grid-cols-2 gap-12 items-center py-20">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="relative z-10 container mx-auto px-8 md:px-16 max-w-3xl"
+            className="space-y-8"
           >
-            <div className="space-y-8">
-              <div>
-                <div className="inline-block px-4 py-1.5 rounded-full bg-primary/20 text-blue-100 text-sm font-medium mb-4 backdrop-blur-sm border border-white/10">
-                  🤝 United in Care & Support
-                </div>
-                <h1 className="text-5xl md:text-7xl font-heading font-bold text-white leading-tight mb-6">
-                  Together We <span className="text-secondary">Move Better</span>
-                </h1>
-                <p className="text-xl text-blue-50/90 leading-relaxed font-light">
-                  A classic, compassionate approach to Parkinson's care. We combine advanced AI detection with a community-focused mission to empower every journey.
-                </p>
+            <div>
+              <div className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-cyan-200 text-sm font-medium mb-4">
+                🚀 AI-Powered Healthcare Innovation
               </div>
+              <h1 className="text-5xl md:text-7xl font-heading font-bold text-white leading-tight mb-4">
+                Early Detection of <span className="text-cyan-300">Parkinson's Disease</span>
+              </h1>
+              <p className="text-lg text-gray-200 leading-relaxed">
+                Harness the power of artificial intelligence for early and accurate detection of Parkinson's disease using multimodal analysis.
+              </p>
+            </div>
 
-              <div className="flex flex-wrap gap-4">
-                <Button
-                  size="lg"
-                  className="bg-primary hover:bg-primary/90 text-white px-10 py-7 text-lg shadow-xl rounded-full transition-all hover:scale-105"
-                  onClick={() => setLocation("/prediction")}
-                  data-testid="btn-cta-predict"
-                >
-                  Detection Tool
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="bg-white/10 hover:bg-white/20 border-white/30 text-white px-10 py-7 text-lg rounded-full backdrop-blur-md transition-all hover:scale-105"
-                  onClick={() => setLocation("/education")}
-                  data-testid="btn-education"
-                >
-                  Learn More
-                </Button>
+            <div className="flex flex-wrap gap-4">
+              <Button
+                size="lg"
+                className="px-8 py-6 text-lg shadow-lg hover:shadow-primary/40 rounded-full"
+                onClick={() => setLocation("/prediction")}
+                data-testid="btn-cta-predict"
+              >
+                Start Detection
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="px-8 py-6 text-lg rounded-full bg-white text-blue-900 border-white hover:bg-blue-50"
+                onClick={() => setShowVideo(true)}
+                data-testid="btn-watch-video"
+              >
+                <Play className="w-5 h-5 mr-2 fill-current" />
+                Watch Overview
+              </Button>
+            </div>
+
+            <AnimatePresence>
+              {showVideo && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl"
+                  >
+                    <button 
+                      onClick={() => setShowVideo(false)}
+                      className="absolute top-4 right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                    <video 
+                      src={parkinsonsVideo} 
+                      controls 
+                      autoPlay 
+                      className="w-full h-full object-contain"
+                    />
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
+
+            <div className="flex items-center gap-2 text-sm text-gray-200">
+              <Shield className="w-5 h-5 text-primary" />
+              <span>Secure, private, and HIPAA-compliant testing</span>
+            </div>
+          </motion.div>
+
+          {/* Hero Image / Brain Visualization */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="hidden md:block h-[500px] relative"
+          >
+            <div className="absolute inset-0 bg-white/50 backdrop-blur-sm rounded-3xl overflow-hidden shadow-2xl border border-primary/20">
+              <img 
+                src={parkinsonsBrainImg} 
+                alt="3D Parkinson's Brain" 
+                className="w-full h-full object-contain p-8 animate-float"
+              />
+              <div className="absolute bottom-4 left-4 right-4 bg-white/80 backdrop-blur p-4 rounded-xl text-xs text-center border border-primary/20">
+                AI Visualization of Substantia Nigra Degeneration
               </div>
             </div>
           </motion.div>
@@ -143,10 +219,10 @@ export default function Home() {
         <motion.div 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          className="bg-white/50 backdrop-blur rounded-3xl p-8 md:p-12 mb-20 border border-primary/10"
+          className="bg-gray-100 rounded-3xl p-8 md:p-12 mb-20 border border-gray-300 shadow-lg"
         >
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-heading font-bold mb-8">Symptom Severity Preview</h2>
+            <h2 className="text-3xl font-heading font-bold mb-8 text-gray-800">Symptom Severity Preview</h2>
             <div className="mb-12">
               <input 
                 type="range" 
@@ -155,11 +231,11 @@ export default function Home() {
                 step="1" 
                 value={severity} 
                 onChange={(e) => setSeverity(parseInt(e.target.value))}
-                className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                className="w-full h-3 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-primary"
               />
               <div className="flex justify-between mt-4">
                 {stages.map((s, i) => (
-                  <span key={i} className={`text-sm font-bold ${severity === i ? s.color : 'text-gray-400'}`}>
+                  <span key={i} className={`text-sm font-bold ${severity === i ? s.color : 'text-gray-500'}`}>
                     {s.label}
                   </span>
                 ))}
@@ -169,11 +245,11 @@ export default function Home() {
               key={severity}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-8 bg-slate-800 rounded-2xl border border-slate-700 shadow-xl"
+              className="p-8 bg-white rounded-2xl border border-gray-200 shadow-xl"
             >
               <div className="text-5xl mb-4">{stages[severity].icon}</div>
               <h3 className={`text-2xl font-bold mb-4 ${stages[severity].color}`}>{stages[severity].label}</h3>
-              <p className="text-gray-200 text-lg">{stages[severity].desc}</p>
+              <p className="text-gray-700 text-lg">{stages[severity].desc}</p>
             </motion.div>
           </div>
         </motion.div>
@@ -198,7 +274,7 @@ export default function Home() {
 
         {/* Interactive Symptom Map */}
         <div className="py-20">
-          <h2 className="text-3xl font-heading font-bold text-center mb-12">Interactive Symptom Guide</h2>
+          <h2 className="text-3xl font-heading font-bold text-center mb-12 text-gray-800">Interactive Symptom Guide</h2>
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="relative aspect-square max-w-md mx-auto bg-primary/5 rounded-full flex items-center justify-center border border-primary/10">
               <User className="w-64 h-64 text-primary/20" strokeWidth={1} />
@@ -231,17 +307,17 @@ export default function Home() {
               </div>
             </div>
             <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-foreground">Hover to Explore Symptoms</h3>
-              <p className="text-lg text-black">Parkinson's affects various parts of the body differently. Use the interactive map to understand key symptoms and their impact.</p>
+              <h3 className="text-2xl font-bold text-white">Hover to Explore Symptoms</h3>
+              <p className="text-lg text-gray-300">Parkinson's affects various parts of the body differently. Use the interactive map to understand key symptoms and their impact.</p>
               <div className="grid grid-cols-1 gap-4">
                 {[
                   { label: "Tremors", color: "bg-red-500" },
                   { label: "Posture", color: "bg-orange-500" },
                   { label: "Speech", color: "bg-blue-500" }
                 ].map(s => (
-                  <div key={s.label} className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-border">
+                  <div key={s.label} className="flex items-center gap-3 p-4 bg-slate-800 rounded-xl shadow-sm border border-slate-700">
                     <div className={`w-3 h-3 rounded-full ${s.color}`} />
-                    <span className="font-semibold">{s.label} Indicator</span>
+                    <span className="font-semibold text-white">{s.label} Indicator</span>
                   </div>
                 ))}
               </div>
@@ -366,14 +442,14 @@ export default function Home() {
             <motion.div 
               whileHover={{ y: -10 }}
               onClick={() => setLocation("/therapy")}
-              className="p-8 bg-primary/10 rounded-3xl border border-primary/20 shadow-xl cursor-pointer group"
+              className="p-8 bg-slate-900 rounded-3xl border border-white/10 shadow-xl cursor-pointer group"
             >
               <div className="p-4 bg-primary rounded-2xl w-fit mb-6 text-black group-hover:scale-110 transition-transform">
                 <BookOpen className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-foreground">Guidance & Therapy</h3>
-              <p className="text-gray-600 mb-6">AI-guided speech therapy, hand exercises, and daily wellness tasks.</p>
-              <Button className="w-full group-hover:bg-black group-hover:text-white transition-colors">
+              <h3 className="text-2xl font-bold mb-4 text-white">Guidance & Therapy</h3>
+              <p className="text-gray-300 mb-6">AI-guided speech therapy, hand exercises, and daily wellness tasks.</p>
+              <Button className="w-full bg-white text-black hover:bg-blue-600 hover:text-white transition-colors">
                 Start Therapy
               </Button>
             </motion.div>

@@ -63,7 +63,7 @@ export default function SpiralTest() {
               <div className="p-3 bg-red-100 text-red-600 rounded-2xl">
                 <PenTool className="w-8 h-8" />
               </div>
-              <h1 className="text-3xl font-heading font-bold text-slate-900">Spiral Drawing Motor Test</h1>
+              <h1 className="text-3xl font-heading font-bold text-black">Spiral Drawing Motor Test</h1>
             </div>
             <Button variant="outline" onClick={() => setPoints([])}>Reset</Button>
           </div>

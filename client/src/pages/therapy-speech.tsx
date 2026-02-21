@@ -24,7 +24,7 @@ export default function SpeechClarity() {
             <div className="p-3 bg-blue-100 text-blue-600 rounded-2xl">
               <Mic className="w-8 h-8" />
             </div>
-            <h1 className="text-3xl font-heading font-bold text-slate-900">Speech Clarity Exercise</h1>
+            <h1 className="text-3xl font-heading font-bold text-black">Speech Clarity Exercise</h1>
           </div>
 
           <div className="flex gap-3 p-4 bg-blue-50 text-blue-700 rounded-xl mb-8 border border-blue-100">

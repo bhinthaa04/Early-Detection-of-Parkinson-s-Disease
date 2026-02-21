@@ -115,10 +115,10 @@ export default function Prediction() {
             <Brain className="w-4 h-4" />
             Test Your Results
           </div>
-          <h1 className="text-4xl md:text-5xl font-heading font-bold text-foreground mb-4">
-            Submit Your <span className="gradient-text">Samples</span>
+          <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4">
+            Submit Your <span className="text-cyan-300">Samples</span>
           </h1>
-          <p className="text-lg text-black dark:text-black">
+          <p className="text-lg text-gray-200">
             Upload a spiral drawing image and a voice recording for analysis
           </p>
         </motion.div>
@@ -128,12 +128,12 @@ export default function Prediction() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3"
+            className="mb-6 p-4 bg-red-900/30 border border-red-700 rounded-lg flex gap-3"
           >
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-red-900 mb-1">Connection Error</p>
-              <p className="text-sm text-red-800">{error}</p>
+              <p className="font-semibold text-red-300 mb-1">Connection Error</p>
+              <p className="text-sm text-red-400">{error}</p>
             </div>
           </motion.div>
         )}
@@ -148,12 +148,12 @@ export default function Prediction() {
             <Card className="h-full glass-panel hover:shadow-lg transition-all dark:bg-slate-800/50 dark:border-slate-700">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100/50 text-blue-600 rounded-lg dark:bg-blue-900/30 dark:text-blue-400">
+                  <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
                     <FileImage className="w-5 h-5" />
                   </div>
-                  <CardTitle>Spiral Drawing</CardTitle>
+                  <CardTitle className="text-white">Spiral Drawing</CardTitle>
                 </div>
-                <p className="text-xs text-black dark:text-black mt-2">PNG, JPG - Max 10MB</p>
+                <p className="text-xs text-gray-400 mt-2">PNG, JPG - Max 10MB</p>
               </CardHeader>
               <CardContent>
                 <FileUpload
@@ -177,12 +177,12 @@ export default function Prediction() {
             <Card className="h-full glass-panel hover:shadow-lg transition-all dark:bg-slate-800/50 dark:border-slate-700">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-100/50 text-indigo-600 rounded-lg dark:bg-indigo-900/30 dark:text-indigo-400">
+                  <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-lg">
                     <FileAudio className="w-5 h-5" />
                   </div>
-                  <CardTitle>Voice Recording</CardTitle>
+                  <CardTitle className="text-white">Voice Recording</CardTitle>
                 </div>
-                <p className="text-xs text-black dark:text-black mt-2">WAV, MP3 - Max 10MB</p>
+                <p className="text-xs text-gray-400 mt-2">WAV, MP3 - Max 10MB</p>
               </CardHeader>
               <CardContent>
                 <FileUpload
