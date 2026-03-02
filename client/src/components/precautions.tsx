@@ -6,7 +6,17 @@ interface PrecautionsProps {
   stage: 'Early' | 'Mid' | 'Advanced';
 }
 
-const precautionsData = {
+// Map Flask API stage values to our component's expected values
+function mapStageToKey(stage: string): 'Early' | 'Mid' | 'Advanced' {
+  const lowerStage = stage.toLowerCase();
+  if (lowerStage.includes('early')) return 'Early';
+  if (lowerStage.includes('moderate') || lowerStage.includes('mid')) return 'Mid';
+  if (lowerStage.includes('advanced')) return 'Advanced';
+  // Default to Early for unknown stages like "None" or "Insufficient Data"
+  return 'Early';
+}
+
+const precautionsData: Record<'Early' | 'Mid' | 'Advanced', Array<{icon: typeof Heart, title: string, tips: string[]}>> = {
   Early: [
     {
       icon: Heart,
@@ -76,13 +86,15 @@ const precautionsData = {
 };
 
 export function Precautions({ stage }: PrecautionsProps) {
-  const precautions = precautionsData[stage];
+  // Map the stage to a valid key if needed
+  const mappedStage = mapStageToKey(stage);
+  const precautions = precautionsData[mappedStage] || precautionsData.Early;
 
   return (
     <div className="space-y-6">
       <h3 className="text-2xl font-heading font-bold text-foreground">Personalized Precautions & Lifestyle</h3>
       <div className="grid md:grid-cols-2 gap-4">
-        {precautions.map((item, idx) => {
+        {precautions.map((item: {icon: typeof Heart, title: string, tips: string[]}, idx: number) => {
           const Icon = item.icon;
           return (
             <motion.div
@@ -102,7 +114,7 @@ export function Precautions({ stage }: PrecautionsProps) {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {item.tips.map((tip, tipIdx) => (
+                    {item.tips.map((tip: string, tipIdx: number) => (
                       <li key={tipIdx} className="flex items-start gap-2 text-sm text-black">
                         <span className="text-primary mt-1">→</span>
                         <span>{tip}</span>

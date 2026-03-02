@@ -12,6 +12,7 @@ import {
   CartesianGrid, Tooltip, ResponsiveContainer,
   AreaChart, Area
 } from "recharts";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 
 const data = [
   { day: 'Mon', score: 85 },
@@ -23,13 +24,39 @@ const data = [
   { day: 'Sun', score: 92 },
 ];
 
+function ShieldCheck(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+
 export default function CaregiverConnect() {
   const [, setLocation] = useLocation();
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
-      <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => setLocation("/")} className="mb-6">
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20 pointer-events-none"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        <Button variant="ghost" onClick={() => setLocation("/")} className="mb-6 text-gray-800 hover:bg-gray-100">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
         </Button>
 
@@ -38,18 +65,18 @@ export default function CaregiverConnect() {
             <Users className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-3xl font-heading font-bold">Caregiver & Doctor Connect</h1>
+            <h1 className="text-3xl font-heading font-bold text-gray-900">Caregiver & Doctor Connect</h1>
             <p className="text-gray-600">Managing the patient's support ecosystem</p>
           </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <Card>
+            <Card className="bg-white">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Health Progress Overview</CardTitle>
+                <CardTitle className="text-gray-900">Health Progress Overview</CardTitle>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm"><Calendar className="w-4 h-4 mr-2" /> Schedule View</Button>
+                  <Button variant="outline" size="sm" className="border-gray-300"><Calendar className="w-4 h-4 mr-2" /> Schedule View</Button>
                 </div>
               </CardHeader>
               <CardContent className="h-[300px]">
@@ -87,9 +114,9 @@ export default function CaregiverConnect() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-white">
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
+                  <CardTitle className="text-lg flex items-center gap-2 text-gray-900">
                     <Share2 className="w-5 h-5 text-primary" />
                     Medical Report Sharing
                   </CardTitle>
@@ -98,7 +125,7 @@ export default function CaregiverConnect() {
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-blue-100 rounded text-blue-600 font-bold text-xs">PDF</div>
-                      <span className="text-sm font-medium">Monthly_Report_Dec.pdf</span>
+                      <span className="text-sm font-medium text-gray-700">Monthly_Report_Dec.pdf</span>
                     </div>
                     <Download className="w-4 h-4 text-gray-400 cursor-pointer hover:text-primary" />
                   </div>
@@ -111,9 +138,9 @@ export default function CaregiverConnect() {
           </div>
 
           <div className="space-y-6">
-            <Card>
+            <Card className="bg-white">
               <CardHeader>
-                <CardTitle className="text-lg">Recent Alerts</CardTitle>
+                <CardTitle className="text-lg text-gray-900">Recent Alerts</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {[
@@ -124,7 +151,7 @@ export default function CaregiverConnect() {
                   <div key={i} className="flex gap-4 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
                     <alert.icon className={`w-5 h-5 ${alert.color}`} />
                     <div>
-                      <p className="text-sm font-bold">{alert.msg}</p>
+                      <p className="text-sm font-bold text-gray-700">{alert.msg}</p>
                       <p className="text-xs text-gray-400">{alert.time}</p>
                     </div>
                   </div>
@@ -132,7 +159,7 @@ export default function CaregiverConnect() {
               </CardContent>
             </Card>
 
-            <Card className="bg-slate-900 text-white border-none">
+            <Card className="bg-slate-800 text-white border-none">
               <CardHeader>
                 <CardTitle className="text-lg">Care Team</CardTitle>
               </CardHeader>
@@ -157,25 +184,5 @@ export default function CaregiverConnect() {
         </div>
       </div>
     </div>
-  );
-}
-
-function ShieldCheck(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
   );
 }

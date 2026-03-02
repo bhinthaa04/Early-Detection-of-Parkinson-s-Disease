@@ -47,5 +47,23 @@ export default defineConfig({
       strict: true,
       deny: ["**/.*"],
     },
+    proxy: {
+      '^/predict$': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '^/health$': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '^/download-report$': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '^/generate-report$': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
   },
 });

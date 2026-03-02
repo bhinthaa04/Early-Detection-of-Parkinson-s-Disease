@@ -1,0 +1,7 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/ml-api/.venv311/Scripts/python.exe",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/ml-api"
+  ],
+  "python.terminal.activateEnvironment": true
+}

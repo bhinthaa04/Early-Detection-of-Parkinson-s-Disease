@@ -8,8 +8,20 @@ interface DoctorCTAProps {
   urgency?: boolean;
 }
 
+// Map Flask API stage values to our component's expected values
+function mapStageToKey(stage: string): 'Early' | 'Mid' | 'Advanced' {
+  const lowerStage = stage.toLowerCase();
+  if (lowerStage.includes('early')) return 'Early';
+  if (lowerStage.includes('moderate') || lowerStage.includes('mid')) return 'Mid';
+  if (lowerStage.includes('advanced')) return 'Advanced';
+  // Default to Early for unknown stages like "None" or "Insufficient Data"
+  return 'Early';
+}
+
 export function DoctorCTA({ stage, urgency }: DoctorCTAProps) {
-  const isAdvanced = stage === 'Advanced' || urgency;
+  // Map the stage to a valid key if needed
+  const mappedStage = mapStageToKey(stage);
+  const isAdvanced = mappedStage === 'Advanced' || urgency;
   const bgClass = isAdvanced ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200';
   const textClass = isAdvanced ? 'text-red-700' : 'text-blue-700';
   const buttonClass = isAdvanced ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary/90';

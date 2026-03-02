@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Wind, Info, ArrowLeft, Play, Pause } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 
 export default function BreathingRelaxation() {
   const [, setLocation] = useLocation();
@@ -28,25 +29,31 @@ export default function BreathingRelaxation() {
   }, [isActive]);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-15 pointer-events-none"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      
+      <div className="container mx-auto px-4 py-8 relative z-10 max-w-4xl">
         <Button 
           variant="ghost" 
           onClick={() => setLocation("/therapy")}
-          className="mb-8 hover:bg-white"
+          className="mb-8 text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Therapy
         </Button>
 
-        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="p-3 bg-lavender-100 text-purple-600 rounded-2xl">
+        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-200">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-3 bg-purple-100 text-purple-600 rounded-2xl">
               <Wind className="w-8 h-8" />
             </div>
-            <h1 className="text-3xl font-heading font-bold text-slate-900">Breathing & Relaxation</h1>
+            <h1 className="text-3xl font-heading font-bold text-gray-900">Breathing & Relaxation</h1>
           </div>
 
-          <div className="flex gap-3 p-4 bg-purple-50 text-purple-700 rounded-xl mb-12 border border-purple-100">
+          <div className="flex gap-3 p-4 bg-purple-50 text-purple-700 rounded-xl mb-8 border border-purple-100">
             <Info className="w-5 h-5 flex-shrink-0" />
             <p className="text-sm">
               Deep, controlled breathing reduces stress-induced tremors and improves oxygenation. This guided session uses the 4-4-4 technique to calm the nervous system.
@@ -79,7 +86,7 @@ export default function BreathingRelaxation() {
             <Button
               size="lg"
               onClick={() => setIsActive(!isActive)}
-              className={`mt-16 px-12 py-8 text-lg rounded-full shadow-lg ${isActive ? 'bg-slate-200 text-slate-800 hover:bg-slate-300' : 'bg-purple-600 hover:bg-purple-700 text-white'}`}
+              className={`mt-16 px-12 py-8 text-lg rounded-full shadow-lg ${isActive ? 'bg-slate-200 text-gray-800 hover:bg-slate-300' : 'bg-purple-600 hover:bg-purple-700 text-white'}`}
             >
               {isActive ? (
                 <><Pause className="w-5 h-5 mr-2" /> Stop Session</>

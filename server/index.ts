@@ -2,9 +2,22 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import multer from "multer";
 
 const app = express();
 const httpServer = createServer(app);
+
+// Configure multer for file uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 16 * 1024 * 1024 } // 16MB limit
+});
+
+// Make multer middleware available to routes
+app.use((req, res, next) => {
+  (req as any).upload = upload;
+  next();
+});
 
 declare module "http" {
   interface IncomingMessage {

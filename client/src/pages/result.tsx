@@ -40,6 +40,8 @@ export default function Result() {
     setDownloadingReport(true);
     try {
       const blob = await apiService.downloadReport(result);
+      
+      // Download the PDF file
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

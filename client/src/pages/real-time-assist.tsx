@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 
 export default function RealTimeAssist() {
   const [, setLocation] = useLocation();
@@ -42,12 +43,18 @@ export default function RealTimeAssist() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20 pointer-events-none"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      
+      <div className="container mx-auto px-4 py-8 relative z-10">
         <Button 
           variant="ghost" 
           onClick={() => setLocation("/")}
-          className="mb-6"
+          className="mb-6 text-gray-800 hover:bg-gray-100"
         >
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
         </Button>
@@ -57,15 +64,15 @@ export default function RealTimeAssist() {
             <Activity className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-3xl font-heading font-bold">Real-Time Patient Assist</h1>
+            <h1 className="text-3xl font-heading font-bold text-gray-900">Real-Time Patient Assist</h1>
             <p className="text-gray-600">AI-powered live monitoring and feedback</p>
           </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            <Card className="overflow-hidden border-2 border-primary/20 shadow-xl">
-              <div className="relative aspect-video bg-black flex items-center justify-center">
+            <Card className="overflow-hidden border-2 border-primary/20 shadow-xl bg-white">
+              <div className="relative aspect-video bg-gray-900 flex items-center justify-center">
                 {isRecording ? (
                   <video 
                     ref={videoRef} 
@@ -75,9 +82,9 @@ export default function RealTimeAssist() {
                   />
                 ) : (
                   <div className="text-center p-12">
-                    <Camera className="w-16 h-16 text-gray-700 mx-auto mb-4" />
+                    <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-400 mb-6">Camera and microphone access required for live analysis</p>
-                    <Button size="lg" onClick={startAssistance} className="rounded-full px-8">
+                    <Button size="lg" onClick={startAssistance} className="rounded-full px-8 bg-primary text-black hover:bg-primary/90">
                       Start Live Session
                     </Button>
                   </div>
@@ -92,13 +99,13 @@ export default function RealTimeAssist() {
             </Card>
 
             <div className="grid md:grid-cols-2 gap-6">
-              <Card>
+              <Card className="bg-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Tremor Detection</CardTitle>
-                  <Thermometer className="h-4 h-4 text-primary" />
+                  <CardTitle className="text-sm font-medium text-gray-700">Tremor Detection</CardTitle>
+                  <Thermometer className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{isRecording ? `${tremorLevel}%` : '--'}</div>
+                  <div className="text-2xl font-bold text-gray-900">{isRecording ? `${tremorLevel}%` : '--'}</div>
                   <Progress value={tremorLevel} className="h-2 mt-2" />
                   <p className="text-xs text-muted-foreground mt-2">
                     {tremorLevel < 20 ? "✓ Normal range" : "⚠ Minor tremors detected"}
@@ -106,13 +113,13 @@ export default function RealTimeAssist() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Speech Clarity</CardTitle>
-                  <Mic className="h-4 h-4 text-primary" />
+                  <CardTitle className="text-sm font-medium text-gray-700">Speech Clarity</CardTitle>
+                  <Mic className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{isRecording ? `${speechClarity}%` : '--'}</div>
+                  <div className="text-2xl font-bold text-gray-900">{isRecording ? `${speechClarity}%` : '--'}</div>
                   <Progress value={speechClarity} className="h-2 mt-2" />
                   <p className="text-xs text-muted-foreground mt-2">
                     {speechClarity > 80 ? "✓ Clear articulation" : "⚠ Moderate slurring detected"}
@@ -123,7 +130,7 @@ export default function RealTimeAssist() {
           </div>
 
           <div className="space-y-6">
-            <Card className="bg-slate-900 text-white border-none shadow-2xl">
+            <Card className="bg-slate-800 text-white border-none shadow-2xl">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-primary" />
@@ -150,14 +157,14 @@ export default function RealTimeAssist() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white">
               <CardHeader>
-                <CardTitle className="text-lg">Stability Metrics</CardTitle>
+                <CardTitle className="text-lg text-gray-900">Stability Metrics</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
                   <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium">Hand Movement Stability</span>
+                    <span className="text-sm font-medium text-gray-700">Hand Movement Stability</span>
                     <span className="text-sm text-primary font-bold">{stability}%</span>
                   </div>
                   <Progress value={stability} className="h-2" />
@@ -165,7 +172,7 @@ export default function RealTimeAssist() {
                 <div className="p-4 bg-primary/10 rounded-xl border border-primary/20">
                   <div className="flex items-center gap-3 mb-2">
                     <ShieldCheck className="w-5 h-5 text-primary" />
-                    <span className="font-bold text-sm">Session Safety</span>
+                    <span className="font-bold text-sm text-gray-900">Session Safety</span>
                   </div>
                   <p className="text-xs text-gray-600">Stability is high. You can continue your routine safely.</p>
                 </div>

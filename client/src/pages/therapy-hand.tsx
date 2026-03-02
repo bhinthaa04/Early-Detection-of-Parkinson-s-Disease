@@ -1,117 +1,98 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Hand, Info, ArrowLeft, RefreshCw } from "lucide-react";
+import { Hand, Info, ArrowLeft, Target } from "lucide-react";
 import { useLocation } from "wouter";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 
 export default function HandStability() {
   const [, setLocation] = useLocation();
-  const [points, setPoints] = useState<{x: number, y: number}[]>([]);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const draw = (e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = ('touches' in e ? e.touches[0].clientX : e.clientX) - rect.left;
-    const y = ('touches' in e ? e.touches[0].clientY : e.clientY) - rect.top;
-    setPoints(prev => [...prev, { x, y }]);
-  };
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw guide spiral
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    for (let i = 0; i < 200; i++) {
-      const angle = 0.1 * i;
-      const x = canvas.width / 2 + (5 + 2 * angle) * Math.cos(angle);
-      const y = canvas.height / 2 + (5 + 2 * angle) * Math.sin(angle);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-
-    // Draw user line
-    if (points.length > 0) {
-      ctx.setLineDash([]);
-      ctx.strokeStyle = '#2563eb';
-      ctx.lineWidth = 3;
-      ctx.lineJoin = 'round';
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
-      points.forEach(p => ctx.lineTo(p.x, p.y));
-      ctx.stroke();
-    }
-  }, [points]);
+  const [isActive, setIsActive] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-15 pointer-events-none"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      
+      <div className="container mx-auto px-4 py-8 relative z-10 max-w-4xl">
         <Button 
           variant="ghost" 
           onClick={() => setLocation("/therapy")}
-          className="mb-8 hover:bg-white"
+          className="mb-8 text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Therapy
         </Button>
 
-        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-teal-100 text-teal-600 rounded-2xl">
-                <Hand className="w-8 h-8" />
-              </div>
-              <h1 className="text-3xl font-heading font-bold text-black">Hand Stability Training</h1>
+        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-200">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-3 bg-teal-100 text-teal-600 rounded-2xl">
+              <Hand className="w-8 h-8" />
             </div>
-            <Button variant="outline" onClick={() => setPoints([])} className="rounded-xl">
-              <RefreshCw className="w-4 h-4 mr-2" /> Reset
-            </Button>
+            <h1 className="text-3xl font-heading font-bold text-gray-900">Hand Stability Training</h1>
           </div>
 
           <div className="flex gap-3 p-4 bg-teal-50 text-teal-700 rounded-xl mb-8 border border-teal-100">
             <Info className="w-5 h-5 flex-shrink-0" />
             <p className="text-sm">
-              Fine motor control exercises help manage tremors and "micrographia" (small handwriting). Try to trace the spiral as steadily as possible.
+              Hand exercises improve fine motor control and reduce tremors. Follow the target precisely to strengthen hand-eye coordination and dexterity.
             </p>
           </div>
 
-          <div className="flex flex-col items-center">
-            <div className="relative bg-slate-50 rounded-3xl border border-slate-200 p-4 shadow-inner">
-              <canvas 
-                ref={canvasRef}
-                width={500}
-                height={500}
-                onMouseMove={(e) => e.buttons === 1 && draw(e)}
-                onTouchMove={draw}
-                className="cursor-crosshair max-w-full h-auto"
-              />
-              <div className="absolute top-4 left-4 text-xs font-mono text-slate-400">STABILITY_SENSOR_ACTIVE</div>
+          <div className="space-y-8">
+            <div className="relative aspect-square max-w-md mx-auto bg-slate-100 rounded-3xl overflow-hidden border-2 border-slate-200">
+              {isActive && (
+                <motion.div 
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ repeat: Infinity, duration: 1 }}
+                  className="absolute inset-0 bg-teal-500/10"
+                />
+              )}
+              
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative">
+                  <Target className="w-48 h-48 text-teal-500 opacity-50" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <motion.div
+                      animate={isActive ? { x: [0, 50, -30, 20, 0], y: [0, -20, 30, -10, 0] } : { x: 0, y: 0 }}
+                      transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                      className="w-6 h-6 bg-red-500 rounded-full shadow-lg"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="absolute bottom-4 left-4 right-4 text-center">
+                <p className="text-sm font-medium text-gray-600">
+                  {isActive ? "Follow the red dot with your finger" : "Tap to start the exercise"}
+                </p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-6 w-full mt-12">
-              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-                <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Tremor Index</div>
-                <div className="text-2xl font-bold text-teal-600">Low</div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="text-2xl font-bold text-gray-900">--</div>
+                <div className="text-xs text-gray-500">Reaction Time</div>
               </div>
-              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-                <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Accuracy</div>
-                <div className="text-2xl font-bold text-teal-600">{points.length > 0 ? '84%' : '--'}</div>
+              <div className="text-center p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="text-2xl font-bold text-gray-900">--</div>
+                <div className="text-xs text-gray-500">Accuracy</div>
               </div>
-              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-                <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Completion</div>
-                <div className="text-2xl font-bold text-teal-600">{Math.min(100, Math.floor(points.length / 2))}%</div>
+              <div className="text-center p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="text-2xl font-bold text-gray-900">--</div>
+                <div className="text-xs text-gray-500">Stability</div>
               </div>
             </div>
+
+            <Button
+              size="lg"
+              onClick={() => setIsActive(!isActive)}
+              className={`w-full py-8 text-lg rounded-2xl shadow-lg ${isActive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-teal-600 hover:bg-teal-700 text-white'}`}
+            >
+              {isActive ? "Stop Exercise" : "Start Hand Exercise"}
+            </Button>
           </div>
         </div>
       </div>

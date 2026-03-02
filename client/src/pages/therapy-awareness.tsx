@@ -1,63 +1,84 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Info, ArrowLeft, Brain } from "lucide-react";
+import { Brain, Info, ArrowLeft, BookOpen } from "lucide-react";
 import { useLocation } from "wouter";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
+
+const topics = [
+  { title: "Understanding Dopamine", desc: "How this neurotransmitter affects movement and mood." },
+  { title: "Nutrition & Health", desc: "Best foods to support brain health and medication efficacy." },
+  { title: "Medication Management", desc: "Timing, dosages, and managing side effects effectively." },
+  { title: "Exercise Benefits", desc: "Why physical activity is crucial for Parkinson's patients." },
+  { title: "Sleep Quality", desc: "Improving rest and managing sleep disorders." },
+  { title: "Emotional Wellbeing", desc: "Coping strategies for anxiety and depression." }
+];
 
 export default function AwarenessLearning() {
   const [, setLocation] = useLocation();
 
-  const lessons = [
-    { title: "Understanding Dopamine", desc: "How this neurotransmitter affects movement and mood." },
-    { title: "Nutrition & Health", desc: "Best foods to support brain health and medication efficacy." },
-    { title: "Sleep Hygiene", desc: "Strategies for better rest and night-time symptom management." }
-  ];
-
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-15 pointer-events-none"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      
+      <div className="container mx-auto px-4 py-8 relative z-10 max-w-4xl">
         <Button 
           variant="ghost" 
           onClick={() => setLocation("/therapy")}
-          className="mb-8 hover:bg-white"
+          className="mb-8 text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Therapy
         </Button>
 
-        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="p-3 bg-blue-100 text-blue-600 rounded-2xl">
-              <BookOpen className="w-8 h-8" />
+        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-200">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-3 bg-indigo-100 text-indigo-600 rounded-2xl">
+              <Brain className="w-8 h-8" />
             </div>
-            <h1 className="text-3xl font-heading font-bold text-slate-900">Awareness & Learning</h1>
+            <h1 className="text-3xl font-heading font-bold text-gray-900">Parkinson's Awareness</h1>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12 items-start">
-            <div className="space-y-6">
-              <div className="p-6 bg-blue-50 text-blue-700 rounded-2xl border border-blue-100">
-                <Info className="w-5 h-5 mb-3" />
-                <p className="text-sm font-medium">
-                  Knowledge is power. Understanding the physiological changes in the brain helps in managing symptoms and expectations.
-                </p>
-              </div>
+          <div className="flex gap-3 p-4 bg-indigo-50 text-indigo-700 rounded-xl mb-8 border border-indigo-100">
+            <Info className="w-5 h-5 flex-shrink-0" />
+            <p className="text-sm">
+              Education is key to managing Parkinson's. Learn about the disease, treatment options, and lifestyle modifications that can improve quality of life.
+            </p>
+          </div>
 
-              <div className="space-y-4">
-                {lessons.map((lesson, i) => (
-                  <div key={i} className="p-6 bg-slate-50 rounded-2xl border border-slate-200 hover:border-blue-400 cursor-pointer transition-colors group">
-                    <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{lesson.title}</h3>
-                    <p className="text-sm text-slate-500 mt-1">{lesson.desc}</p>
+          <div className="grid gap-4">
+            {topics.map((topic, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="p-6 bg-slate-50 rounded-2xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all cursor-pointer group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <BookOpen className="w-5 h-5" />
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">{topic.title}</h3>
+                    <p className="text-gray-600 text-sm">{topic.desc}</p>
+                  </div>
+                  <Button variant="ghost" size="sm" className="text-indigo-600 hover:bg-indigo-100">
+                    Read More
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
 
-            <div className="bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden">
-              <Brain className="absolute -bottom-12 -right-12 w-48 h-48 text-white/5" />
-              <h2 className="text-2xl font-bold mb-6 relative z-10">Daily Brain Tip</h2>
-              <p className="text-blue-200 text-lg mb-8 relative z-10">
-                "Small, frequent movements throughout the day are often more beneficial than one long session. Keep moving!"
-              </p>
-              <Button className="bg-blue-600 hover:bg-blue-700 w-full">Mark as Read</Button>
-            </div>
+          <div className="mt-12 p-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl text-white text-center">
+            <h2 className="text-2xl font-bold mb-2">Knowledge is Power</h2>
+            <p className="opacity-90 mb-6">Understanding Parkinson's helps you make informed decisions about your care.</p>
+            <Button variant="secondary" className="bg-white text-indigo-600 hover:bg-gray-100 font-bold">
+              View All Resources
+            </Button>
           </div>
         </div>
       </div>

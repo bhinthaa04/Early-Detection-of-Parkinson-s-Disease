@@ -3,28 +3,35 @@ import { Button } from "@/components/ui/button";
 import { Mic, Info, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 
 export default function SpeechClarity() {
   const [, setLocation] = useLocation();
   const [isRecording, setIsRecording] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-15 pointer-events-none"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      
+      <div className="container mx-auto px-4 py-8 relative z-10 max-w-4xl">
         <Button 
           variant="ghost" 
           onClick={() => setLocation("/therapy")}
-          className="mb-8 hover:bg-white"
+          className="mb-8 text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Therapy
         </Button>
 
-        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-200">
           <div className="flex items-center gap-4 mb-6">
             <div className="p-3 bg-blue-100 text-blue-600 rounded-2xl">
               <Mic className="w-8 h-8" />
             </div>
-            <h1 className="text-3xl font-heading font-bold text-black">Speech Clarity Exercise</h1>
+            <h1 className="text-3xl font-heading font-bold text-gray-900">Speech Clarity Exercise</h1>
           </div>
 
           <div className="flex gap-3 p-4 bg-blue-50 text-blue-700 rounded-xl mb-8 border border-blue-100">
@@ -36,7 +43,7 @@ export default function SpeechClarity() {
 
           <div className="space-y-12">
             <div className="text-center p-12 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-              <p className="text-xl font-medium text-slate-600 mb-8">Press the button and say "Aaaah" for as long as you can</p>
+              <p className="text-xl font-medium text-gray-700 mb-8">Press the button and say "Aaaah" for as long as you can</p>
               
               <div className="relative inline-block">
                 {isRecording && (
@@ -48,10 +55,10 @@ export default function SpeechClarity() {
                 )}
                 <Button 
                   size="lg"
-                  className={`relative w-24 h-24 rounded-full shadow-xl transition-all ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-600 hover:bg-blue-700'}`}
+                  className={`relative w-24 h-24 rounded-full shadow-xl transition-all ${isRecording ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
                   onClick={() => setIsRecording(!isRecording)}
                 >
-                  <Mic className="w-8 h-8 text-white" />
+                  <Mic className="w-8 h-8" />
                 </Button>
               </div>
               
@@ -68,20 +75,20 @@ export default function SpeechClarity() {
             </div>
 
             <div className="grid grid-cols-2 gap-6">
-              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                <h3 className="font-bold text-slate-900 mb-2">Volume Level</h3>
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                <h3 className="font-bold text-gray-900 mb-2">Volume Level</h3>
                 <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
                   <motion.div 
                     animate={isRecording ? { width: "75%" } : { width: "0%" }}
                     className="bg-green-500 h-full"
                   />
                 </div>
-                <p className="text-xs text-slate-500 mt-2 text-right">Target: 70dB</p>
+                <p className="text-xs text-gray-500 mt-2 text-right">Target: 70dB</p>
               </div>
-              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                <h3 className="font-bold text-slate-900 mb-2">Clarity Score</h3>
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                <h3 className="font-bold text-gray-900 mb-2">Clarity Score</h3>
                 <div className="text-3xl font-bold text-blue-600">--</div>
-                <p className="text-xs text-slate-500 mt-1">Analyzing pronunciation...</p>
+                <p className="text-xs text-gray-500 mt-1">Analyzing pronunciation...</p>
               </div>
             </div>
           </div>

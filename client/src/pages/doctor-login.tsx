@@ -10,11 +10,12 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 
 // Mock doctor credentials
 const mockDoctor = {
-  email: "drsmith@neuroclinic.com",
-  password: "doctor123",
+  email: "doctor@doctor.com",
+  password: "doctor",
   name: "Dr. Sarah Smith",
   specialization: "Neurologist",
   licenseNumber: "NEU-2024-001"
@@ -52,6 +53,12 @@ export default function DoctorLogin() {
 
   return (
     <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-30 pointer-events-none"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      
       <BackendConfigButton />
 
       <div className="container mx-auto px-4 py-8 relative z-10 flex items-center justify-center min-h-screen">
@@ -171,7 +178,7 @@ export default function DoctorLogin() {
 
               <div className="mt-6 pt-6 border-t border-white/10">
                 <p className="text-center text-white/50 text-sm">
-                  Demo credentials: drsmith@neuroclinic.com / doctor123
+                  Demo credentials: doctor@doctor.com / doctor
                 </p>
               </div>
             </CardContent>

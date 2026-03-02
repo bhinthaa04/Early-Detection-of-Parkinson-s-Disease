@@ -1,0 +1,10 @@
+flask
+flask-cors
+numpy
+opencv-python
+librosa
+tensorflow
+reportlab
+werkzeug
+pillow
+scipy

@@ -4,7 +4,7 @@ import {
   ArrowRight, Brain, Activity, Shield, TrendingUp, 
   BarChart3, Info, AlertTriangle, ChevronDown, 
   ChevronUp, HeartPulse, User, MapPin, 
-  Play, Pause, Volume2, X, Sparkles, Users, BookOpen
+  Play, X, Sparkles, Users, BookOpen
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
@@ -17,7 +17,7 @@ import { OrbitControls, Float, Sphere, MeshDistortMaterial } from "@react-three/
 import parkinsonsVideo from "@assets/generated_videos/parkinsons_edu.mp4";
 
 function BrainModel() {
-  const meshRef = useRef<any>();
+  const meshRef = useRef<any>(null);
   return (
     <Float speed={2} rotationIntensity={1} floatIntensity={2}>
       <Sphere ref={meshRef} args={[1, 100, 100]} scale={1.5}>
@@ -47,7 +47,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden font-sans">
+    <div className="min-h-screen relative overflow-hidden font-sans flex flex-col">
       {/* Dynamic Medical AI Background */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 transition-opacity duration-1000"
@@ -100,7 +100,7 @@ export default function Home() {
 
       <BackendConfigButton />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative z-10 flex-1">
         {/* Navigation */}
         <motion.nav
           initial={{ opacity: 0, y: -20 }}
@@ -115,7 +115,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <Button variant="ghost" onClick={() => setLocation("/")} data-testid="nav-home" className="text-white hover:bg-white/10">Home</Button>
-            <Button variant="ghost" onClick={() => setLocation("/prediction")} data-testid="nav-predict" className="text-white hover:bg-white/10">Test</Button>
+            <Button variant="ghost" onClick={() => setLocation("/patient-form")} data-testid="nav-predict" className="text-white hover:bg-white/10">Test</Button>
             <Button variant="ghost" onClick={() => setLocation("/education")} data-testid="nav-education" className="text-white hover:bg-white/10">Education</Button>
             <Button variant="ghost" onClick={() => setLocation("/dashboard")} data-testid="nav-dashboard" className="text-white hover:bg-white/10">Dashboard</Button>
           </div>
@@ -145,7 +145,7 @@ export default function Home() {
               <Button
                 size="lg"
                 className="px-8 py-6 text-lg shadow-lg hover:shadow-primary/40 rounded-full"
-                onClick={() => setLocation("/prediction")}
+                onClick={() => setLocation("/patient-form")}
                 data-testid="btn-cta-predict"
               >
                 Start Detection
@@ -274,10 +274,11 @@ export default function Home() {
 
         {/* Interactive Symptom Map */}
         <div className="py-20">
-          <h2 className="text-3xl font-heading font-bold text-center mb-12 text-gray-800">Interactive Symptom Guide</h2>
+          <h2 className="text-3xl font-heading font-bold text-center mb-12 text-white">Interactive Symptom Guide</h2>
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="relative aspect-square max-w-md mx-auto bg-primary/5 rounded-full flex items-center justify-center border border-primary/10">
-              <User className="w-64 h-64 text-primary/20" strokeWidth={1} />
+            <div className="relative aspect-square max-w-md mx-auto rounded-full flex items-center justify-center border border-white/80 bg-white/90 shadow-2xl backdrop-blur-sm">
+              <div className="absolute inset-6 rounded-full border border-slate-300/80" />
+              <User className="relative z-10 w-64 h-64 text-slate-500/70" strokeWidth={1.2} />
               <div className="absolute top-1/4 right-1/4 animate-bounce">
                 <div className="group relative">
                   <div className="w-4 h-4 bg-red-500 rounded-full shadow-lg cursor-help" />
@@ -327,7 +328,7 @@ export default function Home() {
 
         {/* FAQ Section */}
         <div className="py-20 max-w-4xl mx-auto">
-          <h2 className="text-3xl font-heading font-bold text-center mb-12">Frequently Asked Questions</h2>
+          <h2 className="text-3xl font-heading font-bold text-center mb-12 text-white">Frequently Asked Questions</h2>
           <div className="space-y-4">
             {[
               { q: "What is the average age of onset?", a: "Most people develop symptoms after age 60, but about 5-10% experience 'early-onset' before age 50." },
@@ -407,7 +408,7 @@ export default function Home() {
 
         {/* New Advanced Feature Access */}
         <div className="py-20">
-          <h2 className="text-3xl font-heading font-bold text-center mb-12">Patient Support Ecosystem</h2>
+          <h2 className="text-3xl font-heading font-bold text-center mb-12 text-white">Patient Support Ecosystem</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <motion.div 
               whileHover={{ y: -10 }}
@@ -456,17 +457,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Motivational Section */}
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          className="bg-primary text-black rounded-3xl p-12 text-center mb-20 shadow-2xl"
-        >
-          <Volume2 className="w-12 h-12 mx-auto mb-6 opacity-80" />
-          <h2 className="text-3xl font-heading font-bold mb-4">"Parkinson's can be managed, stay active and positive."</h2>
-          <p className="text-lg opacity-90 max-w-xl mx-auto">Early detection and proactive lifestyle changes make a world of difference. You are not alone on this journey.</p>
-        </motion.div>
       </div>
     </div>
   );
 }
+

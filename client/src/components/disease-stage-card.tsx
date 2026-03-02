@@ -1,12 +1,21 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, AlertTriangle, AlertOctagon } from "lucide-react";
+import { AlertCircle, AlertTriangle, AlertOctagon, CheckCircle } from "lucide-react";
 
 interface DiseaseStageCardProps {
   stage: 'Early' | 'Mid' | 'Advanced';
 }
 
-const stageConfig = {
+interface StageConfig {
+  icon: typeof AlertCircle;
+  color: string;
+  bgColor: string;
+  title: string;
+  description: string;
+  tips: string[];
+}
+
+const stageConfig: Record<'Early' | 'Mid' | 'Advanced', StageConfig> = {
   Early: {
     icon: AlertCircle,
     color: 'text-yellow-600',
@@ -51,8 +60,20 @@ const stageConfig = {
   },
 };
 
+// Map Flask API stage values to our component's expected values
+function mapStageToKey(stage: string): 'Early' | 'Mid' | 'Advanced' {
+  const lowerStage = stage.toLowerCase();
+  if (lowerStage.includes('early')) return 'Early';
+  if (lowerStage.includes('moderate') || lowerStage.includes('mid')) return 'Mid';
+  if (lowerStage.includes('advanced')) return 'Advanced';
+  // Default to Early for unknown stages like "None" or "Insufficient Data"
+  return 'Early';
+}
+
 export function DiseaseStageCard({ stage }: DiseaseStageCardProps) {
-  const config = stageConfig[stage];
+  // Map the stage to a valid key if needed
+  const mappedStage = mapStageToKey(stage);
+  const config = stageConfig[mappedStage];
   const Icon = config.icon;
 
   return (
@@ -78,7 +99,7 @@ export function DiseaseStageCard({ stage }: DiseaseStageCardProps) {
             <div>
               <h4 className="font-semibold text-foreground mb-3">Recommended Care & Precautions:</h4>
               <ul className="space-y-2">
-                {config.tips.map((tip, idx) => (
+                {config.tips.map((tip: string, idx: number) => (
                   <li key={idx} className="flex items-start gap-3">
                     <div className={`${config.color} mt-1`}>✓</div>
                     <span className="text-sm text-black">{tip}</span>

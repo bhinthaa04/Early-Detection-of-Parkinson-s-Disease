@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Activity, Info, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 
 export default function MovementRoutine() {
   const [, setLocation] = useLocation();
@@ -15,25 +16,31 @@ export default function MovementRoutine() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      {/* Dynamic Medical AI Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-15 pointer-events-none"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      
+      <div className="container mx-auto px-4 py-8 relative z-10 max-w-4xl">
         <Button 
           variant="ghost" 
           onClick={() => setLocation("/therapy")}
-          className="mb-8 hover:bg-white"
+          className="mb-8 text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Therapy
         </Button>
 
-        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100">
-          <div className="flex items-center gap-4 mb-8">
+        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-200">
+          <div className="flex items-center gap-4 mb-6">
             <div className="p-3 bg-green-100 text-green-600 rounded-2xl">
               <Activity className="w-8 h-8" />
             </div>
-            <h1 className="text-3xl font-heading font-bold text-slate-900">Daily Movement Routine</h1>
+            <h1 className="text-3xl font-heading font-bold text-gray-900">Daily Movement Routine</h1>
           </div>
 
-          <div className="flex gap-3 p-4 bg-green-50 text-green-700 rounded-xl mb-12 border border-green-100">
+          <div className="flex gap-3 p-4 bg-green-50 text-green-700 rounded-xl mb-8 border border-green-100">
             <Info className="w-5 h-5 flex-shrink-0" />
             <p className="text-sm">
               Consistent physical activity helps maintain range of motion and reduces muscle rigidity. Follow these gentle movements designed for Parkinson's care.
@@ -47,16 +54,16 @@ export default function MovementRoutine() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className={`p-6 rounded-2xl border transition-all ${currentStep === idx ? 'border-green-500 bg-green-50 ring-4 ring-green-500/10' : 'border-slate-100 bg-slate-50 opacity-60'}`}
+                className={`p-6 rounded-2xl border transition-all ${currentStep === idx ? 'border-green-500 bg-green-50 ring-4 ring-green-500/10' : 'border-slate-200 bg-slate-50 opacity-80'}`}
               >
                 <div className="flex items-start justify-between">
                   <div>
                     <span className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1 block">Exercise {idx + 1}</span>
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">{ex.title}</h3>
-                    <p className="text-slate-600">{ex.desc}</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{ex.title}</h3>
+                    <p className="text-gray-600">{ex.desc}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-slate-400">{ex.duration}</span>
+                    <span className="text-sm font-medium text-gray-500">{ex.duration}</span>
                     {idx < currentStep && <CheckCircle2 className="w-6 h-6 text-green-500" />}
                   </div>
                 </div>

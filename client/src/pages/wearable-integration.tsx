@@ -193,6 +193,11 @@ export default function WearableIntegration() {
             },
           ].map((metric, index) => {
             const Icon = metric.icon;
+            const numericValue =
+              typeof metric.value === "number"
+                ? metric.value
+                : Number(String(metric.value).replace(/,/g, ""));
+            const goalProgress = metric.goal ? (numericValue / metric.goal) * 100 : 0;
             return (
               <motion.div
                 key={index}
@@ -221,8 +226,8 @@ export default function WearableIntegration() {
                     </div>
                     {metric.goal && (
                       <div className="mt-3">
-                        <Progress value={(metric.value as number / metric.goal) * 100} className="h-2" />
-                        <p className="text-white/40 text-xs mt-1">{Math.round((metric.value as number / metric.goal) * 100)}% of goal</p>
+                        <Progress value={goalProgress} className="h-2" />
+                        <p className="text-white/40 text-xs mt-1">{Math.round(goalProgress)}% of goal</p>
                       </div>
                     )}
                     {metric.quality && (

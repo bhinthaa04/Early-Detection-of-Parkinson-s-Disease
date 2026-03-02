@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -24,10 +24,18 @@ import AwarenessLearning from "@/pages/therapy-awareness";
 import SpiralTest from "@/pages/therapy-spiral";
 import BrainGames from "@/pages/brain-games";
 import AIChatbot from "@/pages/ai-chatbot";
+import DoctorLogin from "@/pages/doctor-login";
+import DoctorDashboard from "@/pages/doctor-dashboard";
+import DoctorPatientView from "@/pages/doctor-patient-view";
+import ProgressionForecast from "@/pages/progression-forecast";
+import WearableIntegration from "@/pages/wearable-integration";
 import FindSpecialist from "@/pages/find-specialist";
 import PosturalSwayAnalysis from "@/pages/postural-sway-analysis";
 import DailyTasks from "@/pages/daily-tasks";
 import NotFound from "@/pages/not-found";
+import PatientForm from "@/pages/patient-form";
+import FindNearbyDoctor from "@/pages/find-nearby-doctor";
+import { MainFooter } from "@/components/main-footer";
 
 function Router() {
   return (
@@ -51,22 +59,47 @@ function Router() {
       <Route path="/therapy/spiral" component={SpiralTest} />
       <Route path="/brain-games" component={BrainGames} />
       <Route path="/ai-chatbot" component={AIChatbot} />
+      <Route path="/doctor-login" component={DoctorLogin} />
+      <Route path="/doctor-dashboard" component={DoctorDashboard} />
+      <Route path="/doctor-patient" component={DoctorPatientView} />
+      <Route path="/progression-forecast" component={ProgressionForecast} />
+      <Route path="/wearable-integration" component={WearableIntegration} />
       <Route path="/find-specialist" component={FindSpecialist} />
       <Route path="/postural-sway" component={PosturalSwayAnalysis} />
       <Route path="/daily-tasks" component={DailyTasks} />
+      <Route path="/patient-form" component={PatientForm} />
+      <Route path="/find-nearby-doctor" component={FindNearbyDoctor} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
 function App() {
+  const [location] = useLocation();
+  const footerHiddenPrefixes = [
+    "/prediction",
+    "/patient-form",
+    "/result",
+    "/analysis",
+    "/assessment",
+    "/futuristic-assessment",
+  ];
+  const hideFooter = footerHiddenPrefixes.some(
+    (prefix) => location === prefix || location.startsWith(`${prefix}/`),
+  );
+
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
           <BackgroundAnimation />
-          <Router />
+          <div className="relative z-10 flex min-h-screen flex-col">
+            <div className="flex-1">
+              <Router />
+            </div>
+            {!hideFooter && <MainFooter />}
+          </div>
         </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>
