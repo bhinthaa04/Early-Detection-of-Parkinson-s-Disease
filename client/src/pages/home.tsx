@@ -4,7 +4,7 @@ import {
   ArrowRight, Brain, Activity, Shield, TrendingUp, 
   BarChart3, Info, AlertTriangle, ChevronDown, 
   ChevronUp, HeartPulse, User, MapPin, 
-  Play, X, Sparkles, Users, BookOpen
+  Play, X, Sparkles, Users, BookOpen, Menu, Sun, Moon
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
@@ -15,6 +15,7 @@ import { useState, useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Float, Sphere, MeshDistortMaterial } from "@react-three/drei";
 import parkinsonsVideo from "@assets/generated_videos/parkinsons_edu.mp4";
+import { useTheme } from "@/components/theme-provider";
 
 function BrainModel() {
   const meshRef = useRef<any>(null);
@@ -39,18 +40,19 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [severity, setSeverity] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
-  const allPages = [
+  const sidebarLinks = [
     { label: "Home", path: "/" },
-    { label: "Login", path: "/login" },
+    { label: "Take Test", path: "/patient-form" },
     { label: "Dashboard", path: "/dashboard" },
     { label: "Education", path: "/education" },
     { label: "Prediction", path: "/prediction" },
     { label: "Analysis", path: "/analysis" },
     { label: "Result", path: "/result" },
-    { label: "Real-Time Assist", path: "/assist" },
     { label: "Assessment", path: "/assessment" },
+    { label: "Real-Time Assist", path: "/assist" },
     { label: "Futuristic Assessment", path: "/futuristic-assessment" },
     { label: "Caregiver Connect", path: "/caregiver" },
     { label: "Guidance Therapy", path: "/therapy" },
@@ -139,56 +141,88 @@ export default function Home() {
         <motion.nav
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="py-6 flex justify-between items-center"
+          className="py-6 flex justify-between items-center sticky top-0 z-50 backdrop-blur bg-slate-900/60 rounded-2xl px-4"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary rounded-lg text-white">
-              <Brain className="w-6 h-6" />
+            <button
+              className="p-2 bg-white/10 rounded-lg text-white hover:bg-white/20"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open navigation"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-primary rounded-lg text-white">
+                <Brain className="w-6 h-6" />
+              </div>
+              <span className="text-2xl font-heading font-bold text-cyan-300">
+                NeuroScan AI
+              </span>
             </div>
-            <span className="text-2xl font-heading font-bold text-cyan-300">NeuroScan AI</span>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <Button variant="ghost" onClick={() => setLocation("/")} data-testid="nav-home" className="text-white hover:bg-white/10">Home</Button>
-            <Button variant="ghost" onClick={() => setLocation("/patient-form")} data-testid="nav-predict" className="text-white hover:bg-white/10">Test</Button>
-            <Button variant="ghost" onClick={() => setLocation("/education")} data-testid="nav-education" className="text-white hover:bg-white/10">Education</Button>
+            <Button variant="ghost" onClick={() => setLocation("/patient-form")} data-testid="nav-predict" className="text-white hover:bg-white/10">Take Test</Button>
             <Button variant="ghost" onClick={() => setLocation("/dashboard")} data-testid="nav-dashboard" className="text-white hover:bg-white/10">Dashboard</Button>
-            <div className="relative" onMouseLeave={() => setMenuOpen(false)}>
-              <Button
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10"
-                onClick={() => setMenuOpen((prev) => !prev)}
-              >
-                All Pages
-                <ChevronDown className="ml-1 h-4 w-4" />
-              </Button>
-              <AnimatePresence>
-                {menuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    className="absolute right-0 mt-2 w-[320px] rounded-2xl border border-slate-700 bg-slate-900/95 shadow-2xl z-50"
-                  >
-                    <div className="grid grid-cols-2 gap-2 p-3 max-h-96 overflow-y-auto">
-                      {allPages.map((item) => (
-                        <button
-                          key={item.path}
-                          onClick={() => {
-                            setLocation(item.path);
-                            setMenuOpen(false);
-                          }}
-                          className="rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-left text-sm text-white hover:bg-white/10"
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            <Button
+              variant="outline"
+              className="border-white/30 text-white hover:bg-white/10"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
           </div>
         </motion.nav>
+
+        {/* Sidebar overlay */}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <>
+              <motion.div
+                className="fixed inset-0 z-40 bg-black/60"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSidebarOpen(false)}
+              />
+              <motion.aside
+                className="fixed top-0 left-0 z-50 h-full w-80 bg-slate-900/95 backdrop-blur-xl border-r border-white/10 p-6 overflow-y-auto"
+                initial={{ x: -320 }}
+                animate={{ x: 0 }}
+                exit={{ x: -320 }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2 text-white">
+                    <Brain className="w-5 h-5 text-cyan-300" />
+                    <span className="font-heading font-semibold">All Navigation</span>
+                  </div>
+                  <button
+                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white"
+                    onClick={() => setSidebarOpen(false)}
+                    aria-label="Close sidebar"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {sidebarLinks.map((item) => (
+                    <button
+                      key={item.path}
+                      onClick={() => {
+                        setLocation(item.path);
+                        setSidebarOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/5 transition"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* Hero Section */}
         <div className="grid md:grid-cols-2 gap-12 items-center py-20">

@@ -13,6 +13,7 @@ import Dashboard from "@/pages/dashboard";
 import Analysis from "@/pages/analysis";
 import RealTimeAssist from "@/pages/real-time-assist";
 import MultiModalAssessment from "@/pages/multi-modal-assessment";
+import Education from "@/pages/education";
 import FuturisticAssessment from "@/pages/futuristic-assessment";
 import CaregiverConnect from "@/pages/caregiver-connect";
 import GuidanceTherapy from "@/pages/guidance-therapy";
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/assist" component={RealTimeAssist} />
       <Route path="/assessment" component={MultiModalAssessment} />
+      <Route path="/education" component={Education} />
       <Route path="/futuristic-assessment" component={FuturisticAssessment} />
       <Route path="/caregiver" component={CaregiverConnect} />
       <Route path="/therapy" component={GuidanceTherapy} />
