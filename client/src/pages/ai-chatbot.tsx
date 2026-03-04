@@ -41,13 +41,11 @@ export default function AIChatbot() {
   ]);
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-    }
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, isTyping]);
 
   const sendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -168,9 +166,9 @@ export default function AIChatbot() {
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="flex-1 flex flex-col p-0">
+              <CardContent className="min-h-0 flex-1 flex flex-col p-0">
                 {/* Messages */}
-                <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+                <ScrollArea className="min-h-0 flex-1 p-4">
                   <div className="space-y-4">
                     {messages.map((message) => (
                       <motion.div
@@ -187,12 +185,12 @@ export default function AIChatbot() {
                           }`}>
                             {message.sender === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                           </div>
-                          <div className={`rounded-2xl px-4 py-2 ${
+                          <div className={`max-h-64 overflow-y-auto rounded-2xl px-4 py-2 ${
                             message.sender === 'user'
                               ? 'bg-primary text-black'
                               : 'bg-gray-100 text-gray-900'
                           }`}>
-                            <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                            <p className="whitespace-pre-wrap break-words text-sm">{message.content}</p>
                             <p className="text-xs opacity-70 mt-1">
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </p>
@@ -219,6 +217,7 @@ export default function AIChatbot() {
                         </div>
                       </motion.div>
                     )}
+                    <div ref={messagesEndRef} />
                   </div>
                 </ScrollArea>
 

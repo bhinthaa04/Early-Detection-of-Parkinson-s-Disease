@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+﻿import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { 
   ArrowRight, Brain, Activity, Shield, TrendingUp, 
@@ -39,6 +39,40 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [severity, setSeverity] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const allPages = [
+    { label: "Home", path: "/" },
+    { label: "Login", path: "/login" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Education", path: "/education" },
+    { label: "Prediction", path: "/prediction" },
+    { label: "Analysis", path: "/analysis" },
+    { label: "Result", path: "/result" },
+    { label: "Real-Time Assist", path: "/assist" },
+    { label: "Assessment", path: "/assessment" },
+    { label: "Futuristic Assessment", path: "/futuristic-assessment" },
+    { label: "Caregiver Connect", path: "/caregiver" },
+    { label: "Guidance Therapy", path: "/therapy" },
+    { label: "Therapy Speech", path: "/therapy/speech" },
+    { label: "Therapy Hand", path: "/therapy/hand" },
+    { label: "Therapy Breathing", path: "/therapy/breathing" },
+    { label: "Therapy Movement", path: "/therapy/movement" },
+    { label: "Therapy Awareness", path: "/therapy/awareness" },
+    { label: "Therapy Spiral", path: "/therapy/spiral" },
+    { label: "Brain Games", path: "/brain-games" },
+    { label: "AI Chatbot", path: "/ai-chatbot" },
+    { label: "Doctor Login", path: "/doctor-login" },
+    { label: "Doctor Dashboard", path: "/doctor-dashboard" },
+    { label: "Doctor Patient View", path: "/doctor-patient" },
+    { label: "Progression Forecast", path: "/progression-forecast" },
+    { label: "Wearable Integration", path: "/wearable-integration" },
+    { label: "Find Specialist", path: "/find-specialist" },
+    { label: "Postural Sway", path: "/postural-sway" },
+    { label: "Daily Tasks", path: "/daily-tasks" },
+    { label: "Patient Form", path: "/patient-form" },
+    { label: "Find Nearby Doctor", path: "/find-nearby-doctor" },
+  ];
 
   const stages = [
     { label: "Early Stage", color: "text-green-500", icon: "🟢", desc: "Mild symptoms, often overlooked. Tremors might start." },
@@ -118,6 +152,41 @@ export default function Home() {
             <Button variant="ghost" onClick={() => setLocation("/patient-form")} data-testid="nav-predict" className="text-white hover:bg-white/10">Test</Button>
             <Button variant="ghost" onClick={() => setLocation("/education")} data-testid="nav-education" className="text-white hover:bg-white/10">Education</Button>
             <Button variant="ghost" onClick={() => setLocation("/dashboard")} data-testid="nav-dashboard" className="text-white hover:bg-white/10">Dashboard</Button>
+            <div className="relative" onMouseLeave={() => setMenuOpen(false)}>
+              <Button
+                variant="outline"
+                className="border-white/30 text-white hover:bg-white/10"
+                onClick={() => setMenuOpen((prev) => !prev)}
+              >
+                All Pages
+                <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+              <AnimatePresence>
+                {menuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    className="absolute right-0 mt-2 w-[320px] rounded-2xl border border-slate-700 bg-slate-900/95 shadow-2xl z-50"
+                  >
+                    <div className="grid grid-cols-2 gap-2 p-3 max-h-96 overflow-y-auto">
+                      {allPages.map((item) => (
+                        <button
+                          key={item.path}
+                          onClick={() => {
+                            setLocation(item.path);
+                            setMenuOpen(false);
+                          }}
+                          className="rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-left text-sm text-white hover:bg-white/10"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </motion.nav>
 

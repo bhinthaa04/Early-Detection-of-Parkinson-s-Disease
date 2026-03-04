@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import BackgroundAnimation from "@/components/BackgroundAnimation";
 import Home from "@/pages/home";
-import Education from "@/pages/education";
+import Login from "@/pages/login";
 import Prediction from "@/pages/prediction";
 import Result from "@/pages/result";
 import Dashboard from "@/pages/dashboard";
@@ -41,7 +41,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/education" component={Education} />
+      <Route path="/login" component={Login} />
       <Route path="/prediction" component={Prediction} />
       <Route path="/analysis" component={Analysis} />
       <Route path="/result" component={Result} />

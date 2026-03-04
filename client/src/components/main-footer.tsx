@@ -146,6 +146,9 @@ export function MainFooter() {
         <p className="mx-auto mt-2 max-w-7xl text-xs text-blue-200/90">
           Your uploaded voice and images are not stored permanently.
         </p>
+        <p className="mx-auto mt-2 max-w-7xl text-xs text-white">
+          &copy; 2025 NeuroScan AI. All medical information is for educational purposes only.
+        </p>
       </div>
     </motion.footer>
   );

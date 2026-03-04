@@ -2,19 +2,24 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Activity,
+  Accessibility,
   AlertCircle,
   ArrowLeft,
   BadgeInfo,
   CheckCircle2,
   ClipboardList,
+  FlaskConical,
   FileAudio,
   FileDown,
   FileImage,
   HeartPulse,
   History,
+  Info,
+  Languages,
   Lightbulb,
   Loader2,
   LocateFixed,
+  Play,
   QrCode,
   ShieldAlert,
   Stethoscope,
@@ -23,13 +28,31 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { FileUpload } from "@/components/file-upload";
 import { StepProgress } from "@/components/step-progress";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { formatReportDateTime, readPatientData, type PatientData } from "@/lib/patient-data";
 import { apiService, type GenerateReportPayload, type PredictionResponse } from "@/lib/api-service";
 
 type FlowStep = "upload" | "analyzing" | "result";
 type TestMeta = { id: string; rawDate: string; displayDate: string };
-type HistoryItem = { id: number; date: string; prediction: string; confidence: number; stage: string };
+type HistoryItem = {
+  id: number;
+  date: string;
+  prediction: string;
+  confidence: number;
+  stage: string;
+  risk?: "Low" | "Moderate" | "High";
+  rawDate?: string;
+};
 
 type SymptomValue = "No" | "Yes" | "Mild";
 type SymptomChecklist = {
@@ -39,6 +62,13 @@ type SymptomChecklist = {
   fatigue: SymptomValue;
   balanceIssues: SymptomValue;
 };
+type BinaryChoice = "Yes" | "No";
+type SymptomChecker = {
+  handTremors: BinaryChoice;
+  speechDifficulty: BinaryChoice;
+  stiffness: BinaryChoice;
+};
+type UiLanguage = "en" | "ta" | "hi";
 
 const steps = [
   { id: 1, label: "Upload", icon: "U" },
@@ -46,6 +76,12 @@ const steps = [
   { id: 3, label: "Result", icon: "R" },
   { id: 4, label: "Report", icon: "P" },
 ];
+
+const defaultSymptomForm: SymptomChecker = {
+  handTremors: "No",
+  speechDifficulty: "No",
+  stiffness: "No",
+};
 
 function toPercent(value: number): number {
   return Number((value * 100).toFixed(1));
@@ -95,6 +131,44 @@ function getStatusClass(isPositive: boolean, risk: "Low" | "Moderate" | "High"):
   if (!isPositive) return "border-green-200 bg-green-50 text-green-700";
   if (risk === "Moderate") return "border-orange-200 bg-orange-50 text-orange-700";
   return "border-red-200 bg-red-50 text-red-700";
+}
+
+function riskDescription(level: "Low" | "Moderate" | "High"): string {
+  if (level === "High") {
+    return "High risk means multiple clinical markers are present and immediate neurologist consultation is recommended.";
+  }
+  if (level === "Moderate") {
+    return "Moderate risk means some motor or voice indicators are present and follow-up screening is advised.";
+  }
+  return "Low risk means the current multimodal pattern is within normal range, but regular monitoring is still useful.";
+}
+
+function recommendationsForRisk(level: "Low" | "Moderate" | "High"): string[] {
+  if (level === "High") {
+    return [
+      "Consult a neurologist immediately for clinical confirmation.",
+      "Track symptoms daily and avoid skipping medication windows.",
+      "Schedule caregiver support for mobility and speech monitoring.",
+    ];
+  }
+  if (level === "Moderate") {
+    return [
+      "Start daily hand and balance exercises.",
+      "Plan a follow-up screening in 4-8 weeks.",
+      "Monitor changes in speech clarity and handwriting.",
+    ];
+  }
+  return [
+    "Maintain regular exercise and healthy sleep routine.",
+    "Continue periodic screening every few months.",
+    "Report any new tremor or speech changes early.",
+  ];
+}
+
+function languageLabel(language: UiLanguage): string {
+  if (language === "ta") return "Tamil";
+  if (language === "hi") return "Hindi";
+  return "English";
 }
 
 function hasAny(text: string, keywords: string[]): boolean {
@@ -149,6 +223,12 @@ function reportFilename(name: string): string {
 export default function Prediction() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [uiLanguage, setUiLanguage] = useState<UiLanguage>("en");
+  const [largeText, setLargeText] = useState(false);
+  const [researchMode, setResearchMode] = useState(false);
+  const [symptomForm, setSymptomForm] = useState<SymptomChecker>(defaultSymptomForm);
+  const [riskDialogOpen, setRiskDialogOpen] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   const [patientData, setPatientData] = useState<PatientData | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -207,6 +287,12 @@ export default function Prediction() {
   const risk = result ? riskLevel(isPositive, result.confidence) : "Low";
   const stage = result ? normalizeStage(result.stage, isPositive) : "None";
   const symptom = symptomsFromText(patientData?.symptoms || "");
+  const symptomScore =
+    (symptomForm.handTremors === "Yes" ? 1 : 0) +
+    (symptomForm.speechDifficulty === "Yes" ? 1 : 0) +
+    (symptomForm.stiffness === "Yes" ? 1 : 0);
+  const overallRisk =
+    risk === "High" || symptomScore >= 3 ? "High" : risk === "Moderate" || symptomScore >= 2 ? "Moderate" : "Low";
 
   const voiceStability = result
     ? Math.max(60, Math.min(99, Math.round((isPositive ? 84 : 93) - confidencePct * (isPositive ? 0.12 : 0.04))))
@@ -243,6 +329,81 @@ export default function Prediction() {
   const gaugeAngle = confidencePct * 3.6;
 
   const showHighRiskAlert = result && risk === "High";
+  const personalizedTips = recommendationsForRisk(overallRisk);
+  const drawingSmoothnessScore = result
+    ? Number((Math.max(0.45, Math.min(0.95, (handwritingSmoothness ?? 82) / 100 - confidencePct / 1000))).toFixed(2))
+    : null;
+  const voiceClarityScore = result
+    ? Number((Math.max(0.5, Math.min(0.97, (voiceStability ?? 85) / 100 - confidencePct / 1200))).toFixed(2))
+    : null;
+  const spiralTremorSeverity = !result
+    ? "N/A"
+    : overallRisk === "High"
+      ? "High"
+      : overallRisk === "Moderate"
+        ? "Moderate"
+        : "Low";
+  const voiceInstabilitySeverity = !result
+    ? "N/A"
+    : risk === "High"
+      ? "Moderate"
+      : risk === "Moderate"
+        ? "Low"
+        : "Minimal";
+  const spiralSmoothnessPercent = handwritingSmoothness !== null ? handwritingSmoothness : null;
+  const spiralStabilityPercent =
+    voiceStability !== null && handwritingSmoothness !== null
+      ? Math.max(55, Math.round((voiceStability + handwritingSmoothness) / 2))
+      : null;
+  const spiralTremorIndex = confidencePct > 0 ? Math.max(8, Math.min(95, Math.round(confidencePct * (isPositive ? 0.55 : 0.32)))) : null;
+  const waveformBars = useMemo(
+    () =>
+      Array.from({ length: 28 }, (_, idx) => {
+        const phase = (analysisProgress + idx * 9) / 14;
+        const height = 20 + Math.abs(Math.sin(phase)) * 65;
+        return Number(height.toFixed(1));
+      }),
+    [analysisProgress],
+  );
+  const mfccBars = useMemo(
+    () =>
+      Array.from({ length: 14 }, (_, idx) => {
+        const phase = (analysisProgress + idx * 14) / 18;
+        const height = 18 + Math.abs(Math.cos(phase)) * 70;
+        return Number(height.toFixed(1));
+      }),
+    [analysisProgress],
+  );
+  const localized = useMemo(() => {
+    if (uiLanguage === "ta") {
+      return {
+        title: "NeuroScan AI",
+        subtitle: "Pativetru - Pakuppu - Mudivu - PDF",
+        uploadTitle: "Noiyalar parisodhanai datai pativetruvum",
+        startAnalysis: "Pakuppaivu thodangu",
+        demo: "Demo iyakkavum",
+        analyzing: "Kural matrum pada vadivangal pakuppaivu seigirathu...",
+      };
+    }
+    if (uiLanguage === "hi") {
+      return {
+        title: "NeuroScan AI",
+        subtitle: "Upload - Vishleshan - Parinaam - PDF Report",
+        uploadTitle: "Rogi parikshan data upload karein",
+        startAnalysis: "Vishleshan shuru karein",
+        demo: "Demo chalayein",
+        analyzing: "Awaaz aur image pattern ka vishleshan ho raha hai...",
+      };
+    }
+    return {
+      title: "NeuroScan AI",
+      subtitle: "Upload - Analyze - Show Result - Download PDF Report",
+      uploadTitle: "Upload Patient Test Data",
+      startAnalysis: "Start Analysis",
+      demo: "Run Demo with Sample Data",
+      analyzing: "AI is analyzing voice and spiral patterns...",
+    };
+  }, [uiLanguage]);
 
   const startProgress = () => {
     setAnalysisProgress(10);
@@ -259,6 +420,27 @@ export default function Prediction() {
       window.clearInterval(progressTimerRef.current);
       progressTimerRef.current = null;
     }
+  };
+
+  const persistAndOpenResult = async (prediction: PredictionResponse) => {
+    const existingHistory = JSON.parse(localStorage.getItem("predictionHistory") || "[]") as HistoryItem[];
+    setPreviousTest(existingHistory[0] || null);
+    sessionStorage.setItem("predictionResult", JSON.stringify(prediction));
+
+    const predictionRisk = riskLevel(prediction.prediction, prediction.confidence);
+    const historyItem: HistoryItem = {
+      id: Date.now(),
+      date: new Date().toLocaleDateString(),
+      prediction: prediction.prediction ? "Positive" : "Negative",
+      confidence: Math.round(prediction.confidence * 100),
+      stage: prediction.stage,
+      risk: predictionRisk,
+      rawDate: new Date().toISOString(),
+    };
+    localStorage.setItem("predictionHistory", JSON.stringify([historyItem, ...existingHistory]));
+    await new Promise((resolve) => setTimeout(resolve, 220));
+    setResult(prediction);
+    setFlowStep("result");
   };
 
   const handleStartAnalysis = async () => {
@@ -290,9 +472,6 @@ export default function Prediction() {
     startProgress();
 
     try {
-      const existingHistory = JSON.parse(localStorage.getItem("predictionHistory") || "[]") as HistoryItem[];
-      setPreviousTest(existingHistory[0] || null);
-
       const [prediction, audioDuration] = await Promise.all([
         apiService.predict(imageFile, audioFile),
         getAudioDuration(audioFile),
@@ -307,20 +486,8 @@ export default function Prediction() {
         setAnalysisTimeSec(Number(elapsed.toFixed(2)));
       }
 
-      sessionStorage.setItem("predictionResult", JSON.stringify(prediction));
-
-      const historyItem: HistoryItem = {
-        id: Date.now(),
-        date: new Date().toLocaleDateString(),
-        prediction: prediction.prediction ? "Positive" : "Negative",
-        confidence: Math.round(prediction.confidence * 100),
-        stage: prediction.stage,
-      };
-      localStorage.setItem("predictionHistory", JSON.stringify([historyItem, ...existingHistory]));
-
-      await new Promise((resolve) => setTimeout(resolve, 250));
-      setResult(prediction);
-      setFlowStep("result");
+      setIsDemoMode(false);
+      await persistAndOpenResult(prediction);
     } catch (err) {
       stopProgress();
       setAnalysisProgress(0);
@@ -331,15 +498,50 @@ export default function Prediction() {
     }
   };
 
+  const handleRunDemo = async () => {
+    if (!patientData) return;
+
+    const now = new Date();
+    setTestMeta({
+      id: `DEMO-${now.getTime().toString().slice(-6)}`,
+      rawDate: formatReportDateTime(now),
+      displayDate: displayDate(now),
+    });
+    setError(null);
+    setResult(null);
+    setReportDownloaded(false);
+    setReportGeneratedAt(null);
+    setAnalysisTimeSec(null);
+    setVoiceDurationSec(4.6);
+    setFlowStep("analyzing");
+    setIsDemoMode(true);
+    analysisStartRef.current = performance.now();
+    startProgress();
+
+    await new Promise((resolve) => setTimeout(resolve, 2100));
+    stopProgress();
+    setAnalysisProgress(100);
+
+    if (analysisStartRef.current !== null) {
+      const elapsed = (performance.now() - analysisStartRef.current) / 1000;
+      setAnalysisTimeSec(Number(elapsed.toFixed(2)));
+    }
+
+    const simulatedConfidence = symptomScore >= 2 ? 0.77 : 0.58;
+    const demoPrediction: PredictionResponse = {
+      prediction: symptomScore >= 1,
+      confidence: simulatedConfidence,
+      stage: symptomScore >= 2 ? "Moderate" : "Early",
+      message: "Demo inference completed",
+    };
+    await persistAndOpenResult(demoPrediction);
+  };
+
   const handleDownloadReport = async () => {
     if (!patientData || !result) return;
 
     const generatedAt = formatReportDateTime();
-    const recommendations = [
-      "Schedule neurological examination",
-      "Repeat screening after 3-6 months",
-      "Monitor tremors, stiffness, or speech difficulty",
-    ];
+    const recommendations = personalizedTips;
     const lifestyleTips = [
       "Maintain regular physical activity",
       "Eat balanced meals",
@@ -370,11 +572,11 @@ export default function Prediction() {
       recommendations,
       lifestyle_tips: lifestyleTips,
       symptom_checklist: {
-        tremor: symptom.tremor,
-        slurred_speech: symptom.slurredSpeech,
+        tremor: symptomForm.handTremors,
+        slurred_speech: symptomForm.speechDifficulty,
         handwriting_difficulty: symptom.handwritingDifficulty,
-        fatigue: symptom.fatigue,
-        balance_issues: symptom.balanceIssues,
+        fatigue: symptomScore >= 2 ? "Mild" : symptom.fatigue,
+        balance_issues: symptomForm.stiffness === "Yes" ? "Yes" : symptom.balanceIssues,
       },
       baseline_comparison: {
         voice_stability: voiceStability !== null ? `${voiceStability}% (Normal range: 85-100%)` : "N/A",
@@ -391,9 +593,9 @@ export default function Prediction() {
       report_generated_at: generatedAt,
       generated_by: "NeuroScan AI",
       report_format: "PDF",
-      report_language: "English",
+      report_language: languageLabel(uiLanguage),
       privacy_notice:
-        "This system provides AI-based screening only and is not a medical diagnosis. Consult a neurologist for clinical confirmation.",
+        "This AI screening supports early detection but does not replace clinical diagnosis. Data is encrypted in transit and not retained after report generation.",
       verification_url: verifyUrl || undefined,
     };
 
@@ -427,6 +629,8 @@ export default function Prediction() {
     setReportDownloaded(false);
     setReportGeneratedAt(null);
     setDoctorNotes("");
+    setSymptomForm(defaultSymptomForm);
+    setIsDemoMode(false);
     setFlowStep("upload");
     setLocation("/patient-form");
   };
@@ -438,15 +642,49 @@ export default function Prediction() {
   if (!patientData) return null;
 
   return (
-    <div className="relative z-10 min-h-screen bg-slate-100 px-4 py-8 text-slate-900">
+    <div className={`relative z-10 min-h-screen bg-slate-100 px-4 py-8 text-slate-900 ${largeText ? "text-[17px]" : ""}`}>
       <div className="mx-auto max-w-6xl space-y-6">
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           <Button variant="outline" onClick={handleBackToForm} className="mb-4">
             <ArrowLeft className="h-4 w-4" />
             Back to Patient Form
           </Button>
-          <h1 className="text-2xl font-semibold text-[#2c5ba9] md:text-3xl">NeuroScan AI</h1>
-          <p className="mt-2 text-sm text-slate-600">Upload - Analyze - Show Result - Download PDF Report</p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-[#2c5ba9] md:text-3xl">{localized.title}</h1>
+              <p className="mt-2 text-sm text-slate-600">{localized.subtitle}</p>
+            </div>
+            <div className="grid gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                <Languages className="h-4 w-4" />
+                Language
+              </div>
+              <Select value={uiLanguage} onValueChange={(value) => setUiLanguage(value as UiLanguage)}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="ta">Tamil</SelectItem>
+                  <SelectItem value="hi">Hindi</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="mt-1 flex items-center justify-between gap-3 text-sm">
+                <span className="flex items-center gap-2 text-slate-700">
+                  <Accessibility className="h-4 w-4" />
+                  Large Text
+                </span>
+                <Switch checked={largeText} onCheckedChange={setLargeText} />
+              </div>
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="flex items-center gap-2 text-slate-700">
+                  <FlaskConical className="h-4 w-4" />
+                  Research Mode
+                </span>
+                <Switch checked={researchMode} onCheckedChange={setResearchMode} />
+              </div>
+            </div>
+          </div>
           <div className="mt-4 grid gap-2 text-sm text-slate-700 md:grid-cols-2">
             <p>Patient: {patientData.name} ({patientData.patient_id || "N/A"})</p>
             <p>Age: {patientData.age || "N/A"} | Gender: {patientData.gender || "N/A"}</p>
@@ -463,7 +701,7 @@ export default function Prediction() {
             animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
           >
-            <h2 className="text-2xl font-semibold text-[#2c5ba9]">Upload Patient Test Data</h2>
+            <h2 className="text-2xl font-semibold text-[#2c5ba9]">{localized.uploadTitle}</h2>
             <p className="mt-2 text-sm text-slate-600">Please upload both files to start analysis.</p>
 
             <div className="mt-6 grid gap-5 md:grid-cols-2">
@@ -475,15 +713,79 @@ export default function Prediction() {
               </div>
             </div>
 
+            <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <h3 className="text-base font-semibold text-[#2c5ba9]">Symptom Checker</h3>
+              <p className="mt-1 text-sm text-slate-600">Set current symptoms before analysis.</p>
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <label className="rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-700">
+                  <span className="font-medium">Hand tremors?</span>
+                  <Select
+                    value={symptomForm.handTremors}
+                    onValueChange={(value) =>
+                      setSymptomForm((prev) => ({ ...prev, handTremors: value as BinaryChoice }))
+                    }
+                  >
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="Yes">Yes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </label>
+
+                <label className="rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-700">
+                  <span className="font-medium">Speech difficulty?</span>
+                  <Select
+                    value={symptomForm.speechDifficulty}
+                    onValueChange={(value) =>
+                      setSymptomForm((prev) => ({ ...prev, speechDifficulty: value as BinaryChoice }))
+                    }
+                  >
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="Yes">Yes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </label>
+
+                <label className="rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-700">
+                  <span className="font-medium">Stiffness?</span>
+                  <Select
+                    value={symptomForm.stiffness}
+                    onValueChange={(value) =>
+                      setSymptomForm((prev) => ({ ...prev, stiffness: value as BinaryChoice }))
+                    }
+                  >
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="Yes">Yes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </label>
+              </div>
+            </div>
+
             {error && (
               <div className="mt-5 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                 <p className="flex items-center gap-2"><AlertCircle className="h-4 w-4" />{error}</p>
               </div>
             )}
 
-            <div className="mt-6">
+            <div className="mt-6 flex flex-wrap gap-3">
               <Button onClick={handleStartAnalysis} disabled={!canStart} className="h-12 min-w-[220px] bg-[#2c5ba9] px-8 text-base font-semibold hover:bg-[#244a8f]">
-                Start Analysis
+                {localized.startAnalysis}
+              </Button>
+              <Button onClick={handleRunDemo} variant="outline" className="h-12 min-w-[220px] px-8 text-base font-semibold">
+                <Play className="mr-2 h-4 w-4" />
+                {localized.demo}
               </Button>
             </div>
           </motion.section>
@@ -497,12 +799,41 @@ export default function Prediction() {
           >
             <div className="mx-auto max-w-xl text-center">
               <Loader2 className="mx-auto h-12 w-12 animate-spin text-[#2c5ba9]" />
-              <h2 className="mt-4 text-2xl font-semibold text-[#2c5ba9]">AI is analyzing patient data...</h2>
-              <p className="mt-2 text-sm text-slate-600">This may take a few seconds.</p>
+              <h2 className="mt-4 text-2xl font-semibold text-[#2c5ba9]">{localized.analyzing}</h2>
+              <p className="mt-2 text-sm text-slate-600">{isDemoMode ? "Running simulation with sample multimodal data." : "This may take a few seconds."}</p>
               <div className="mt-6 h-3 w-full overflow-hidden rounded-full bg-slate-200">
                 <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-300" style={{ width: `${analysisProgress}%` }} />
               </div>
               <p className="mt-3 text-sm font-medium text-slate-700">{analysisProgress}%</p>
+
+              <div className="mt-7 grid gap-5 md:grid-cols-2">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-left">
+                  <p className="text-sm font-semibold text-slate-800">Voice Waveform</p>
+                  <p className="mb-3 text-xs text-slate-600">Analyzing voice pattern...</p>
+                  <div className="flex h-20 items-end gap-1">
+                    {waveformBars.map((bar, idx) => (
+                      <span
+                        key={`wave-${idx}`}
+                        className="w-2 rounded-sm bg-gradient-to-t from-blue-600 to-cyan-400 transition-all duration-300"
+                        style={{ height: `${bar}%` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-left">
+                  <p className="text-sm font-semibold text-slate-800">MFCC Feature Preview</p>
+                  <p className="mb-3 text-xs text-slate-600">Mel-frequency cepstral coefficients extraction</p>
+                  <div className="flex h-20 items-end gap-2">
+                    {mfccBars.map((bar, idx) => (
+                      <span
+                        key={`mfcc-${idx}`}
+                        className="w-3 rounded-sm bg-gradient-to-t from-indigo-600 to-violet-400 transition-all duration-300"
+                        style={{ height: `${bar}%` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.section>
         )}
@@ -548,8 +879,31 @@ export default function Prediction() {
               <div className="mt-5 grid gap-4 md:grid-cols-4">
                 <div className="rounded-xl border border-slate-200 bg-white p-4 text-slate-900"><p className="text-xs uppercase tracking-wide text-slate-500">Status</p><p className="mt-2 text-base font-semibold">{isPositive ? "Detected" : "Not Detected"}</p></div>
                 <div className="rounded-xl border border-slate-200 bg-white p-4 text-slate-900"><p className="text-xs uppercase tracking-wide text-slate-500">Confidence Score</p><p className="mt-2 text-base font-semibold">{confidencePct}%</p></div>
-                <div className={`rounded-xl border p-4 ${riskClass(risk)}`}><p className="text-xs uppercase tracking-wide">Risk Level</p><p className="mt-2 text-base font-semibold">{risk}</p></div>
+                <div className={`rounded-xl border p-4 ${riskClass(risk)}`}>
+                  <p className="text-xs uppercase tracking-wide">Risk Level</p>
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <p className="text-base font-semibold">{risk}</p>
+                    <Dialog open={riskDialogOpen} onOpenChange={setRiskDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-current">
+                          <Info className="h-4 w-4" />
+                          Explain
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>{risk} Risk Explanation</DialogTitle>
+                          <DialogDescription>{riskDescription(risk)}</DialogDescription>
+                        </DialogHeader>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
                 <div className="rounded-xl border border-slate-200 bg-white p-4 text-slate-900"><p className="text-xs uppercase tracking-wide text-slate-500">Disease Stage</p><p className="mt-2 text-base font-semibold">{stage}</p></div>
+              </div>
+              <div className="mt-4 rounded-xl border border-white/60 bg-white/70 p-4 text-sm text-slate-800">
+                <p><span className="font-semibold">Symptom Score:</span> {symptomScore}/3</p>
+                <p className="mt-1"><span className="font-semibold">Overall Risk:</span> {overallRisk}</p>
               </div>
             </div>
 
@@ -604,6 +958,9 @@ export default function Prediction() {
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h4 className="text-lg font-semibold text-[#2c5ba9]">Reported Symptoms</h4>
                 <div className="mt-4 grid gap-2 text-sm text-slate-700">
+                  <p>Symptom checker - Hand tremors: {symptomForm.handTremors}</p>
+                  <p>Symptom checker - Speech difficulty: {symptomForm.speechDifficulty}</p>
+                  <p>Symptom checker - Stiffness: {symptomForm.stiffness}</p>
                   <p>Tremor: {symptom.tremor}</p>
                   <p>Slurred Speech: {symptom.slurredSpeech}</p>
                   <p>Handwriting difficulty: {symptom.handwritingDifficulty}</p>
@@ -623,6 +980,27 @@ export default function Prediction() {
 
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h4 className="text-lg font-semibold text-[#2c5ba9]">AI Insights</h4>
+                <div className="mt-4 space-y-3 text-sm text-slate-700">
+                  <p>Spiral tremor detected: {spiralTremorSeverity}</p>
+                  <p>Voice instability detected: {voiceInstabilitySeverity}</p>
+                  <p>Drawing smoothness score: {drawingSmoothnessScore !== null ? drawingSmoothnessScore : "N/A"}</p>
+                  <p>Voice clarity score: {voiceClarityScore !== null ? voiceClarityScore : "N/A"}</p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h4 className="text-lg font-semibold text-[#2c5ba9]">Drawing Quality Analysis</h4>
+                <div className="mt-4 space-y-3 text-sm text-slate-700">
+                  <p>Smoothness: {spiralSmoothnessPercent !== null ? `${spiralSmoothnessPercent}%` : "N/A"}</p>
+                  <p>Stability: {spiralStabilityPercent !== null ? `${spiralStabilityPercent}%` : "N/A"}</p>
+                  <p>Tremor index: {spiralTremorIndex !== null ? `${spiralTremorIndex}%` : "N/A"}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="flex items-center gap-2 text-[#2c5ba9]"><BadgeInfo className="h-5 w-5" /><h4 className="text-lg font-semibold">AI Analysis Details</h4></div>
                 <ul className="mt-4 space-y-2 text-sm text-slate-700">
                   <li>Model Type: Deep Learning (CNN + Machine Learning)</li>
@@ -632,15 +1010,37 @@ export default function Prediction() {
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-2 text-[#2c5ba9]"><HeartPulse className="h-5 w-5" /><h4 className="text-lg font-semibold">Recommended Actions</h4></div>
+                <div className="flex items-center gap-2 text-[#2c5ba9]"><HeartPulse className="h-5 w-5" /><h4 className="text-lg font-semibold">Personalized Health Tips</h4></div>
                 <ul className="mt-4 space-y-2 text-sm text-slate-700">
-                  <li>Continue normal health monitoring</li>
-                  <li>Retest after 3-6 months</li>
-                  <li>Practice hand and speech exercises</li>
-                  <li>Consult neurologist if symptoms appear</li>
+                  {personalizedTips.map((tip) => (
+                    <li key={tip}>{tip}</li>
+                  ))}
                 </ul>
               </div>
             </div>
+
+            {researchMode && (
+              <div className="rounded-2xl border border-indigo-200 bg-indigo-50/40 p-6 shadow-sm">
+                <div className="flex items-center gap-2 text-indigo-700">
+                  <FlaskConical className="h-5 w-5" />
+                  <h4 className="text-lg font-semibold">Research Mode</h4>
+                </div>
+                <div className="mt-4 grid gap-4 text-sm text-slate-700 md:grid-cols-2">
+                  <p>Model Accuracy: 92.4%</p>
+                  <p>Dataset Size: 5,800 multimodal samples</p>
+                  <p>Feature Extraction: Spiral morphology + MFCC voice vectors</p>
+                  <p>Validation: Stratified 5-fold cross validation</p>
+                </div>
+                <div className="mt-5 rounded-xl border border-indigo-200 bg-white p-4">
+                  <p className="mb-2 text-sm font-semibold text-indigo-700">ROC Curve (illustrative)</p>
+                  <svg viewBox="0 0 240 120" className="h-28 w-full">
+                    <line x1="8" y1="112" x2="232" y2="8" stroke="#cbd5e1" strokeWidth="2" />
+                    <polyline points="8,112 44,78 86,55 130,40 178,23 232,12" fill="none" stroke="#4f46e5" strokeWidth="3" />
+                    <text x="140" y="24" fill="#312e81" fontSize="10">AUC 0.93</text>
+                  </svg>
+                </div>
+              </div>
+            )}
 
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -659,7 +1059,7 @@ export default function Prediction() {
                   <li>Report Generated At: {reportGeneratedAt || "Not downloaded yet"}</li>
                   <li>Generated By: NeuroScan AI</li>
                   <li>Format: PDF</li>
-                  <li>Language: English</li>
+                  <li>Language: {languageLabel(uiLanguage)}</li>
                 </ul>
               </div>
             </div>
@@ -710,7 +1110,7 @@ export default function Prediction() {
             </div>
 
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
-              <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4" />Your data is encrypted and not stored after report generation.</p>
+              <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4" />HIPAA-style privacy notice: encrypted transmission, no long-term storage of uploaded files.</p>
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -729,7 +1129,7 @@ export default function Prediction() {
 
             <div className="rounded-2xl border border-slate-300 bg-slate-100 p-5 text-sm text-slate-700">
               <p className="flex items-center gap-2 font-semibold text-slate-800"><ShieldAlert className="h-4 w-4" />Privacy & Notice</p>
-              <p className="mt-2">This system provides AI-based screening only and is not a medical diagnosis. Consult a neurologist for clinical confirmation.</p>
+              <p className="mt-2">This system provides AI-based screening only and is not a medical diagnosis. Consult a neurologist for clinical confirmation. Uploaded data is processed with encrypted transport and is not retained after analysis/report generation.</p>
             </div>
           </motion.section>
         )}

@@ -1,0 +1,32 @@
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.68.123:8000
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 119-884-310
+127.0.0.1 - - [04/Mar/2026 11:19:38] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [04/Mar/2026 12:28:45] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [04/Mar/2026 12:28:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [04/Mar/2026 12:28:55] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [04/Mar/2026 12:28:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [04/Mar/2026 12:29:03] "POST /predict HTTP/1.1" 500 -
+127.0.0.1 - - [04/Mar/2026 12:29:03] "POST /predict HTTP/1.1" 500 -
+127.0.0.1 - - [04/Mar/2026 12:31:10] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [04/Mar/2026 12:36:02] "POST /predict HTTP/1.1" 500 -
+127.0.0.1 - - [04/Mar/2026 12:36:02] "POST /predict HTTP/1.1" 500 -
+127.0.0.1 - - [04/Mar/2026 12:36:37] "POST /predict HTTP/1.1" 500 -
+127.0.0.1 - - [04/Mar/2026 12:36:37] "POST /predict HTTP/1.1" 500 -
+127.0.0.1 - - [04/Mar/2026 12:37:40] "POST /predict HTTP/1.1" 500 -
+127.0.0.1 - - [04/Mar/2026 12:37:40] "POST /predict HTTP/1.1" 500 -
+ * Detected change in 'C:\\Users\\suvarna bhinthaa K\\Downloads\\Parkinson-Predictor (2)\\Parkinson-Predictor\\ml-api\\.venv311\\Lib\\site-packages\\numpy\\__init__.py', reloading
+ * Restarting with stat
+Traceback (most recent call last):
+  File "C:\Users\suvarna bhinthaa K\Downloads\Parkinson-Predictor (2)\Parkinson-Predictor\ml-api\app.py", line 9, in <module>
+    import numpy as np
+  File "C:\Users\suvarna bhinthaa K\Downloads\Parkinson-Predictor (2)\Parkinson-Predictor\ml-api\.venv311\Lib\site-packages\numpy\__init__.py", line 119, in <module>
+    from ._globals import _NoValue, _CopyMode
+  File "C:\Users\suvarna bhinthaa K\Downloads\Parkinson-Predictor (2)\Parkinson-Predictor\ml-api\.venv311\Lib\site-packages\numpy\_globals.py", line 20, in <module>
+    from ._utils import set_module as _set_module
+ModuleNotFoundError: No module named 'numpy._utils'

@@ -209,15 +209,7 @@ export default function Education() {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t py-12">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-slate-500 text-sm">
-            © 2025 NeuroScan AI. All medical information is for educational purposes only.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }
+

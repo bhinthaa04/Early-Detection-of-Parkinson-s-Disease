@@ -1,23 +1,70 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useLocation } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Brain, Activity, TestTube, BookOpen, LayoutDashboard } from "lucide-react";
+import { Brain, Activity, TestTube, BookOpen, LayoutDashboard, ChevronDown, Stethoscope, Users, FileText, Mic, Hand, Wind, Gamepad2, Video, Watch, MessageSquare } from "lucide-react";
 
 interface GlobalLayoutProps {
   children: ReactNode;
 }
 
+// Dropdown navigation data
+const navDropdowns = [
+  {
+    id: "overview",
+    label: "Overview",
+    items: [
+      { path: "/", label: "Home", icon: Brain },
+      { path: "/education", label: "About Parkinson's", icon: BookOpen },
+      { path: "/education#symptoms", label: "Symptoms Guide", icon: Activity },
+    ]
+  },
+  {
+    id: "diagnostics",
+    label: "Diagnostics",
+    items: [
+      { path: "/prediction", label: "Test", icon: TestTube },
+      { path: "/assessment", label: "Assessment", icon: Activity },
+      { path: "/face-analysis", label: "Face Analysis", icon: Video },
+      { path: "/spiral-analysis", label: "Spiral Drawing", icon: Hand },
+      { path: "/voice-analysis", label: "Voice Analysis", icon: Mic },
+    ]
+  },
+  {
+    id: "therapy",
+    label: "Therapy Hub",
+    items: [
+      { path: "/therapy-speech", label: "Speech Therapy", icon: Mic },
+      { path: "/therapy-hand", label: "Hand Therapy", icon: Hand },
+      { path: "/therapy-breathing", label: "Breathing Exercises", icon: Wind },
+      { path: "/guidance-therapy", label: "Physical Therapy", icon: Activity },
+      { path: "/brain-games", label: "Brain Games", icon: Gamepad2 },
+    ]
+  },
+  {
+    id: "provider",
+    label: "Provider Portal",
+    items: [
+      { path: "/doctor-login", label: "Doctor Login", icon: Users },
+      { path: "/doctor-dashboard", label: "Doctor Dashboard", icon: LayoutDashboard },
+      { path: "/doctor-patient-view", label: "Patient Records", icon: FileText },
+    ]
+  },
+  {
+    id: "resources",
+    label: "Resources",
+    items: [
+      { path: "/education", label: "Education", icon: BookOpen },
+      { path: "/find-specialist", label: "Find Specialist", icon: Stethoscope },
+      { path: "/wearable-integration", label: "Wearable Integration", icon: Watch },
+      { path: "/ai-chatbot", label: "AI Chatbot", icon: MessageSquare },
+    ]
+  },
+];
+
 export default function GlobalLayout({ children }: GlobalLayoutProps) {
   const [location, setLocation] = useLocation();
-
-  const navLinks = [
-    { path: "/", label: "Home", icon: Brain },
-    { path: "/prediction", label: "Test", icon: TestTube },
-    { path: "/assessment", label: "Assessment", icon: Activity },
-    { path: "/education", label: "Education", icon: BookOpen },
-    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  ];
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const isActive = (path: string) => location === path;
 
@@ -39,24 +86,54 @@ export default function GlobalLayout({ children }: GlobalLayoutProps) {
               <span className="text-xl font-bold text-white">NeuroScan AI</span>
             </motion.div>
 
-            {/* Navigation Links */}
-            <nav className="hidden md:flex items-center gap-2">
-              {navLinks.map((link) => {
-                const Icon = link.icon;
-                return (
+            {/* Navigation Links with Dropdowns */}
+            <nav className="hidden md:flex items-center gap-1">
+              {navDropdowns.map((dropdown) => (
+                <div 
+                  key={dropdown.id}
+                  className="relative"
+                  onMouseEnter={() => setOpenDropdown(dropdown.id)}
+                  onMouseLeave={() => setOpenDropdown(null)}
+                >
                   <Button
-                    key={link.path}
                     variant="ghost"
-                    onClick={() => setLocation(link.path)}
                     className={`text-white hover:bg-white/10 transition-colors ${
-                      isActive(link.path) ? "bg-white/10 text-primary" : ""
+                      openDropdown === dropdown.id ? "bg-white/10 text-primary" : ""
                     }`}
                   >
-                    <Icon className="w-4 h-4 mr-2" />
-                    {link.label}
+                    {dropdown.label}
+                    <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${openDropdown === dropdown.id ? "rotate-180" : ""}`} />
                   </Button>
-                );
-              })}
+                  
+                  {/* Dropdown Menu */}
+                  <AnimatePresence>
+                    {openDropdown === dropdown.id && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute top-full left-0 mt-1 w-56 bg-black/90 backdrop-blur-xl border border-white/10 rounded-lg shadow-xl overflow-hidden"
+                      >
+                        {dropdown.items.map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <button
+                              key={item.path}
+                              onClick={() => setLocation(item.path)}
+                              className={`w-full flex items-center gap-3 px-4 py-3 text-left text-white/80 hover:bg-white/10 hover:text-white transition-colors ${
+                                isActive(item.path) ? "bg-white/10 text-primary" : ""
+                              }`}
+                            >
+                              <Icon className="w-4 h-4" />
+                              <span className="text-sm">{item.label}</span>
+                            </button>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
             </nav>
 
             {/* Mobile Menu Button - visible on small screens */}
