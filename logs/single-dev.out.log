@@ -1,0 +1,10 @@
+
+> rest-express@1.0.0 dev
+> cross-env NODE_ENV=development tsx server/index.ts
+
+4:37:51 PM [express] serving on port 5000
+4:38:20 PM [express] POST /api/patients 400 in 5ms :: {"error":"name is required"}
+4:40:26 PM [express] POST /api/patients 201 in 189ms :: {"patientId":8}
+4:40:59 PM [express] POST /api/doctors 201 in 16ms :: {"doctorId":2}
+4:41:00 PM [express] POST /api/predictions 201 in 13ms :: {"predictionId":2}
+4:41:04 PM [express] POST /api/reports 201 in 13ms :: {"reportId":8}

@@ -4,13 +4,51 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Settings, Check, AlertCircle } from "lucide-react";
-import { API_BASE_URL, setBackendURL } from "@/lib/api-config";
+import { API_BASE_URL, getBackendURL, setBackendURL } from "@/lib/api-config";
+
+function isLocalHost(value: string) {
+  try {
+    const { hostname } = new URL(value);
+    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+  } catch {
+    return false;
+  }
+}
 
 export function BackendConfigButton() {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState(API_BASE_URL);
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
   const [testMessage, setTestMessage] = useState("");
+
+  useEffect(() => {
+    const current = getBackendURL();
+
+    if (!isLocalHost(current)) {
+      return;
+    }
+
+    let active = true;
+
+    fetch("/app-url")
+      .then((response) => response.json())
+      .then((data: { origin?: string }) => {
+        if (!active || !data.origin || isLocalHost(data.origin)) {
+          return;
+        }
+
+        localStorage.setItem("VITE_BACKEND_URL", data.origin);
+        setBackendURL(data.origin);
+        setUrl(data.origin);
+      })
+      .catch(() => {
+        // Keep the current value if LAN auto-detection fails.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleTest = async () => {
     setTestStatus("testing");
@@ -85,7 +123,7 @@ export function BackendConfigButton() {
                     <label className="text-sm font-medium text-black">Backend URL</label>
                     <Input
                       type="url"
-                      placeholder="http://localhost:5000"
+                      placeholder="http://192.168.68.122:5000"
                       value={url}
                       onChange={(e) => {
                         setUrl(e.target.value);
@@ -94,7 +132,7 @@ export function BackendConfigButton() {
                       data-testid="input-backend-url"
                     />
                     <p className="text-xs text-black">
-                      Examples: http://localhost:5000 or https://your-ngrok-url.ngrok.io
+                      Examples: http://192.168.68.122:5000 or https://your-ngrok-url.ngrok.io
                     </p>
                   </div>
 

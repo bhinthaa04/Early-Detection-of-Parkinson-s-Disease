@@ -59,7 +59,120 @@ export interface GenerateReportPayload extends PatientData {
   verification_url?: string;
 }
 
+export interface CreatePatientPayload {
+  name: string;
+  age?: string;
+  gender?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+}
+
+export interface CreatePredictionPayload {
+  patientId: number;
+  doctorId: number;
+  spiralImagePath: string;
+  audioFilePath: string;
+  predictionResult: string;
+  confidenceScore?: number;
+  diseaseStage?: string;
+}
+
+export interface CreateReportPayload {
+  predictionId: number;
+  reportSummary: string;
+  precautions?: string;
+  recommendedTherapy?: string;
+}
+
 export const apiService = {
+  async createPatient(payload: CreatePatientPayload): Promise<number> {
+    const response = await fetch(API_ENDPOINTS.patients, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Patient Error: HTTP ${response.status}: ${errorText || response.statusText}`);
+    }
+
+    const data = await response.json() as { patientId: number };
+    return data.patientId;
+  },
+
+  async ensureDefaultDoctor(): Promise<number> {
+    const cached = window.localStorage.getItem('defaultDoctorId');
+    if (cached) {
+      const parsed = Number(cached);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        return parsed;
+      }
+    }
+
+    const response = await fetch(API_ENDPOINTS.doctors, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: 'NeuroScan Auto Doctor',
+        email: 'autosave-doctor@neuroscan.local',
+        password: 'autosave-doctor',
+        specialization: 'Neurologist',
+        hospital_name: 'NeuroScan AI',
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Doctor Error: HTTP ${response.status}: ${errorText || response.statusText}`);
+    }
+
+    const data = await response.json() as { doctorId: number };
+    window.localStorage.setItem('defaultDoctorId', String(data.doctorId));
+    return data.doctorId;
+  },
+
+  async createPrediction(payload: CreatePredictionPayload): Promise<number> {
+    const response = await fetch(API_ENDPOINTS.predictions, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Prediction Save Error: HTTP ${response.status}: ${errorText || response.statusText}`);
+    }
+
+    const data = await response.json() as { predictionId: number };
+    return data.predictionId;
+  },
+
+  async createReport(payload: CreateReportPayload): Promise<number> {
+    const response = await fetch(API_ENDPOINTS.reports, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Report Save Error: HTTP ${response.status}: ${errorText || response.statusText}`);
+    }
+
+    const data = await response.json() as { reportId: number };
+    return data.reportId;
+  },
+
   async predict(imageFile: File, audioFile: File): Promise<PredictionResponse> {
     const formData = new FormData();
     formData.append('image', imageFile);

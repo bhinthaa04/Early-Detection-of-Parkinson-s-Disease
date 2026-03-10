@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, AlertCircle, FileDown, Home, Activity } from "lucide-react";
+import { CheckCircle, AlertCircle, FileDown, ShieldCheck, ScanLine } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { DiseaseStageCard } from "@/components/disease-stage-card";
@@ -20,8 +20,24 @@ export default function Result() {
   const [showEmergencyAlert, setShowEmergencyAlert] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const isVerificationMode = searchParams?.get("verify") === "1";
+  const verificationData = isVerificationMode
+    ? {
+        testId: searchParams?.get("test_id") || "Unavailable",
+        patientId: searchParams?.get("patient_id") || "Unavailable",
+        status: searchParams?.get("status") || "Unavailable",
+        confidence: searchParams?.get("confidence") || "Unavailable",
+        stage: searchParams?.get("stage") || "Unavailable",
+        testDate: searchParams?.get("test_date") || "Unavailable",
+      }
+    : null;
 
   useEffect(() => {
+    if (isVerificationMode) {
+      return;
+    }
+
     const storedResult = sessionStorage.getItem('predictionResult');
     if (storedResult) {
       try {
@@ -32,7 +48,70 @@ export default function Result() {
     } else {
       setLocation("/prediction");
     }
-  }, [setLocation]);
+  }, [isVerificationMode, setLocation]);
+
+  if (isVerificationMode && verificationData) {
+    return (
+      <div className="min-h-screen relative overflow-hidden font-sans">
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-30 pointer-events-none"
+          style={{ backgroundImage: `url(${heroBg})` }}
+        />
+
+        <div className="container mx-auto max-w-3xl px-4 py-10 relative z-10">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="border-2 border-emerald-200 bg-white/95 shadow-lg">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-3 text-2xl text-emerald-700">
+                  <ShieldCheck className="h-7 w-7" />
+                  Report Verification
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6 p-8 pt-2">
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">
+                  <p className="flex items-center gap-2 font-semibold">
+                    <ScanLine className="h-5 w-5" />
+                    This QR code resolves to a valid NeuroScan AI verification page.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-slate-500">Test ID</p>
+                    <p className="mt-2 text-base font-semibold text-slate-900">{verificationData.testId}</p>
+                  </div>
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-slate-500">Patient ID</p>
+                    <p className="mt-2 text-base font-semibold text-slate-900">{verificationData.patientId}</p>
+                  </div>
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-slate-500">Status</p>
+                    <p className="mt-2 text-base font-semibold text-slate-900">{verificationData.status}</p>
+                  </div>
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-slate-500">Confidence</p>
+                    <p className="mt-2 text-base font-semibold text-slate-900">{verificationData.confidence}</p>
+                  </div>
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-slate-500">Disease Stage</p>
+                    <p className="mt-2 text-base font-semibold text-slate-900">{verificationData.stage}</p>
+                  </div>
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-slate-500">Test Date</p>
+                    <p className="mt-2 text-base font-semibold text-slate-900">{verificationData.testDate}</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <Button onClick={() => setLocation("/prediction")}>Back to Assessment</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
 
   const handleDownloadReport = async () => {
     if (!result) return;

@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { apiService } from "@/lib/api-service";
 import {
   createPatientId,
   savePatientData,
@@ -29,6 +30,7 @@ export default function PatientForm() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [formData, setFormData] = useState<PatientData>(initialFormData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -37,7 +39,7 @@ export default function PatientForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
@@ -75,10 +77,31 @@ export default function PatientForm() {
       medications: formData.medications.trim() || "None",
     };
 
-    savePatientData(patientPayload);
-    sessionStorage.removeItem("predictionResult");
+    setIsSubmitting(true);
+    try {
+      const dbPatientId = await apiService.createPatient({
+        name: patientPayload.name,
+        age: patientPayload.age,
+        gender: patientPayload.gender,
+        phone: patientPayload.contact,
+        email: patientPayload.email,
+      });
 
-    setLocation("/prediction");
+      savePatientData({
+        ...patientPayload,
+        db_patient_id: dbPatientId,
+      });
+      sessionStorage.removeItem("predictionResult");
+      setLocation("/prediction");
+    } catch (error) {
+      toast({
+        title: "Failed to save patient",
+        description: error instanceof Error ? error.message : "Could not save patient to MySQL.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -253,8 +276,8 @@ export default function PatientForm() {
               Back Home
             </Button>
 
-            <Button type="submit" className="bg-[#2c5ba9] hover:bg-[#244a8f]">
-              Continue to Prediction
+            <Button type="submit" className="bg-[#2c5ba9] hover:bg-[#244a8f]" disabled={isSubmitting}>
+              {isSubmitting ? "Saving Patient..." : "Continue to Prediction"}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>

@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import multer from "multer";
+import cors from "cors";
 
 const app = express();
 const httpServer = createServer(app);
@@ -18,6 +19,15 @@ app.use((req, res, next) => {
   (req as any).upload = upload;
   next();
 });
+
+// Enable CORS for dev tooling (e.g., client on different port)
+app.use(
+  cors({
+    origin: (origin, callback) => callback(null, true), // reflect any origin for dev
+    credentials: false,
+    exposedHeaders: ["Content-Disposition"],
+  }),
+);
 
 declare module "http" {
   interface IncomingMessage {

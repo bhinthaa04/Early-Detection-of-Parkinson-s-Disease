@@ -41,7 +41,7 @@ UPLOAD_FOLDER = tempfile.gettempdir()
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'wav', 'mp3', 'flac'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'wav', 'mp3', 'flac', 'm4a', 'aac', 'ogg'}
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LOGO_PATH = os.path.join(BASE_DIR, 'logo.png')
@@ -113,10 +113,64 @@ def predict_parkinsons(spiral_features, audio_features):
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    """
+    Accepts either:
+    - multipart/form-data with 'image' and 'audio' files (used by the web UI)
+    - JSON body with 'features' array (legacy/test usage)
+    """
     try:
-        if MODEL_LOAD_ERROR:
-            return jsonify({"error": f"Model/preprocess load failed: {MODEL_LOAD_ERROR}"}), 500
+        # ---------- Multipart flow (UI) ----------
+        if 'image' in request.files and 'audio' in request.files:
+            image_file = request.files['image']
+            audio_file = request.files['audio']
 
+            if not image_file or not audio_file:
+                return jsonify({"error": "Both image and audio files are required"}), 400
+
+            image_ext_ok = allowed_file(image_file.filename)
+            audio_ext_ok = allowed_file(audio_file.filename)
+            if not (image_ext_ok and audio_ext_ok):
+                return jsonify({"error": "Unsupported file type. Allowed: png, jpg, jpeg, wav, mp3, flac"}), 400
+
+            # Save to temp
+            image_path = os.path.join(UPLOAD_FOLDER, image_file.filename)
+            audio_path = os.path.join(UPLOAD_FOLDER, audio_file.filename)
+            image_file.save(image_path)
+            audio_file.save(audio_path)
+
+            spiral_features = extract_spiral_features(image_path)
+            audio_features = extract_audio_features(audio_path)
+            combined_features = np.concatenate([spiral_features, audio_features])
+
+            if model is not None and scaler is not None:
+                data = scaler.transform([combined_features]) if hasattr(scaler, "transform") else [combined_features]
+                prediction = model.predict(data, verbose=0)
+                risk_score = float(np.asarray(prediction).squeeze())
+                has_parkinsons = bool(risk_score > 0.5)
+                confidence = risk_score if has_parkinsons else (1 - risk_score)
+                stage = (
+                    "None"
+                    if not has_parkinsons
+                    else "Early Stage (1-2)" if confidence < 0.6
+                    else "Moderate Stage (2-3)" if confidence < 0.8
+                    else "Advanced Stage (4-5)"
+                )
+                return jsonify({
+                    "prediction": has_parkinsons,
+                    "confidence": round(confidence, 4),
+                    "stage": stage,
+                    "risk_score": round(risk_score, 4),
+                    "message": "Prediction successful",
+                    "model_loaded": True
+                })
+
+            # Fallback when model is unavailable
+            fallback = predict_parkinsons(spiral_features, audio_features)
+            fallback["message"] = "Prediction successful (fallback heuristic)"
+            fallback["model_loaded"] = False
+            return jsonify(fallback)
+
+        # ---------- JSON legacy flow ----------
         payload = request.get_json(silent=True) or {}
         if "features" not in payload:
             return jsonify({"error": "Missing 'features' in request body"}), 400
@@ -125,10 +179,11 @@ def predict():
         if not isinstance(features, (list, tuple)):
             return jsonify({"error": "'features' must be a list of numeric values"}), 400
 
+        if model is None or scaler is None:
+            return jsonify({"error": f"Model not available: {MODEL_LOAD_ERROR or 'not loaded'}"}), 500
+
         data = scaler.transform([features])
         prediction = model.predict(data, verbose=0)
-
-        # Always convert model output to plain float for JSON safety.
         result = float(np.asarray(prediction).squeeze())
 
         response = {
@@ -136,7 +191,6 @@ def predict():
             "message": "Prediction successful"
         }
 
-        # Optional: attach decoded label if encoder/label_encoder exists.
         if label_encoder is not None:
             try:
                 class_idx = int(round(result))

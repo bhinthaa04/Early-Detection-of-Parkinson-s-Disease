@@ -10,14 +10,6 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 
-// --- FIX START: Define the Google property on the window object ---
-declare global {
-  interface Window {
-    google: any;
-  }
-}
-// --- FIX END ---
-
 const mockSpecialists = [
   {
     id: 1,

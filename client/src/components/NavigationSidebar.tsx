@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { 
-  LayoutDashboard, 
-  BookOpen, 
+import {
+  LayoutDashboard,
+  BookOpen,
   Sparkles,
   User,
   Brain,
@@ -13,14 +13,15 @@ import {
   Wind,
   LogOut,
   Mail,
-  ChevronLeft
+  ChevronLeft,
+  type LucideIcon,
 } from "lucide-react";
 import { useLocation } from "wouter";
 
 type NavItem = {
   label: string;
   path: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
 };
 
 type NavSection = {

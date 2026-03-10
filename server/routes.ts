@@ -1,7 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { networkInterfaces } from "os";
 import { storage } from "./storage";
 import multer from "multer";
+import { apiRouter } from "./routes/api";
 
 // ML API URL - Flask server running on port 8000
 const ML_API_URL = 'http://127.0.0.1:8000';
@@ -16,6 +18,33 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  app.get("/app-url", (_req, res) => {
+    const interfaces = networkInterfaces();
+    const port = process.env.PORT || "5000";
+
+    for (const entries of Object.values(interfaces)) {
+      for (const entry of entries ?? []) {
+        if (entry.family === "IPv4" && !entry.internal) {
+          return res.json({ origin: `http://${entry.address}:${port}` });
+        }
+      }
+    }
+
+    return res.json({ origin: `http://127.0.0.1:${port}` });
+  });
+
+  // Handle preflight for report endpoints
+  app.options(["/generate-report", "/download-report", "/predict"], (_req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+    return res.sendStatus(204);
+  });
+
+  // REST API backed by MySQL
+  app.use("/api", apiRouter);
+
   // Prediction endpoint - forwards to Flask ML API
   app.post('/predict', upload.fields([
     { name: 'image', maxCount: 1 },
@@ -86,6 +115,8 @@ export async function registerRoutes(
       const blob = await response.blob();
       
       // Forward the correct content type (application/pdf)
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=parkinson_report.pdf');
       
@@ -125,6 +156,8 @@ export async function registerRoutes(
       } else {
         res.setHeader('Content-Disposition', 'attachment; filename=parkinson_report.pdf');
       }
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
 
       res.send(buffer);
     } catch (error) {

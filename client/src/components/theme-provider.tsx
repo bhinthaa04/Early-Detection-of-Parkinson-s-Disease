@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-type Theme = "light" | "dark";
+type Theme = "light" | "dark" | "system";
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -9,6 +9,7 @@ type ThemeProviderProps = {
 type ThemeProviderState = {
   theme: Theme;
   toggleTheme: () => void;
+  setTheme: (theme: Theme) => void;
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
@@ -17,8 +18,14 @@ const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
 
 const applyTheme = (theme: Theme) => {
   const root = window.document.documentElement;
+  const resolved =
+    theme === "system"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+      : theme;
   root.classList.remove("light", "dark");
-  root.classList.add(theme);
+  root.classList.add(resolved);
   localStorage.setItem("theme", theme);
 };
 
@@ -39,6 +46,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     () => ({
       theme,
       toggleTheme,
+      setTheme,
     }),
     [theme],
   );

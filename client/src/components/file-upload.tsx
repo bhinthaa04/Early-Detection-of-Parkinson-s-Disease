@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Upload, FileAudio, FileImage, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Upload, X, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 interface FileUploadProps {
   accept: string;
   label: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   file: File | null;
   setFile: (file: File | null) => void;
   id: string;

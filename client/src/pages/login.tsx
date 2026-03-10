@@ -10,12 +10,6 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 
-declare global {
-  interface Window {
-    google?: any;
-  }
-}
-
 // Animated background particles
 function FloatingParticles() {
   return (

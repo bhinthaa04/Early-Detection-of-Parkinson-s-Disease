@@ -3,6 +3,7 @@ export interface PatientData {
   age: string;
   gender: string;
   patient_id: string;
+  db_patient_id?: number;
   contact: string;
   email: string;
   medical_history: string;

@@ -31,7 +31,7 @@ import { BackendConfigButton } from "@/components/backend-config";
 
 // ---------- 3D BRAIN ----------
 function BrainCore({ tremor }: { tremor: number }) {
-  const ref = useRef<any>();
+  const ref = useRef<any>(null);
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
     if (ref.current) {
@@ -57,7 +57,7 @@ function BrainCore({ tremor }: { tremor: number }) {
 }
 
 function SubstantiaNigraPulse() {
-  const ref = useRef<any>();
+  const ref = useRef<any>(null);
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
     if (ref.current) {

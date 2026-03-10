@@ -2,20 +2,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Activity,
-  Accessibility,
   AlertCircle,
   ArrowLeft,
   BadgeInfo,
   CheckCircle2,
   ClipboardList,
-  FlaskConical,
   FileAudio,
   FileDown,
   FileImage,
   HeartPulse,
   History,
   Info,
-  Languages,
   Lightbulb,
   Loader2,
   LocateFixed,
@@ -28,7 +25,6 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { FileUpload } from "@/components/file-upload";
 import { StepProgress } from "@/components/step-progress";
-import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
@@ -39,8 +35,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { formatReportDateTime, readPatientData, type PatientData } from "@/lib/patient-data";
+import { formatReportDateTime, readPatientData, savePatientData, type PatientData } from "@/lib/patient-data";
 import { apiService, type GenerateReportPayload, type PredictionResponse } from "@/lib/api-service";
+import { getBackendURL, setBackendURL } from "@/lib/api-config";
 
 type FlowStep = "upload" | "analyzing" | "result";
 type TestMeta = { id: string; rawDate: string; displayDate: string };
@@ -68,7 +65,6 @@ type SymptomChecker = {
   speechDifficulty: BinaryChoice;
   stiffness: BinaryChoice;
 };
-type UiLanguage = "en" | "ta" | "hi";
 
 const steps = [
   { id: 1, label: "Upload", icon: "U" },
@@ -165,12 +161,6 @@ function recommendationsForRisk(level: "Low" | "Moderate" | "High"): string[] {
   ];
 }
 
-function languageLabel(language: UiLanguage): string {
-  if (language === "ta") return "Tamil";
-  if (language === "hi") return "Hindi";
-  return "English";
-}
-
 function hasAny(text: string, keywords: string[]): boolean {
   return keywords.some((k) => text.includes(k));
 }
@@ -220,12 +210,13 @@ function reportFilename(name: string): string {
   return `${safe || "patient"}_Parkinson_Report.pdf`;
 }
 
+function isLocalHost(hostname: string): boolean {
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+}
+
 export default function Prediction() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [uiLanguage, setUiLanguage] = useState<UiLanguage>("en");
-  const [largeText, setLargeText] = useState(false);
-  const [researchMode, setResearchMode] = useState(false);
   const [symptomForm, setSymptomForm] = useState<SymptomChecker>(defaultSymptomForm);
   const [riskDialogOpen, setRiskDialogOpen] = useState(false);
   const [isDemoMode, setIsDemoMode] = useState(false);
@@ -246,9 +237,20 @@ export default function Prediction() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [reportDownloaded, setReportDownloaded] = useState(false);
   const [reportGeneratedAt, setReportGeneratedAt] = useState<string | null>(null);
+  const [persistedPredictionId, setPersistedPredictionId] = useState<number | null>(null);
+  const [persistedReportId, setPersistedReportId] = useState<number | null>(null);
 
   const [previousTest, setPreviousTest] = useState<HistoryItem | null>(null);
   const [doctorNotes, setDoctorNotes] = useState("");
+  const [verificationBaseUrl, setVerificationBaseUrl] = useState(() => {
+    if (typeof window === "undefined") return "";
+
+    try {
+      return new URL(getBackendURL()).origin;
+    } catch {
+      return window.location.origin;
+    }
+  });
 
   const progressTimerRef = useRef<number | null>(null);
   const analysisStartRef = useRef<number | null>(null);
@@ -272,6 +274,47 @@ export default function Prediction() {
       if (progressTimerRef.current) window.clearInterval(progressTimerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!verificationBaseUrl) return;
+
+    let active = true;
+
+    try {
+      if (!isLocalHost(new URL(verificationBaseUrl).hostname)) {
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    fetch("/app-url")
+      .then((response) => response.json())
+      .then((data: { origin?: string }) => {
+        if (!active || !data.origin) {
+          return;
+        }
+
+        try {
+          if (isLocalHost(new URL(data.origin).hostname)) {
+            return;
+          }
+        } catch {
+          return;
+        }
+
+        localStorage.setItem("VITE_BACKEND_URL", data.origin);
+        setBackendURL(data.origin);
+        setVerificationBaseUrl(data.origin);
+      })
+      .catch(() => {
+        // Keep current origin if auto-detection fails.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [verificationBaseUrl]);
 
   const canStart = Boolean(imageFile && audioFile) && flowStep === "upload";
 
@@ -304,10 +347,30 @@ export default function Prediction() {
   const stageOrder: Array<"None" | "Early" | "Moderate" | "Severe"> = ["None", "Early", "Moderate", "Severe"];
   const currentStageIndex = stageOrder.indexOf(stage);
 
+  const verificationNeedsPublicUrl = useMemo(() => {
+    if (!verificationBaseUrl) return false;
+
+    try {
+      return isLocalHost(new URL(verificationBaseUrl).hostname);
+    } catch {
+      return false;
+    }
+  }, [verificationBaseUrl]);
+
   const verifyUrl = useMemo(() => {
-    if (typeof window === "undefined") return "";
-    return `${window.location.origin}/assessment${testMeta?.id ? `?test_id=${testMeta.id}` : ""}`;
-  }, [testMeta?.id]);
+    if (!verificationBaseUrl) return "";
+    const params = new URLSearchParams();
+    params.set("verify", "1");
+    if (testMeta?.id) params.set("test_id", testMeta.id);
+    if (patientData?.patient_id) params.set("patient_id", patientData.patient_id);
+    if (result) {
+      params.set("status", result.prediction ? "Positive" : "Negative");
+      params.set("confidence", `${toPercent(result.confidence)}%`);
+      params.set("stage", stage);
+    }
+    if (testMeta?.rawDate) params.set("test_date", testMeta.rawDate);
+    return `${verificationBaseUrl}/result?${params.toString()}`;
+  }, [patientData?.patient_id, result, stage, testMeta?.id, testMeta?.rawDate, verificationBaseUrl]);
 
   const qrUrl = verifyUrl
     ? `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(verifyUrl)}`
@@ -374,36 +437,14 @@ export default function Prediction() {
       }),
     [analysisProgress],
   );
-  const localized = useMemo(() => {
-    if (uiLanguage === "ta") {
-      return {
-        title: "NeuroScan AI",
-        subtitle: "Pativetru - Pakuppu - Mudivu - PDF",
-        uploadTitle: "Noiyalar parisodhanai datai pativetruvum",
-        startAnalysis: "Pakuppaivu thodangu",
-        demo: "Demo iyakkavum",
-        analyzing: "Kural matrum pada vadivangal pakuppaivu seigirathu...",
-      };
-    }
-    if (uiLanguage === "hi") {
-      return {
-        title: "NeuroScan AI",
-        subtitle: "Upload - Vishleshan - Parinaam - PDF Report",
-        uploadTitle: "Rogi parikshan data upload karein",
-        startAnalysis: "Vishleshan shuru karein",
-        demo: "Demo chalayein",
-        analyzing: "Awaaz aur image pattern ka vishleshan ho raha hai...",
-      };
-    }
-    return {
-      title: "NeuroScan AI",
-      subtitle: "Upload - Analyze - Show Result - Download PDF Report",
-      uploadTitle: "Upload Patient Test Data",
-      startAnalysis: "Start Analysis",
-      demo: "Run Demo with Sample Data",
-      analyzing: "AI is analyzing voice and spiral patterns...",
-    };
-  }, [uiLanguage]);
+  const localized = {
+    title: "NeuroScan AI",
+    subtitle: "Upload - Analyze - Show Result - Download PDF Report",
+    uploadTitle: "Upload Patient Test Data",
+    startAnalysis: "Start Analysis",
+    demo: "Run Demo with Sample Data",
+    analyzing: "AI is analyzing voice and spiral patterns...",
+  };
 
   const startProgress = () => {
     setAnalysisProgress(10);
@@ -420,6 +461,51 @@ export default function Prediction() {
       window.clearInterval(progressTimerRef.current);
       progressTimerRef.current = null;
     }
+  };
+
+  const ensurePatientPersisted = async (): Promise<PatientData & { db_patient_id: number }> => {
+    if (!patientData) {
+      throw new Error("Patient details are missing.");
+    }
+
+    if (patientData.db_patient_id) {
+      return patientData as PatientData & { db_patient_id: number };
+    }
+
+    const dbPatientId = await apiService.createPatient({
+      name: patientData.name,
+      age: patientData.age,
+      gender: patientData.gender,
+      phone: patientData.contact,
+      email: patientData.email,
+    });
+
+    const persistedPatient = {
+      ...patientData,
+      db_patient_id: dbPatientId,
+    };
+
+    savePatientData(persistedPatient);
+    setPatientData(persistedPatient);
+    return persistedPatient;
+  };
+
+  const persistPredictionRecord = async (prediction: PredictionResponse) => {
+    const persistedPatient = await ensurePatientPersisted();
+    const doctorId = await apiService.ensureDefaultDoctor();
+    const predictionId = await apiService.createPrediction({
+      patientId: persistedPatient.db_patient_id,
+      doctorId,
+      spiralImagePath: imageFile ? `uploads/${imageFile.name}` : "uploads/demo-spiral.png",
+      audioFilePath: audioFile ? `uploads/${audioFile.name}` : "uploads/demo-audio.wav",
+      predictionResult: prediction.prediction ? "Parkinson" : "No Parkinson",
+      confidenceScore: Number(prediction.confidence.toFixed(2)),
+      diseaseStage: prediction.stage,
+    });
+
+    setPersistedPredictionId(predictionId);
+    setPersistedReportId(null);
+    return predictionId;
   };
 
   const persistAndOpenResult = async (prediction: PredictionResponse) => {
@@ -487,6 +573,18 @@ export default function Prediction() {
       }
 
       setIsDemoMode(false);
+      try {
+        await persistPredictionRecord(prediction);
+      } catch (persistError) {
+        toast({
+          title: "Prediction saved locally only",
+          description:
+            persistError instanceof Error
+              ? persistError.message
+              : "Could not save the prediction to MySQL.",
+          variant: "destructive",
+        });
+      }
       await persistAndOpenResult(prediction);
     } catch (err) {
       stopProgress();
@@ -534,6 +632,18 @@ export default function Prediction() {
       stage: symptomScore >= 2 ? "Moderate" : "Early",
       message: "Demo inference completed",
     };
+    try {
+      await persistPredictionRecord(demoPrediction);
+    } catch (persistError) {
+      toast({
+        title: "Demo prediction saved locally only",
+        description:
+          persistError instanceof Error
+            ? persistError.message
+            : "Could not save the demo prediction to MySQL.",
+        variant: "destructive",
+      });
+    }
     await persistAndOpenResult(demoPrediction);
   };
 
@@ -593,7 +703,7 @@ export default function Prediction() {
       report_generated_at: generatedAt,
       generated_by: "NeuroScan AI",
       report_format: "PDF",
-      report_language: languageLabel(uiLanguage),
+      report_language: "English",
       privacy_notice:
         "This AI screening supports early detection but does not replace clinical diagnosis. Data is encrypted in transit and not retained after report generation.",
       verification_url: verifyUrl || undefined,
@@ -603,6 +713,28 @@ export default function Prediction() {
     try {
       const blob = await apiService.generateReport(payload);
       downloadBlob(blob, reportFilename(patientData.name));
+      if (persistedPredictionId && !persistedReportId) {
+        try {
+          const reportId = await apiService.createReport({
+            predictionId: persistedPredictionId,
+            reportSummary: interpretation,
+            precautions: personalizedTips.join(" | "),
+            recommendedTherapy: result.prediction
+              ? "Neurologist consultation and physiotherapy"
+              : "Routine follow-up screening",
+          });
+          setPersistedReportId(reportId);
+        } catch (persistError) {
+          toast({
+            title: "Report downloaded but not saved",
+            description:
+              persistError instanceof Error
+                ? persistError.message
+                : "Could not save the report to MySQL.",
+            variant: "destructive",
+          });
+        }
+      }
       setReportDownloaded(true);
       setReportGeneratedAt(displayDate(new Date()));
       toast({ title: "Report downloaded", description: "PDF report generated successfully." });
@@ -628,6 +760,8 @@ export default function Prediction() {
     setTestMeta(null);
     setReportDownloaded(false);
     setReportGeneratedAt(null);
+    setPersistedPredictionId(null);
+    setPersistedReportId(null);
     setDoctorNotes("");
     setSymptomForm(defaultSymptomForm);
     setIsDemoMode(false);
@@ -642,7 +776,7 @@ export default function Prediction() {
   if (!patientData) return null;
 
   return (
-    <div className={`relative z-10 min-h-screen bg-slate-100 px-4 py-8 text-slate-900 ${largeText ? "text-[17px]" : ""}`}>
+    <div className="relative z-10 min-h-screen bg-slate-100 px-4 py-8 text-slate-900">
       <div className="mx-auto max-w-6xl space-y-6">
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           <Button variant="outline" onClick={handleBackToForm} className="mb-4">
@@ -653,36 +787,6 @@ export default function Prediction() {
             <div>
               <h1 className="text-2xl font-semibold text-[#2c5ba9] md:text-3xl">{localized.title}</h1>
               <p className="mt-2 text-sm text-slate-600">{localized.subtitle}</p>
-            </div>
-            <div className="grid gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                <Languages className="h-4 w-4" />
-                Language
-              </div>
-              <Select value={uiLanguage} onValueChange={(value) => setUiLanguage(value as UiLanguage)}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="ta">Tamil</SelectItem>
-                  <SelectItem value="hi">Hindi</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="mt-1 flex items-center justify-between gap-3 text-sm">
-                <span className="flex items-center gap-2 text-slate-700">
-                  <Accessibility className="h-4 w-4" />
-                  Large Text
-                </span>
-                <Switch checked={largeText} onCheckedChange={setLargeText} />
-              </div>
-              <div className="flex items-center justify-between gap-3 text-sm">
-                <span className="flex items-center gap-2 text-slate-700">
-                  <FlaskConical className="h-4 w-4" />
-                  Research Mode
-                </span>
-                <Switch checked={researchMode} onCheckedChange={setResearchMode} />
-              </div>
             </div>
           </div>
           <div className="mt-4 grid gap-2 text-sm text-slate-700 md:grid-cols-2">
@@ -1019,29 +1123,6 @@ export default function Prediction() {
               </div>
             </div>
 
-            {researchMode && (
-              <div className="rounded-2xl border border-indigo-200 bg-indigo-50/40 p-6 shadow-sm">
-                <div className="flex items-center gap-2 text-indigo-700">
-                  <FlaskConical className="h-5 w-5" />
-                  <h4 className="text-lg font-semibold">Research Mode</h4>
-                </div>
-                <div className="mt-4 grid gap-4 text-sm text-slate-700 md:grid-cols-2">
-                  <p>Model Accuracy: 92.4%</p>
-                  <p>Dataset Size: 5,800 multimodal samples</p>
-                  <p>Feature Extraction: Spiral morphology + MFCC voice vectors</p>
-                  <p>Validation: Stratified 5-fold cross validation</p>
-                </div>
-                <div className="mt-5 rounded-xl border border-indigo-200 bg-white p-4">
-                  <p className="mb-2 text-sm font-semibold text-indigo-700">ROC Curve (illustrative)</p>
-                  <svg viewBox="0 0 240 120" className="h-28 w-full">
-                    <line x1="8" y1="112" x2="232" y2="8" stroke="#cbd5e1" strokeWidth="2" />
-                    <polyline points="8,112 44,78 86,55 130,40 178,23 232,12" fill="none" stroke="#4f46e5" strokeWidth="3" />
-                    <text x="140" y="24" fill="#312e81" fontSize="10">AUC 0.93</text>
-                  </svg>
-                </div>
-              </div>
-            )}
-
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h4 className="text-lg font-semibold text-[#2c5ba9]">Lifestyle Guidance</h4>
@@ -1059,7 +1140,6 @@ export default function Prediction() {
                   <li>Report Generated At: {reportGeneratedAt || "Not downloaded yet"}</li>
                   <li>Generated By: NeuroScan AI</li>
                   <li>Format: PDF</li>
-                  <li>Language: {languageLabel(uiLanguage)}</li>
                 </ul>
               </div>
             </div>
@@ -1068,9 +1148,14 @@ export default function Prediction() {
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="flex items-center gap-2 text-[#2c5ba9]"><QrCode className="h-5 w-5" /><h4 className="text-lg font-semibold">Report Verification QR</h4></div>
                 <div className="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-                  {qrUrl ? <img src={qrUrl} alt="Report verification QR code" className="h-28 w-28 rounded border border-slate-200" /> : null}
+                  {qrUrl ? <img src={qrUrl} alt="Report verification QR code" className="h-36 w-36 rounded border border-slate-200 bg-white p-2" /> : null}
                   <div className="text-sm text-slate-700">
                     <p>Scan to verify report authenticity.</p>
+                    {verificationNeedsPublicUrl ? (
+                      <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-800">
+                        Mobile scanning will not work while the QR points to `localhost`. Set the backend/app URL to your laptop's LAN IP like `http://192.168.x.x:5000` in Backend Configuration, then regenerate the QR.
+                      </p>
+                    ) : null}
                     <a className="mt-2 block text-blue-600 underline" href={verifyUrl} target="_blank" rel="noreferrer">Open verification link</a>
                   </div>
                 </div>
