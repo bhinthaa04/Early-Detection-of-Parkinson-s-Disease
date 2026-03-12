@@ -12,11 +12,11 @@ import { useLocation } from "wouter";
 
 const footerLinks = [
   { label: "Home", path: "/" },
-  { label: "Upload Test", path: "/patient-form" },
-  { label: "Results", path: "/prediction" },
-  { label: "Report", path: "/prediction" },
+  { label: "Patient Form", path: "/patient-form" },
+  { label: "Take Test", path: "/take-test" },
+  { label: "Dashboard", path: "/dashboard" },
   { label: "Find Doctor", path: "/find-nearby-doctor" },
-  { label: "Awareness", path: "/education" },
+  { label: "Education", path: "/education" },
 ];
 
 export function MainFooter() {

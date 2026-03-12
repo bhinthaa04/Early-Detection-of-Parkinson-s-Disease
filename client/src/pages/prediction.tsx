@@ -117,6 +117,11 @@ function riskLevel(positive: boolean, confidence: number): "Low" | "Moderate" | 
   return "Low";
 }
 
+function toDbRiskLevel(level: "Low" | "Moderate" | "High"): "Low" | "Medium" | "High" {
+  if (level === "Moderate") return "Medium";
+  return level;
+}
+
 function riskClass(level: "Low" | "Moderate" | "High"): string {
   if (level === "High") return "border-red-200 bg-red-50 text-red-700";
   if (level === "Moderate") return "border-orange-200 bg-orange-50 text-orange-700";
@@ -509,11 +514,33 @@ export default function Prediction() {
   };
 
   const persistAndOpenResult = async (prediction: PredictionResponse) => {
+    const predictionRisk = riskLevel(prediction.prediction, prediction.confidence);
+    try {
+      const persistedPatient = await ensurePatientPersisted();
+      await apiService.createPatientTest({
+        patientId: persistedPatient.db_patient_id,
+        testDate: testMeta?.rawDate || formatReportDateTime(new Date()),
+        confidenceScore: Math.round(prediction.confidence * 100),
+        riskLevel: toDbRiskLevel(predictionRisk),
+        result: prediction.prediction ? "Positive" : "Negative",
+        stage: prediction.stage,
+      });
+      window.dispatchEvent(new Event("patient-tests-updated"));
+    } catch (persistError) {
+      toast({
+        title: "Test history saved locally only",
+        description:
+          persistError instanceof Error
+            ? persistError.message
+            : "Could not save the test history to MySQL.",
+        variant: "destructive",
+      });
+    }
+
     const existingHistory = JSON.parse(localStorage.getItem("predictionHistory") || "[]") as HistoryItem[];
     setPreviousTest(existingHistory[0] || null);
     sessionStorage.setItem("predictionResult", JSON.stringify(prediction));
 
-    const predictionRisk = riskLevel(prediction.prediction, prediction.confidence);
     const historyItem: HistoryItem = {
       id: Date.now(),
       date: new Date().toLocaleDateString(),

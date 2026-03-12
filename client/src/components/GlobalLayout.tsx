@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Brain, Activity, TestTube, BookOpen, LayoutDashboard, ChevronDown, Stethoscope, Users, FileText, Mic, Hand, Wind, Gamepad2, Video, Watch, MessageSquare } from "lucide-react";
+import { Brain, Activity, TestTube, BookOpen, LayoutDashboard, ChevronDown, Stethoscope, Users, FileText, Mic, Hand, Wind, Gamepad2, Video, MessageSquare } from "lucide-react";
 
 interface GlobalLayoutProps {
   children: ReactNode;
@@ -23,8 +23,7 @@ const navDropdowns = [
     id: "diagnostics",
     label: "Diagnostics",
     items: [
-      { path: "/prediction", label: "Test", icon: TestTube },
-      { path: "/assessment", label: "Assessment", icon: Activity },
+      { path: "/take-test", label: "Take Test", icon: TestTube },
       { path: "/face-analysis", label: "Face Analysis", icon: Video },
       { path: "/spiral-analysis", label: "Spiral Drawing", icon: Hand },
       { path: "/voice-analysis", label: "Voice Analysis", icon: Mic },
@@ -35,7 +34,7 @@ const navDropdowns = [
     label: "Therapy Hub",
     items: [
       { path: "/therapy-speech", label: "Speech Therapy", icon: Mic },
-      { path: "/therapy-hand", label: "Hand Therapy", icon: Hand },
+      { path: "/therapy/hand", label: "Hand Therapy", icon: Hand },
       { path: "/therapy-breathing", label: "Breathing Exercises", icon: Wind },
       { path: "/guidance-therapy", label: "Physical Therapy", icon: Activity },
       { path: "/brain-games", label: "Brain Games", icon: Gamepad2 },
@@ -56,7 +55,6 @@ const navDropdowns = [
     items: [
       { path: "/education", label: "Education", icon: BookOpen },
       { path: "/find-specialist", label: "Find Specialist", icon: Stethoscope },
-      { path: "/wearable-integration", label: "Wearable Integration", icon: Watch },
       { path: "/ai-chatbot", label: "AI Chatbot", icon: MessageSquare },
     ]
   },

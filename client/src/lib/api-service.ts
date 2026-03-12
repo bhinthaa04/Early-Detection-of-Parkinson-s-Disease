@@ -85,6 +85,26 @@ export interface CreateReportPayload {
   recommendedTherapy?: string;
 }
 
+export interface PatientTestRecord {
+  id: number;
+  patient_id: number;
+  test_date: string;
+  confidence_score: number;
+  risk_level: string;
+  result: string;
+  stage?: string | null;
+  created_at: string;
+}
+
+export interface CreatePatientTestPayload {
+  patientId: number;
+  testDate: string;
+  confidenceScore: number;
+  riskLevel: string;
+  result: string;
+  stage?: string;
+}
+
 export const apiService = {
   async createPatient(payload: CreatePatientPayload): Promise<number> {
     const response = await fetch(API_ENDPOINTS.patients, {
@@ -171,6 +191,54 @@ export const apiService = {
 
     const data = await response.json() as { reportId: number };
     return data.reportId;
+  },
+
+  async createPatientTest(payload: CreatePatientTestPayload): Promise<number> {
+    const response = await fetch(API_ENDPOINTS.patientTests, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        patient_id: payload.patientId,
+        test_date: payload.testDate,
+        confidence_score: payload.confidenceScore,
+        risk_level: payload.riskLevel,
+        result: payload.result,
+        stage: payload.stage ?? null,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Patient Test Error: HTTP ${response.status}: ${errorText || response.statusText}`);
+    }
+
+    const data = await response.json() as { testId?: number; test_id?: number };
+    const testId = data.testId ?? data.test_id;
+    if (!testId) {
+      throw new Error("Patient Test Error: Invalid response from server.");
+    }
+    return testId;
+  },
+
+  async getPatientTests(patientId: number, limit?: number): Promise<PatientTestRecord[]> {
+    const params = new URLSearchParams();
+    params.set('patient_id', String(patientId));
+    if (limit && Number.isFinite(limit)) {
+      params.set('limit', String(limit));
+    }
+
+    const response = await fetch(`${API_ENDPOINTS.patientTests}?${params.toString()}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Patient Test Fetch Error: HTTP ${response.status}: ${errorText || response.statusText}`);
+    }
+
+    return response.json() as Promise<PatientTestRecord[]>;
   },
 
   async predict(imageFile: File, audioFile: File): Promise<PredictionResponse> {

@@ -101,14 +101,6 @@ export default function FindSpecialist() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <Button
-            variant="ghost"
-            onClick={() => setLocation("/")}
-            className="mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
-          </Button>
-
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Find Parkinson's Specialists
           </h1>
@@ -117,10 +109,9 @@ export default function FindSpecialist() {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1 space-y-6">
-            <Card>
-              <CardHeader>
+        <div className="space-y-6">
+            <Card className="w-full">
+              <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2">
                   <Search className="w-5 h-5" />
                   Search Specialists
@@ -154,44 +145,85 @@ export default function FindSpecialist() {
               </CardContent>
             </Card>
 
-            <div className="space-y-4 max-h-[600px] overflow-y-auto">
-              {filteredSpecialists.map((specialist) => (
-                <motion.div
-                  key={specialist.id}
-                  whileHover={{ scale: 1.02 }}
-                  className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                    selectedSpecialist?.id === specialist.id
-                      ? 'border-primary bg-primary/5 shadow-md'
-                      : 'border-gray-200 bg-white hover:shadow-md'
-                  }`}
-                  onClick={() => setSelectedSpecialist(specialist)}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-lg">{specialist.name}</h3>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">{specialist.rating}</span>
-                      <span className="text-sm text-gray-500">({specialist.reviews})</span>
-                    </div>
-                  </div>
+            <Card className="w-full">
+              <CardContent className="p-0 pt-4">
+                <div className="space-y-4">
+                  {filteredSpecialists.map((specialist) => (
+                    <motion.div
+                      key={specialist.id}
+                      whileHover={{ scale: 1.02 }}
+                      className={`p-6 rounded-xl border cursor-pointer transition-all ${
+                        selectedSpecialist?.id === specialist.id
+                          ? 'border-primary bg-primary/5 shadow-lg ring-2 ring-primary/20'
+                          : 'border-gray-200 bg-white hover:shadow-lg hover:border-gray-300'
+                      }`}
+                      onClick={() => {
+                        setSelectedSpecialist(specialist);
+                        // Scroll map into view and highlight
+                        const mapEl = mapRef.current;
+                        if (mapEl) {
+                          mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                      }}
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="font-bold text-xl">{specialist.name}</h3>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          <span className="text-lg font-bold text-yellow-500">{specialist.rating}</span>
+                          <span className="text-sm text-gray-500">({specialist.reviews} reviews)</span>
+                        </div>
+                      </div>
 
-                  <p className="text-primary font-medium mb-1">{specialist.specialty}</p>
-                  <p className="text-sm text-gray-600 mb-2">{specialist.hospital}</p>
+                      <p className="text-primary font-semibold text-base mb-2">{specialist.specialty}</p>
+                      <p className="text-lg font-medium mb-2 text-gray-800">{specialist.hospital}</p>
 
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {specialist.distance}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {specialist.hours}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+                      <div className="space-y-2 mb-4 text-sm">
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <MapPin className="w-4 h-4 text-blue-500" />
+                          <span>{specialist.address}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <Phone className="w-4 h-4 text-green-500" />
+                          <span>{specialist.phone}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 text-xs text-gray-500 mb-4">
+                        <div className="flex items-center gap-1">
+                          <LocateFixed className="w-3 h-3" />
+                          {specialist.distance}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {specialist.hours}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedSpecialist(specialist);
+                            const mapEl = mapRef.current;
+                            if (mapEl) {
+                              mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                          }}
+                        >
+                          <Navigation className="w-4 h-4 mr-1" />
+                          View on Map
+                        </Button>
+                        <Button size="sm" className="flex-1">Book Now</Button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
           <div className="lg:col-span-2 space-y-6">
             <Card>

@@ -42,10 +42,10 @@ export async function registerRoutes(
     return res.sendStatus(204);
   });
 
-  // REST API backed by MySQL
+// REST API backed by MySQL
   app.use("/api", apiRouter);
 
-  // Prediction endpoint - forwards to Flask ML API
+// Prediction endpoint - forwards to Flask ML API
   app.post('/predict', upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'audio', maxCount: 1 }

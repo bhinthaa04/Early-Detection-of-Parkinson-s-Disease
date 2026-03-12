@@ -227,37 +227,48 @@ def draw_watermark(c, width, height):
             print(f"Watermark error: {e}")
             pass
 
-def draw_header(c, width, height, logo_path=LOGO_PATH):
+def draw_header(c, width, height, logo_path=LOGO_PATH, margin=40, header_height=84):
     """Draw the report header matching HTML format."""
     dark_blue = colors.HexColor('#2c5ba9')
-    
+
+    header_top = height
+    header_bottom = height - header_height
+
     # Header background
     c.setFillColor(dark_blue)
-    c.rect(0, height - 80, width, 80, fill=True, stroke=False)
-    
+    c.rect(0, header_bottom, width, header_height, fill=True, stroke=False)
+
     # Left side - Logo and title
+    logo_size = 46
+    logo_x = margin
+    logo_y = header_bottom + (header_height - logo_size) / 2
     if os.path.exists(logo_path):
         try:
-            c.drawImage(logo_path, 40, height - 65, width=50, height=50, mask='auto')
+            c.drawImage(logo_path, logo_x, logo_y, width=logo_size, height=logo_size, mask='auto')
         except:
             pass
-    
-    # Title
+
+    title_x = logo_x + logo_size + 12
+    title_y = header_top - 26
+
     c.setFillColor(colors.white)
     c.setFont("Helvetica-Bold", 20)
-    c.drawString(100, height - 40, "NeuroScan AI")
-    
+    c.drawString(title_x, title_y, "NeuroScan AI")
+
     c.setFont("Helvetica", 11)
-    c.drawString(100, height - 55, "Parkinson's Disease Screening Report")
-    
+    c.drawString(title_x, title_y - 14, "Parkinson's Disease Screening Report")
+
     c.setFont("Helvetica-Oblique", 9)
-    c.drawString(100, height - 70, "AI-Based Preliminary Assessment")
-    
+    c.drawString(title_x, title_y - 26, "AI-Based Preliminary Assessment")
+
     # Right side - Contact info
+    right_x = width - margin
+    contact_top = header_top - 24
+    contact_gap = 13
     c.setFont("Helvetica", 8)
-    c.drawRightString(width - 40, height - 35, "Phone: +1 234 567 890")
-    c.drawRightString(width - 40, height - 48, "Email: info@neuroscan.ai")
-    c.drawRightString(width - 40, height - 61, "Website: www.neuroscan.ai")
+    c.drawRightString(right_x, contact_top, "Phone: +1 234 567 890")
+    c.drawRightString(right_x, contact_top - contact_gap, "Email: info@neuroscan.ai")
+    c.drawRightString(right_x, contact_top - (2 * contact_gap), "Website: www.neuroscan.ai")
 
 def draw_footer(c, width, height, page_num):
     """Draw the report footer."""
@@ -270,7 +281,7 @@ def draw_section_heading(c, x, y, text, dark_blue, line_width=300):
     """Draw section heading with underline."""
     c.setFillColor(dark_blue)
     c.setFont("Helvetica-Bold", 11)
-    c.drawString(x, y, text)
+    c.drawString(x, y, text.upper())
     # Underline
     c.setStrokeColor(dark_blue)
     c.setLineWidth(2)
@@ -313,6 +324,22 @@ def _as_list(value, fallback):
         return parts or fallback
     return fallback
 
+def _split_long_word(c, word, max_width, font_name, font_size):
+    if c.stringWidth(word, font_name, font_size) <= max_width:
+        return [word]
+    segments = []
+    current = ""
+    for char in word:
+        test = f"{current}{char}"
+        if current and c.stringWidth(test, font_name, font_size) > max_width:
+            segments.append(current)
+            current = char
+        else:
+            current = test
+    if current:
+        segments.append(current)
+    return segments
+
 def _wrap_text(c, text, max_width, font_name="Helvetica", font_size=9):
     content = _as_text(text, "")
     if not content:
@@ -323,15 +350,26 @@ def _wrap_text(c, text, max_width, font_name="Helvetica", font_size=9):
         if not words:
             lines.append("")
             continue
-        current = words[0]
-        for word in words[1:]:
+        current = ""
+        for word in words:
+            if c.stringWidth(word, font_name, font_size) > max_width:
+                if current:
+                    lines.append(current)
+                    current = ""
+                for chunk in _split_long_word(c, word, max_width, font_name, font_size):
+                    lines.append(chunk)
+                continue
+            if not current:
+                current = word
+                continue
             test_line = f"{current} {word}"
             if c.stringWidth(test_line, font_name, font_size) <= max_width:
                 current = test_line
             else:
                 lines.append(current)
                 current = word
-        lines.append(current)
+        if current:
+            lines.append(current)
     return lines
 
 def _draw_wrapped_text(c, x, y, text, max_width, font_name="Helvetica", font_size=9, color=colors.black, line_height=12):
@@ -360,6 +398,32 @@ def _draw_bullets(c, x, y, items, max_width, font_name="Helvetica", font_size=9,
         y -= 2
     return y
 
+def _measure_wrapped_text(c, text, max_width, font_name="Helvetica", font_size=9, line_height=12):
+    lines = _wrap_text(c, text, max_width, font_name, font_size)
+    return max(1, len(lines)) * line_height
+
+def _measure_lines(c, lines, max_width, font_name="Helvetica", font_size=9, line_height=12):
+    total = 0
+    for line in lines:
+        total += _measure_wrapped_text(c, line, max_width, font_name, font_size, line_height)
+    return total
+
+def _measure_bullets(c, items, max_width, font_name="Helvetica", font_size=9, line_height=12):
+    bullet_indent = 12
+    total = 0
+    for item in items:
+        lines = _wrap_text(c, _as_text(item), max_width - bullet_indent, font_name, font_size)
+        if not lines:
+            continue
+        total += len(lines) * line_height + 2
+    return total
+
+def _draw_panel(c, x, y, width, height, fill, stroke, radius=8, line_width=1):
+    c.setFillColor(fill)
+    c.setStrokeColor(stroke)
+    c.setLineWidth(line_width)
+    c.roundRect(x, y - height, width, height, radius, fill=True, stroke=True)
+
 def _draw_qr_code(c, value, x, y, size):
     if not value:
         return
@@ -383,6 +447,15 @@ def create_enhanced_pdf_report(file_path, patient_data, test_data, result_data, 
     margin = 40
     content_w = width - (2 * margin)
     page_num = 1
+    header_height = 84
+    section_gap = 14
+    panel_padding = 12
+    panel_radius = 8
+    heading_block = 21
+    column_gap = 12
+    body_font = "Helvetica"
+    body_font_size = 9
+    body_line_height = 12
 
     dark_blue = colors.HexColor('#2c5ba9')
     light_gray = colors.HexColor('#f3f4f6')
@@ -487,66 +560,98 @@ def create_enhanced_pdf_report(file_path, patient_data, test_data, result_data, 
 
     def start_page():
         draw_watermark(c, width, height)
-        draw_header(c, width, height)
-        return height - 110
+        draw_header(c, width, height, margin=margin, header_height=header_height)
+        return height - header_height - 24
 
     y = start_page()
 
+    bottom_margin = 60
+
     def ensure_space(required_height):
         nonlocal y, page_num
-        if y - required_height < 55:
+        if y - required_height < bottom_margin:
             draw_footer(c, width, height, page_num)
             c.showPage()
             page_num += 1
             y = start_page()
 
-    ensure_space(145)
+    patient_lines = [
+        f'Patient Name: {name}',
+        f'Patient ID: {patient_id}',
+        f'Age: {age}',
+        f'Gender: {gender}',
+    ]
+    test_lines = [
+        f'Test ID: {test_id}',
+        f'Test Date & Time: {test_date}',
+        f'Test Type: {test_type}',
+    ]
+    half_w = (content_w - column_gap) / 2
+    left_max = half_w - (panel_padding * 2)
+    right_max = half_w - (panel_padding * 2)
+    patient_height = _measure_lines(c, patient_lines, left_max, body_font, body_font_size, body_line_height)
+    test_height = _measure_lines(c, test_lines, right_max, body_font, body_font_size, body_line_height)
+    title_height = 14
+    card_h = max(96, max(patient_height, test_height) + (panel_padding * 2) + title_height)
+
+    ensure_space(heading_block + card_h + section_gap)
     y = draw_section_heading(c, margin, y, 'PATIENT & TEST INFORMATION', dark_blue, line_width=content_w)
-    y -= 8
+    y -= 6
 
-    card_h = 92
-    half_w = (content_w - 10) / 2
-    c.setFillColor(light_gray)
-    c.setStrokeColor(mid_gray)
-    c.setLineWidth(1)
-    c.roundRect(margin, y - card_h, half_w, card_h, 6, fill=True, stroke=True)
-    c.roundRect(margin + half_w + 10, y - card_h, half_w, card_h, 6, fill=True, stroke=True)
+    _draw_panel(c, margin, y, half_w, card_h, colors.white, mid_gray, radius=panel_radius)
+    _draw_panel(c, margin + half_w + column_gap, y, half_w, card_h, colors.white, mid_gray, radius=panel_radius)
 
     c.setFillColor(dark_blue)
     c.setFont('Helvetica-Bold', 10)
-    c.drawString(margin + 10, y - 16, 'Patient Information')
-    c.drawString(margin + half_w + 20, y - 16, 'Test Information')
+    title_y = y - panel_padding
+    left_x = margin + panel_padding
+    right_x = margin + half_w + column_gap + panel_padding
+    c.drawString(left_x, title_y, 'Patient Information')
+    c.drawString(right_x, title_y, 'Test Information')
 
-    left_x = margin + 10
-    right_x = margin + half_w + 20
-    left_y = y - 30
-    right_y = y - 30
-    left_max = half_w - 20
-    right_max = half_w - 20
+    left_y = title_y - title_height
+    right_y = title_y - title_height
 
-    left_y = _draw_wrapped_text(c, left_x, left_y, f'Patient Name: {name}', left_max, font_size=8.5, color=text_black)
-    left_y = _draw_wrapped_text(c, left_x, left_y, f'Patient ID: {patient_id}', left_max, font_size=8.5, color=text_black)
-    left_y = _draw_wrapped_text(c, left_x, left_y, f'Age: {age}', left_max, font_size=8.5, color=text_black)
-    _draw_wrapped_text(c, left_x, left_y, f'Gender: {gender}', left_max, font_size=8.5, color=text_black)
+    for line in patient_lines:
+        left_y = _draw_wrapped_text(
+            c,
+            left_x,
+            left_y,
+            line,
+            left_max,
+            font_name=body_font,
+            font_size=body_font_size,
+            color=text_black,
+            line_height=body_line_height,
+        )
 
-    right_y = _draw_wrapped_text(c, right_x, right_y, f'Test ID: {test_id}', right_max, font_size=8.5, color=text_black)
-    right_y = _draw_wrapped_text(c, right_x, right_y, f'Test Date & Time: {test_date}', right_max, font_size=8.5, color=text_black)
-    _draw_wrapped_text(c, right_x, right_y, f'Test Type: {test_type}', right_max, font_size=8.5, color=text_black)
-    y -= card_h + 16
+    for line in test_lines:
+        right_y = _draw_wrapped_text(
+            c,
+            right_x,
+            right_y,
+            line,
+            right_max,
+            font_name=body_font,
+            font_size=body_font_size,
+            color=text_black,
+            line_height=body_line_height,
+        )
 
-    ensure_space(170)
+    y -= card_h + section_gap
+
+    result_h = 148
+    ensure_space(heading_block + result_h + section_gap)
     y = draw_section_heading(c, margin, y, 'PREDICTION RESULT', dark_blue, line_width=content_w)
-    y -= 10
-    result_h = 132
-    c.setStrokeColor(dark_blue)
-    c.setLineWidth(1.5)
-    c.setFillColor(colors.white)
-    c.roundRect(margin, y - result_h, content_w, result_h, 8, fill=True, stroke=True)
+    y -= 6
+    _draw_panel(c, margin, y, content_w, result_h, colors.white, dark_blue, radius=panel_radius, line_width=1.4)
+
+    banner_h = 26
     c.setFillColor(dark_blue)
-    c.roundRect(margin, y - 30, content_w, 22, 8, fill=True, stroke=False)
+    c.roundRect(margin, y - banner_h, content_w, banner_h, panel_radius, fill=True, stroke=False)
     c.setFillColor(colors.white)
     c.setFont('Helvetica-Bold', 10)
-    c.drawCentredString(width / 2, y - 22, 'Prediction Result')
+    c.drawCentredString(width / 2, y - 18, 'Prediction Result')
 
     status_text = "Parkinson's Disease Detected" if is_positive else "No Parkinson's Disease Detected"
     status_color = red_color if is_positive else green_color
@@ -555,15 +660,17 @@ def create_enhanced_pdf_report(file_path, patient_data, test_data, result_data, 
 
     c.setFillColor(status_color)
     c.setFont('Helvetica-Bold', 18)
-    c.drawCentredString(width / 2, y - 53, status_text)
+    status_y = y - banner_h - 24
+    c.drawCentredString(width / 2, status_y, status_text)
 
-    metric_y_title = y - 76
-    metric_y_val = y - 93
-    col1 = margin + content_w / 6
-    col2 = margin + content_w / 2
-    col3 = margin + (5 * content_w / 6)
+    metric_y_title = status_y - 26
+    metric_y_val = metric_y_title - 16
+    col_w = content_w / 3
+    col1 = margin + (col_w / 2)
+    col2 = margin + (col_w * 1.5)
+    col3 = margin + (col_w * 2.5)
     c.setFillColor(text_black)
-    c.setFont('Helvetica', 9)
+    c.setFont(body_font, body_font_size)
     c.drawCentredString(col1, metric_y_title, 'Confidence Score')
     c.drawCentredString(col2, metric_y_title, 'Risk Level')
     c.drawCentredString(col3, metric_y_title, 'Disease Stage')
@@ -571,83 +678,206 @@ def create_enhanced_pdf_report(file_path, patient_data, test_data, result_data, 
     c.drawCentredString(col1, metric_y_val, f'{confidence_percent}%')
     c.drawCentredString(col2, metric_y_val, risk_level)
     c.drawCentredString(col3, metric_y_val, disease_stage)
-    y -= result_h + 14
+    y -= result_h + section_gap
 
-    ensure_space(86)
     interp_bg = colors.HexColor('#ecfdf3') if not is_positive else (colors.HexColor('#fff7ed') if risk_level.lower() == 'moderate' else colors.HexColor('#fef2f2'))
     interp_border = colors.HexColor('#86efac') if not is_positive else (colors.HexColor('#fdba74') if risk_level.lower() == 'moderate' else colors.HexColor('#fca5a5'))
-    c.setFillColor(interp_bg)
-    c.setStrokeColor(interp_border)
-    c.setLineWidth(1)
-    c.roundRect(margin, y - 70, content_w, 70, 6, fill=True, stroke=True)
+    interp_text = f'Your risk level is {risk_level}. {interpretation}'
+    interp_text_height = _measure_wrapped_text(c, interp_text, content_w - (panel_padding * 2), body_font, body_font_size, body_line_height)
+    interp_h = max(80, (panel_padding * 2) + 16 + interp_text_height)
+    ensure_space(interp_h + section_gap)
+    _draw_panel(c, margin, y, content_w, interp_h, interp_bg, interp_border, radius=panel_radius)
     c.setFillColor(dark_blue)
     c.setFont('Helvetica-Bold', 10)
-    c.drawString(margin + 10, y - 18, 'What does this mean?')
-    _draw_wrapped_text(c, margin + 10, y - 33, f'Your risk level is {risk_level}. {interpretation}', content_w - 20, font_size=9, color=text_black)
-    y -= 78
+    title_y = y - panel_padding
+    c.drawString(margin + panel_padding, title_y, 'What does this mean?')
+    _draw_wrapped_text(
+        c,
+        margin + panel_padding,
+        title_y - 14,
+        interp_text,
+        content_w - (panel_padding * 2),
+        font_name=body_font,
+        font_size=body_font_size,
+        color=text_black,
+        line_height=body_line_height,
+    )
+    y -= interp_h + section_gap
 
-    ensure_space(130)
+    summary_rows = [
+        (f'Image Uploaded: {image_name} ({image_size})', f'Test Date & Time: {test_date}'),
+        (f'Voice Uploaded: {voice_name} ({voice_size})', f'Analysis Time: {analysis_time} sec'),
+        (f'Voice Sample Duration: {voice_duration} sec', f'Model Version: {model_version}'),
+        ("", f'Input Data: {input_data}'),
+    ]
+    summary_col_w = (content_w - column_gap) / 2
+    summary_left_max = summary_col_w - (panel_padding * 2)
+    summary_right_max = summary_col_w - (panel_padding * 2)
+    summary_row_gap = 2
+    summary_row_heights = []
+    for left_text, right_text in summary_rows:
+        left_h = _measure_wrapped_text(c, left_text, summary_left_max, body_font, body_font_size, body_line_height) if left_text else 0
+        right_h = _measure_wrapped_text(c, right_text, summary_right_max, body_font, body_font_size, body_line_height) if right_text else 0
+        summary_row_heights.append(max(left_h, right_h, body_line_height) + summary_row_gap)
+    summary_h = max(96, sum(summary_row_heights) + (panel_padding * 2))
+
+    ensure_space(heading_block + summary_h + section_gap)
     y = draw_section_heading(c, margin, y, 'TEST DATA SUMMARY', dark_blue, line_width=content_w)
-    y -= 8
-    c.setFillColor(light_gray)
-    c.setStrokeColor(mid_gray)
-    c.roundRect(margin, y - 104, content_w, 104, 6, fill=True, stroke=True)
+    y -= 6
+    _draw_panel(c, margin, y, content_w, summary_h, colors.white, mid_gray, radius=panel_radius)
     c.setFillColor(text_black)
-    c.setFont('Helvetica', 9)
-    left_x = margin + 10
-    right_x = margin + (content_w / 2) + 5
-    row_y = y - 18
-    c.drawString(left_x, row_y, f'Image Uploaded: {image_name} ({image_size})')
-    c.drawString(left_x, row_y - 15, f'Voice Uploaded: {voice_name} ({voice_size})')
-    c.drawString(left_x, row_y - 30, f'Voice Sample Duration: {voice_duration} sec')
-    c.drawString(right_x, row_y, f'Test Date & Time: {test_date}')
-    c.drawString(right_x, row_y - 15, f'Analysis Time: {analysis_time} sec')
-    c.drawString(right_x, row_y - 30, f'Model Version: {model_version}')
-    c.drawString(right_x, row_y - 45, f'Input Data: {input_data}')
-    y -= 116
+    c.setFont(body_font, body_font_size)
+    left_x = margin + panel_padding
+    right_x = margin + summary_col_w + column_gap + panel_padding
+    row_y = y - panel_padding
+    for (left_text, right_text), row_h in zip(summary_rows, summary_row_heights):
+        if left_text:
+            _draw_wrapped_text(
+                c,
+                left_x,
+                row_y,
+                left_text,
+                summary_left_max,
+                font_name=body_font,
+                font_size=body_font_size,
+                color=text_black,
+                line_height=body_line_height,
+            )
+        if right_text:
+            _draw_wrapped_text(
+                c,
+                right_x,
+                row_y,
+                right_text,
+                summary_right_max,
+                font_name=body_font,
+                font_size=body_font_size,
+                color=text_black,
+                line_height=body_line_height,
+            )
+        row_y -= row_h
+    y -= summary_h + section_gap
 
-    ensure_space(105)
+    symptoms_left_lines = [
+        f'Tremor: {tremor}',
+        f'Slurred Speech: {slurred_speech}',
+        f'Handwriting Difficulty: {handwriting_difficulty}',
+    ]
+    symptoms_right_lines = [
+        f'Fatigue: {fatigue}',
+        f'Balance Issues: {balance_issues}',
+    ]
+    symptoms_col_w = (content_w - column_gap) / 2
+    symptoms_left_max = symptoms_col_w - (panel_padding * 2)
+    symptoms_right_max = symptoms_col_w - (panel_padding * 2)
+    symptoms_left_h = _measure_lines(c, symptoms_left_lines, symptoms_left_max, body_font, body_font_size, body_line_height)
+    symptoms_right_h = _measure_lines(c, symptoms_right_lines, symptoms_right_max, body_font, body_font_size, body_line_height)
+    symptoms_h = max(84, max(symptoms_left_h, symptoms_right_h) + (panel_padding * 2))
+
+    ensure_space(heading_block + symptoms_h + section_gap)
     y = draw_section_heading(c, margin, y, 'REPORTED SYMPTOMS', dark_blue, line_width=content_w)
-    y -= 8
-    c.setFillColor(colors.white)
-    c.setStrokeColor(mid_gray)
-    c.roundRect(margin, y - 82, content_w, 82, 6, fill=True, stroke=True)
+    y -= 6
+    _draw_panel(c, margin, y, content_w, symptoms_h, colors.white, mid_gray, radius=panel_radius)
     c.setFillColor(text_black)
-    c.setFont('Helvetica', 9)
-    c.drawString(margin + 10, y - 18, f'Tremor: {tremor}')
-    c.drawString(margin + 10, y - 32, f'Slurred Speech: {slurred_speech}')
-    c.drawString(margin + 10, y - 46, f'Handwriting Difficulty: {handwriting_difficulty}')
-    c.drawString(margin + 260, y - 18, f'Fatigue: {fatigue}')
-    c.drawString(margin + 260, y - 32, f'Balance Issues: {balance_issues}')
-    y -= 94
+    c.setFont(body_font, body_font_size)
+    left_x = margin + panel_padding
+    right_x = margin + symptoms_col_w + column_gap + panel_padding
+    row_y = y - panel_padding
+    for line in symptoms_left_lines:
+        row_y = _draw_wrapped_text(
+            c,
+            left_x,
+            row_y,
+            line,
+            symptoms_left_max,
+            font_name=body_font,
+            font_size=body_font_size,
+            color=text_black,
+            line_height=body_line_height,
+        )
+    row_y = y - panel_padding
+    for line in symptoms_right_lines:
+        row_y = _draw_wrapped_text(
+            c,
+            right_x,
+            row_y,
+            line,
+            symptoms_right_max,
+            font_name=body_font,
+            font_size=body_font_size,
+            color=text_black,
+            line_height=body_line_height,
+        )
+    y -= symptoms_h + section_gap
 
-    ensure_space(132)
+    analysis_lines = [
+        f'Model Type: {ai_model_type}',
+        f'Features: {ai_features}',
+        f'Processing Time: {analysis_time} sec',
+        f'Voice Stability: {voice_stability}',
+        f'Handwriting Smoothness: {handwriting_smoothness}',
+        f'Previous Test: {prev_prediction} ({prev_date}) | Trend: {prev_trend}',
+    ]
+    analysis_text_height = _measure_lines(c, analysis_lines, content_w - (panel_padding * 2), body_font, body_font_size, body_line_height)
+    analysis_h = max(112, analysis_text_height + (panel_padding * 2))
+    ensure_space(heading_block + analysis_h + section_gap)
     y = draw_section_heading(c, margin, y, 'AI ANALYSIS DETAILS', dark_blue, line_width=content_w)
-    y -= 8
-    c.setFillColor(colors.white)
-    c.setStrokeColor(mid_gray)
-    c.roundRect(margin, y - 110, content_w, 110, 6, fill=True, stroke=True)
+    y -= 6
+    _draw_panel(c, margin, y, content_w, analysis_h, colors.white, mid_gray, radius=panel_radius)
     c.setFillColor(text_black)
-    c.setFont('Helvetica', 9)
-    c.drawString(margin + 10, y - 18, f'Model Type: {ai_model_type}')
-    c.drawString(margin + 10, y - 32, f'Features: {ai_features}')
-    c.drawString(margin + 10, y - 46, f'Processing Time: {analysis_time} sec')
-    c.drawString(margin + 10, y - 62, f'Voice Stability: {voice_stability}')
-    c.drawString(margin + 10, y - 76, f'Handwriting Smoothness: {handwriting_smoothness}')
-    c.drawString(margin + 10, y - 92, f'Previous Test: {prev_prediction} ({prev_date}) | Trend: {prev_trend}')
-    y -= 122
+    c.setFont(body_font, body_font_size)
+    cursor_y = y - panel_padding
+    for line in analysis_lines:
+        cursor_y = _draw_wrapped_text(
+            c,
+            margin + panel_padding,
+            cursor_y,
+            line,
+            content_w - (panel_padding * 2),
+            font_name=body_font,
+            font_size=body_font_size,
+            color=text_black,
+            line_height=body_line_height,
+        )
+    y -= analysis_h + section_gap
 
-    ensure_space(130)
+    recommendations_h = _measure_bullets(c, recommendations, content_w - (panel_padding * 2), body_font, body_font_size, body_line_height)
+    recommendations_h = max(72, recommendations_h + (panel_padding * 2))
+    ensure_space(heading_block + recommendations_h + section_gap)
     y = draw_section_heading(c, margin, y, 'RECOMMENDED ACTIONS', dark_blue, line_width=content_w)
-    y -= 4
-    y = _draw_bullets(c, margin + 10, y - 10, recommendations, content_w - 20, color=text_black)
-    y -= 8
+    y -= 6
+    _draw_panel(c, margin, y, content_w, recommendations_h, colors.white, mid_gray, radius=panel_radius)
+    _draw_bullets(
+        c,
+        margin + panel_padding,
+        y - panel_padding,
+        recommendations,
+        content_w - (panel_padding * 2),
+        font_name=body_font,
+        font_size=body_font_size,
+        color=text_black,
+        line_height=body_line_height,
+    )
+    y -= recommendations_h + section_gap
 
-    ensure_space(120)
+    lifestyle_h = _measure_bullets(c, lifestyle_tips, content_w - (panel_padding * 2), body_font, body_font_size, body_line_height)
+    lifestyle_h = max(68, lifestyle_h + (panel_padding * 2))
+    ensure_space(heading_block + lifestyle_h + section_gap)
     y = draw_section_heading(c, margin, y, 'LIFESTYLE GUIDANCE', dark_blue, line_width=content_w)
-    y -= 4
-    y = _draw_bullets(c, margin + 10, y - 10, lifestyle_tips, content_w - 20, color=text_black)
-    y -= 8
+    y -= 6
+    _draw_panel(c, margin, y, content_w, lifestyle_h, colors.white, mid_gray, radius=panel_radius)
+    _draw_bullets(
+        c,
+        margin + panel_padding,
+        y - panel_padding,
+        lifestyle_tips,
+        content_w - (panel_padding * 2),
+        font_name=body_font,
+        font_size=body_font_size,
+        color=text_black,
+        line_height=body_line_height,
+    )
+    y -= lifestyle_h + section_gap
 
     if risk_level.lower() == 'high':
         ensure_space(58)
@@ -662,63 +892,133 @@ def create_enhanced_pdf_report(file_path, patient_data, test_data, result_data, 
         c.drawString(margin + 10, y - 34, 'Immediate medical consultation is recommended.')
         y -= 60
 
-    ensure_space(156)
-    y = draw_section_heading(c, margin, y, 'REPORT INFO', dark_blue, line_width=content_w)
-    y -= 8
-    report_h = 136
-    c.setFillColor(light_gray)
-    c.setStrokeColor(mid_gray)
-    c.roundRect(margin, y - report_h, content_w, report_h, 6, fill=True, stroke=True)
-    c.setFillColor(text_black)
-    c.setFont('Helvetica', 9)
-    c.drawString(margin + 10, y - 18, f'Report Generated At: {report_generated_at}')
-    c.drawString(margin + 10, y - 32, f'Generated By: {generated_by}')
-    c.drawString(margin + 10, y - 46, f'Format: {report_format}')
-    c.drawString(margin + 10, y - 60, f'Language: {report_language}')
-    c.drawString(margin + 10, y - 76, f'Contact: {_as_text(patient_data.get("contact"), "N/A")}')
-    c.drawString(margin + 10, y - 90, f'Email: {_as_text(patient_data.get("email"), "N/A")}')
-    qr_size = 82
-    qr_x = margin + content_w - qr_size - 14
-    qr_y = y - qr_size - 18
-    _draw_qr_code(c, verification_url, qr_x, qr_y, qr_size)
-    c.setFont('Helvetica', 8)
-    c.setFillColor(dark_blue)
-    c.drawString(qr_x - 8, qr_y - 10, 'Report Verification QR')
+    qr_size = 84
+    qr_gap = 16
+    qr_block_h = qr_size + 12
+    info_lines = [
+        f'Report Generated At: {report_generated_at}',
+        f'Generated By: {generated_by}',
+        f'Format: {report_format}',
+        f'Language: {report_language}',
+        f'Contact: {_as_text(patient_data.get("contact"), "N/A")}',
+        f'Email: {_as_text(patient_data.get("email"), "N/A")}',
+    ]
+    text_max = content_w - qr_size - (panel_padding * 2) - qr_gap
+    info_text_height = _measure_lines(c, info_lines, text_max, body_font, body_font_size, body_line_height)
+    verify_text_height = 0
+    verify_gap = 4 if verification_url else 0
     if verification_url:
-        _draw_wrapped_text(c, margin + 10, y - 106, f'Verify URL: {verification_url}', content_w - qr_size - 35, font_size=8, color=dark_blue, line_height=10)
-    y -= report_h + 12
+        verify_text_height = _measure_wrapped_text(c, f'Verify URL: {verification_url}', text_max, body_font, body_font_size, body_line_height)
+    report_h = max((panel_padding * 2) + qr_block_h, (panel_padding * 2) + info_text_height + verify_text_height + verify_gap)
+    ensure_space(heading_block + report_h + section_gap)
+    y = draw_section_heading(c, margin, y, 'REPORT INFO', dark_blue, line_width=content_w)
+    y -= 6
+    _draw_panel(c, margin, y, content_w, report_h, colors.white, mid_gray, radius=panel_radius)
 
-    ensure_space(96)
-    y = draw_section_heading(c, margin, y, 'CLINICAL NOTES', dark_blue, line_width=content_w)
-    y -= 8
-    notes_h = 80
-    c.setFillColor(colors.white)
-    c.setStrokeColor(mid_gray)
-    c.roundRect(margin, y - notes_h, content_w, notes_h, 6, fill=True, stroke=True)
+    c.setFillColor(text_black)
+    c.setFont(body_font, body_font_size)
+    cursor_y = y - panel_padding
+    for line in info_lines:
+        cursor_y = _draw_wrapped_text(
+            c,
+            margin + panel_padding,
+            cursor_y,
+            line,
+            text_max,
+            font_name=body_font,
+            font_size=body_font_size,
+            color=text_black,
+            line_height=body_line_height,
+        )
+    if verification_url:
+        cursor_y -= verify_gap
+        _draw_wrapped_text(
+            c,
+            margin + panel_padding,
+            cursor_y,
+            f'Verify URL: {verification_url}',
+            text_max,
+            font_name=body_font,
+            font_size=body_font_size,
+            color=dark_blue,
+            line_height=body_line_height,
+        )
+
+    qr_x = margin + content_w - panel_padding - qr_size
+    label_y = y - panel_padding
+    qr_y = label_y - 10 - qr_size
+    c.setFont('Helvetica-Bold', 8)
+    c.setFillColor(dark_blue)
+    c.drawRightString(qr_x + qr_size, label_y, 'Report Verification QR')
+    _draw_qr_code(c, verification_url, qr_x, qr_y, qr_size)
+    y -= report_h + section_gap
+
     notes_text = doctor_notes if doctor_notes else 'No doctor notes added.'
-    _draw_wrapped_text(c, margin + 10, y - 18, notes_text, content_w - 20, font_size=9, color=text_black)
-    y -= notes_h + 12
+    notes_text_height = _measure_wrapped_text(c, notes_text, content_w - (panel_padding * 2), body_font, body_font_size, body_line_height)
+    notes_h = max(80, notes_text_height + (panel_padding * 2))
+    ensure_space(heading_block + notes_h + section_gap)
+    y = draw_section_heading(c, margin, y, 'CLINICAL NOTES', dark_blue, line_width=content_w)
+    y -= 6
+    _draw_panel(c, margin, y, content_w, notes_h, colors.white, mid_gray, radius=panel_radius)
+    _draw_wrapped_text(
+        c,
+        margin + panel_padding,
+        y - panel_padding,
+        notes_text,
+        content_w - (panel_padding * 2),
+        font_name=body_font,
+        font_size=body_font_size,
+        color=text_black,
+        line_height=body_line_height,
+    )
+    y -= notes_h + section_gap
 
-    ensure_space(110)
+    medical_lines = [
+        f'Medical History: {medical_history}',
+        f'Current Symptoms: {symptoms_text}',
+        f'Family History: {family_history}',
+        f'Current Medications: {medications}',
+    ]
+    medical_text_height = _measure_lines(c, medical_lines, content_w - (panel_padding * 2), body_font, body_font_size, body_line_height)
+    medical_h = max(96, medical_text_height + (panel_padding * 2))
+    ensure_space(heading_block + medical_h + section_gap)
     y = draw_section_heading(c, margin, y, 'MEDICAL BACKGROUND', dark_blue, line_width=content_w)
-    y -= 8
-    c.setFillColor(colors.white)
-    c.setStrokeColor(mid_gray)
-    c.roundRect(margin, y - 90, content_w, 90, 6, fill=True, stroke=True)
-    _draw_wrapped_text(c, margin + 10, y - 18, f'Medical History: {medical_history}', content_w - 20, font_size=8.5, color=text_black)
-    _draw_wrapped_text(c, margin + 10, y - 36, f'Current Symptoms: {symptoms_text}', content_w - 20, font_size=8.5, color=text_black)
-    _draw_wrapped_text(c, margin + 10, y - 54, f'Family History: {family_history}', content_w - 20, font_size=8.5, color=text_black)
-    _draw_wrapped_text(c, margin + 10, y - 72, f'Current Medications: {medications}', content_w - 20, font_size=8.5, color=text_black)
-    y -= 102
+    y -= 6
+    _draw_panel(c, margin, y, content_w, medical_h, colors.white, mid_gray, radius=panel_radius)
+    cursor_y = y - panel_padding
+    for line in medical_lines:
+        cursor_y = _draw_wrapped_text(
+            c,
+            margin + panel_padding,
+            cursor_y,
+            line,
+            content_w - (panel_padding * 2),
+            font_name=body_font,
+            font_size=body_font_size,
+            color=text_black,
+            line_height=body_line_height,
+        )
+    y -= medical_h + section_gap
 
-    ensure_space(72)
-    c.setFillColor(light_gray)
-    c.setStrokeColor(mid_gray)
-    c.roundRect(margin, y - 60, content_w, 60, 6, fill=True, stroke=True)
+    notice_text_height = _measure_wrapped_text(c, privacy_notice, content_w - (panel_padding * 2), body_font, body_font_size, body_line_height)
+    notice_h = max(72, (panel_padding * 2) + 16 + notice_text_height)
+    ensure_space(notice_h + section_gap)
+    _draw_panel(c, margin, y, content_w, notice_h, light_gray, mid_gray, radius=panel_radius)
     c.setFillColor(dark_blue)
     c.setFont('Helvetica-Bold', 10)
-    c.drawString(margin + 10, y - 18, 'Privacy & Notice')
-    _draw_wrapped_text(c, margin + 10, y - 34, privacy_notice, content_w - 20, font_size=8.5, color=text_black, line_height=11)
+    title_y = y - panel_padding
+    c.drawString(margin + panel_padding, title_y, 'Privacy & Notice')
+    _draw_wrapped_text(
+        c,
+        margin + panel_padding,
+        title_y - 14,
+        privacy_notice,
+        content_w - (panel_padding * 2),
+        font_name=body_font,
+        font_size=body_font_size,
+        color=text_black,
+        line_height=body_line_height,
+    )
 
     draw_footer(c, width, height, page_num)
     c.save()

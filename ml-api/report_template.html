@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NeuroScan AI | Parkinson's Disease Screening Report</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --page-width: 210mm;
+        --page-height: 297mm;
+        --page-margin: 16mm;
+        --primary: #2c5ba9;
+        --border: #d1d5db;
+        --muted: #f8fafc;
+        --text: #0f172a;
+        --subtle: #64748b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #e2e8f0;
+        font-family: "Inter", sans-serif;
+        color: var(--text);
+      }
+
+      .report-page {
+        width: var(--page-width);
+        min-height: var(--page-height);
+        margin: 24px auto;
+        background: #ffffff;
+        border-radius: 18px;
+        padding: var(--page-margin);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: center;
+        background: var(--primary);
+        color: #ffffff;
+        border-radius: 14px;
+        padding: 18px 20px;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .logo {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: #ffffff;
+        color: var(--primary);
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        font-size: 20px;
+      }
+
+      .title h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .title p {
+        margin: 2px 0 0;
+        font-size: 12px;
+        opacity: 0.85;
+      }
+
+      .contact {
+        text-align: right;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .section {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .section-title {
+        margin: 0;
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--primary);
+        font-weight: 700;
+        padding-bottom: 6px;
+        border-bottom: 2px solid var(--primary);
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .info-card {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        background: var(--muted);
+      }
+
+      .info-card h3 {
+        margin: 0 0 10px;
+        font-size: 13px;
+        color: var(--primary);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .field {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        padding: 4px 0;
+        border-bottom: 1px dashed #e2e8f0;
+      }
+
+      .field:last-child {
+        border-bottom: none;
+      }
+
+      .result-banner {
+        border-radius: 10px;
+        background: #e11d48;
+        color: #ffffff;
+        padding: 10px 12px;
+        text-align: center;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+      }
+
+      .result-main {
+        text-align: center;
+        font-size: 22px;
+        font-weight: 700;
+        color: #dc2626;
+      }
+
+      .result-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .metric {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        background: #ffffff;
+      }
+
+      .metric span {
+        display: block;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--subtle);
+        margin-bottom: 6px;
+      }
+
+      .metric strong {
+        font-size: 14px;
+      }
+
+      .qr-section {
+        display: grid;
+        grid-template-columns: 1fr 140px;
+        gap: 16px;
+        align-items: start;
+      }
+
+      .qr-box {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center;
+        background: var(--muted);
+      }
+
+      .qr-placeholder {
+        width: 100%;
+        height: 100px;
+        border-radius: 8px;
+        border: 1px dashed var(--border);
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        color: var(--subtle);
+        margin-bottom: 6px;
+      }
+
+      .footer {
+        margin-top: auto;
+        text-align: center;
+        font-size: 12px;
+        color: var(--subtle);
+        padding-top: 12px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      @page {
+        size: A4;
+        margin: 16mm;
+      }
+
+      @media print {
+        body {
+          background: #ffffff;
+        }
+
+        .report-page {
+          box-shadow: none;
+          margin: 0;
+          border-radius: 0;
+          width: auto;
+          min-height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="report-page">
+      <header class="header">
+        <div class="header-left">
+          <div class="logo">AI</div>
+          <div class="title">
+            <h1>NeuroScan AI</h1>
+            <p>Parkinson's Disease Screening Report</p>
+            <p>AI-Based Preliminary Assessment</p>
+          </div>
+        </div>
+        <div class="contact">
+          <div>Phone: +1 234 567 890</div>
+          <div>Email: info@neuroscan.ai</div>
+          <div>Website: www.neuroscan.ai</div>
+        </div>
+      </header>
+
+      <section class="section">
+        <h2 class="section-title">Patient & Test Information</h2>
+        <div class="grid-2">
+          <div class="info-card">
+            <h3>Patient Information</h3>
+            <div class="field"><span>Patient Name</span><strong>John Doe</strong></div>
+            <div class="field"><span>Patient ID</span><strong>PD12345678</strong></div>
+            <div class="field"><span>Age</span><strong>65</strong></div>
+            <div class="field"><span>Gender</span><strong>Male</strong></div>
+          </div>
+          <div class="info-card">
+            <h3>Test Information</h3>
+            <div class="field"><span>Test ID</span><strong>T-90231</strong></div>
+            <div class="field"><span>Test Date</span><strong>2026-03-11 10:42</strong></div>
+            <div class="field"><span>Test Type</span><strong>AI Multimodal Screening</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Prediction Result</h2>
+        <div class="result-banner">Prediction Result</div>
+        <div class="result-main">Parkinson's Disease Detected</div>
+        <div class="result-metrics">
+          <div class="metric"><span>Confidence Score</span><strong>86%</strong></div>
+          <div class="metric"><span>Risk Level</span><strong>High</strong></div>
+          <div class="metric"><span>Disease Stage</span><strong>Early</strong></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">AI Analysis Details</h2>
+        <p>Model Type: Deep Learning (CNN + ML)</p>
+        <p>Features: Spiral pattern + Voice MFCC features</p>
+        <p>Processing Time: 12 sec</p>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Recommended Actions</h2>
+        <ul>
+          <li>Schedule neurological examination</li>
+          <li>Repeat screening after 3-6 months</li>
+          <li>Monitor tremors, stiffness, or speech difficulty</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Lifestyle Guidance</h2>
+        <ul>
+          <li>Maintain regular physical activity</li>
+          <li>Eat balanced meals</li>
+          <li>Get 7-9 hours sleep</li>
+          <li>Reduce stress</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Report Info</h2>
+        <div class="qr-section">
+          <div>
+            <p>Report Generated At: 2026-03-11 10:45</p>
+            <p>Generated By: NeuroScan AI</p>
+            <p>Format: PDF</p>
+            <p>Language: English</p>
+            <p>Contact: +1 234 567 890</p>
+            <p>Email: info@neuroscan.ai</p>
+          </div>
+          <div class="qr-box">
+            <div class="qr-placeholder">QR Code</div>
+            <small>Verify Report</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Clinical Notes</h2>
+        <p>No doctor notes added.</p>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Medical Background</h2>
+        <p>Medical History: Diabetes, Hypertension</p>
+        <p>Current Symptoms: Tremors, slow movement</p>
+        <p>Family History: No</p>
+        <p>Current Medications: Levodopa</p>
+      </section>
+
+      <footer class="footer">
+        <div>Page 1</div>
+        <div>Generated By NeuroScan AI | 2026-03-11 10:45</div>
+      </footer>
+    </main>
+  </body>
+</html>

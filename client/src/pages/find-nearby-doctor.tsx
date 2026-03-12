@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useLocation } from "wouter";
 import {
   ArrowLeft,
   Globe2,
@@ -129,7 +128,6 @@ const copy = {
 } as const;
 
 export default function FindNearbyDoctor() {
-  const [, setLocation] = useLocation();
   const [language, setLanguage] = useState<Language>("en");
   const [maxDistance, setMaxDistance] = useState(10);
   const [minRating, setMinRating] = useState(4.0);
@@ -156,7 +154,7 @@ export default function FindNearbyDoctor() {
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <Button variant="outline" onClick={() => setLocation("/prediction")} className="mb-4">
+              <Button variant="outline" onClick={() => window.history.back()} className="mb-4">
                 <ArrowLeft className="h-4 w-4" />
                 {t.back}
               </Button>

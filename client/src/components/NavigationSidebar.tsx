@@ -1,12 +1,11 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   BookOpen,
   Sparkles,
-  User,
   Brain,
-  BarChart3,
   Mic,
   Hand,
   Activity,
@@ -14,6 +13,19 @@ import {
   LogOut,
   Mail,
   ChevronLeft,
+  ChevronDown,
+  Home,
+  Stethoscope,
+  TrendingUp,
+  Gamepad2,
+  Heart,
+  ClipboardList,
+  UserCog,
+  MapPin,
+  Search,
+  GraduationCap,
+  TestTube,
+  HeartPulse,
   type LucideIcon,
 } from "lucide-react";
 import { useLocation } from "wouter";
@@ -26,33 +38,80 @@ type NavItem = {
 
 type NavSection = {
   title: string;
-  items: NavItem[];
+  icon: LucideIcon;
+  items?: NavItem[];
+  path?: string;
 };
 
 const navSections: NavSection[] = [
   {
-    title: "OVERVIEW",
+    title: "Home",
+    icon: Home,
+    path: "/",
+  },
+  {
+    title: "Patient Assessment",
+    icon: TestTube,
     items: [
-      { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+      { label: "Take Test", path: "/take-test", icon: ClipboardList },
+      { label: "Real-Time Assist", path: "/real-time-assist", icon: Activity },
+      { label: "Futuristic Assessment", path: "/futuristic-assessment", icon: Brain },
+      { label: "Postural Sway", path: "/postural-sway", icon: TrendingUp },
+    ],
+  },
+      {
+        title: "Dashboard",
+        icon: LayoutDashboard,
+        items: [
+          { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+          { label: "Patient History", path: "/patient-history", icon: History },
+          { label: "Progression Forecast", path: "/progression-forecast", icon: TrendingUp },
+        ],
+      },
+  {
+    title: "Education & Learning",
+    icon: GraduationCap,
+    items: [
       { label: "Education", path: "/education", icon: BookOpen },
-      { label: "Chatbot", path: "/ai-chatbot", icon: Sparkles },
+      { label: "Brain Games", path: "/brain-games", icon: Gamepad2 },
+      { label: "AI Chatbot", path: "/ai-chatbot", icon: Sparkles },
     ],
   },
   {
-    title: "DIAGNOSTICS",
+    title: "Therapy & Rehabilitation",
+    icon: HeartPulse,
     items: [
-      { label: "Patient Form", path: "/patient-form", icon: User },
-      { label: "Prediction", path: "/prediction", icon: Brain },
-      { label: "Analysis", path: "/analysis", icon: BarChart3 },
+      { label: "Guidance Therapy", path: "/guidance-therapy", icon: Stethoscope },
+      { label: "Therapy Speech", path: "/therapy-speech", icon: Mic },
+      { label: "Therapy Hand", path: "/therapy/hand", icon: Hand },
+      { label: "Therapy Breathing", path: "/therapy/breathing", icon: Wind },
+      { label: "Therapy Movement", path: "/therapy/movement", icon: Activity },
+      { label: "Therapy Spiral", path: "/therapy/spiral", icon: Activity },
     ],
   },
   {
-    title: "THERAPY HUB",
+    title: "Patient Support",
+    icon: Heart,
     items: [
-      { label: "Speech Therapy", path: "/therapy/speech", icon: Mic },
-      { label: "Hand Therapy", path: "/therapy/hand", icon: Hand },
-      { label: "Spiral Therapy", path: "/therapy/spiral", icon: Activity },
-      { label: "Breathing Therapy", path: "/therapy/breathing", icon: Wind },
+      { label: "Caregiver Connect", path: "/caregiver-connect", icon: Heart },
+      { label: "Daily Tasks", path: "/daily-tasks", icon: ClipboardList },
+    ],
+  },
+  {
+    title: "Doctor Portal",
+    icon: UserCog,
+    items: [
+      { label: "Doctor Login", path: "/doctor-login", icon: UserCog },
+      { label: "Doctor Dashboard", path: "/doctor-dashboard", icon: LayoutDashboard },
+      { label: "Doctor Patient View", path: "/doctor-patient-view", icon: UserCog },
+    ],
+  },
+  {
+    title: "Medical Services",
+    icon: Stethoscope,
+    items: [
+      { label: "Find Specialist", path: "/find-specialist", icon: Search },
+      { label: "Find Nearby Doctor", path: "/find-nearby-doctor", icon: MapPin },
     ],
   },
 ];
@@ -66,6 +125,7 @@ interface NavigationSidebarProps {
 
 export function NavigationSidebar({ isOpen, onClose, profileEmail, onSignOut }: NavigationSidebarProps) {
   const [location, setLocation] = useLocation();
+  const [openSection, setOpenSection] = useState<string | null>(null);
 
   const handleNavigate = (path: string) => {
     setLocation(path);
@@ -75,6 +135,10 @@ export function NavigationSidebar({ isOpen, onClose, profileEmail, onSignOut }: 
   const isActivePath = (path: string) => {
     if (path === "/") return location === "/";
     return location === path || location.startsWith(`${path}/`);
+  };
+
+  const toggleSection = (title: string) => {
+    setOpenSection((current) => (current === title ? null : title));
   };
 
   return (
@@ -134,28 +198,78 @@ export function NavigationSidebar({ isOpen, onClose, profileEmail, onSignOut }: 
             <div className="flex-1 overflow-y-auto px-4 py-4">
               {navSections.map((section, sectionIdx) => (
                 <div key={section.title} className={sectionIdx > 0 ? "mt-6" : ""}>
-                  <h3 className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/70 px-2">
-                    {section.title}
-                  </h3>
-                  <div className="space-y-1">
-                    {section.items.map((item) => {
-                      const active = isActivePath(item.path);
-                      return (
+                  {(() => {
+                    const hasItems = Boolean(section.items && section.items.length > 0);
+                    const isOpen = openSection === section.title;
+                    const isActive = hasItems
+                      ? section.items?.some((item) => isActivePath(item.path))
+                      : section.path
+                        ? isActivePath(section.path)
+                        : false;
+
+                    return (
+                      <>
                         <button
-                          key={item.path}
-                          onClick={() => handleNavigate(item.path)}
-                          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left text-sm transition-all duration-200 ${
-                            active
-                              ? "bg-blue-500/20 text-blue-300 border-l-2 border-blue-400"
-                              : "text-slate-300 hover:bg-white/5 hover:text-white"
+                          onClick={() => {
+                            if (hasItems) {
+                              toggleSection(section.title);
+                            } else if (section.path) {
+                              handleNavigate(section.path);
+                            }
+                          }}
+                          className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-[0.2em] transition-all ${
+                            isActive
+                              ? "bg-blue-500/15 text-blue-200"
+                              : "text-blue-400/80 hover:bg-white/5 hover:text-white"
                           }`}
                         >
-                          <item.icon className={`w-4 h-4 ${active ? "text-blue-400" : "text-slate-500"}`} />
-                          <span className="font-medium">{item.label}</span>
+                          <div className="flex items-center gap-3">
+                            <section.icon className={`h-4 w-4 ${isActive ? "text-blue-300" : "text-blue-500/70"}`} />
+                            <span>{section.title}</span>
+                          </div>
+                          {hasItems ? (
+                            <ChevronDown
+                              className={`h-4 w-4 text-blue-300/80 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                            />
+                          ) : null}
                         </button>
-                      );
-                    })}
-                  </div>
+
+                        {hasItems ? (
+                          <AnimatePresence initial={false}>
+                            {isOpen ? (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2, ease: "easeOut" }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-2 space-y-1 pl-7">
+                                  {section.items?.map((item) => {
+                                    const active = isActivePath(item.path);
+                                    return (
+                                      <button
+                                        key={item.path}
+                                        onClick={() => handleNavigate(item.path)}
+                                        className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left text-sm transition-all duration-200 ${
+                                          active
+                                            ? "bg-blue-500/20 text-blue-300 border-l-2 border-blue-400"
+                                            : "text-slate-300 hover:bg-white/5 hover:text-white"
+                                        }`}
+                                      >
+                                        <item.icon className={`w-4 h-4 ${active ? "text-blue-400" : "text-slate-500"}`} />
+                                        <span className="font-medium">{item.label}</span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </motion.div>
+                            ) : null}
+                          </AnimatePresence>
+                        ) : null}
+                      </>
+                    );
+                  })()}
                 </div>
               ))}
             </div>
@@ -181,3 +295,4 @@ export function NavigationSidebar({ isOpen, onClose, profileEmail, onSignOut }: 
     </AnimatePresence>
   );
 }
+

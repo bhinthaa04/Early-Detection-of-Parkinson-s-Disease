@@ -13,12 +13,12 @@ export default function GuidanceTherapy() {
   const [, setLocation] = useLocation();
 
   const sessions = [
-    { title: "Speech Clarity Exercise", duration: "10 mins", category: "Speech", icon: Mic, path: "/therapy/speech", color: "text-blue-600", bg: "bg-blue-50" },
+    { title: "Speech Clarity Exercise", duration: "10 mins", category: "Speech", icon: Mic, path: "/therapy-speech", color: "text-blue-600", bg: "bg-blue-50" },
     { title: "Hand Stability Training", duration: "15 mins", category: "Motor", icon: Hand, path: "/therapy/hand", color: "text-teal-600", bg: "bg-teal-50" },
     { title: "Breathing & Relaxation", duration: "5 mins", category: "Mental", icon: Wind, path: "/therapy/breathing", color: "text-purple-600", bg: "bg-purple-50" },
     { title: "Daily Movement Routine", duration: "20 mins", category: "Mobility", icon: Activity, path: "/therapy/movement", color: "text-green-600", bg: "bg-green-50" },
     { title: "Spiral Drawing Test", duration: "5 mins", category: "Motor", icon: PenTool, path: "/therapy/spiral", color: "text-red-600", bg: "bg-red-50" },
-    { title: "Awareness & Learning", duration: "Ongoing", category: "Education", icon: BookOpen, path: "/therapy/awareness", color: "text-indigo-600", bg: "bg-indigo-50" }
+    { title: "Education & Learning", duration: "Ongoing", category: "Education", icon: BookOpen, path: "/education", color: "text-indigo-600", bg: "bg-indigo-50" }
   ];
 
   return (
@@ -134,4 +134,3 @@ export default function GuidanceTherapy() {
     </div>
   );
 }
-

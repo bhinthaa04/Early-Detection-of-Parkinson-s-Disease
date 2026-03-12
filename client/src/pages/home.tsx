@@ -4,7 +4,8 @@ import {
   ArrowRight, Brain, Activity, Shield, TrendingUp, 
   BarChart3, Info, AlertTriangle, ChevronDown, 
   ChevronUp, HeartPulse, User, MapPin, 
-  Play, X, Sparkles, Users, BookOpen, Menu, Sun, Moon
+  Play, X, Sparkles, Users, BookOpen, Menu,
+  Home as HomeIcon, TestTube, GraduationCap, Stethoscope, UserCog, Search
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
@@ -15,7 +16,6 @@ import { useState, useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Float, Sphere, MeshDistortMaterial } from "@react-three/drei";
 import parkinsonsVideo from "@assets/generated_videos/parkinsons_edu.mp4";
-import { useTheme } from "@/components/theme-provider";
 
 function BrainModel() {
   const meshRef = useRef<any>(null);
@@ -36,45 +36,93 @@ function BrainModel() {
 }
 
 export default function Home() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [severity, setSeverity] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme();
+  const [openSidebarSection, setOpenSidebarSection] = useState<string | null>(null);
 
-  const sidebarLinks = [
-    { label: "Home", path: "/" },
-    { label: "Take Test", path: "/patient-form" },
-    { label: "Dashboard", path: "/dashboard" },
-    { label: "Education", path: "/education" },
-    { label: "Prediction", path: "/prediction" },
-    { label: "Analysis", path: "/analysis" },
-    { label: "Result", path: "/result" },
-    { label: "Assessment", path: "/assessment" },
-    { label: "Real-Time Assist", path: "/assist" },
-    { label: "Futuristic Assessment", path: "/futuristic-assessment" },
-    { label: "Caregiver Connect", path: "/caregiver" },
-    { label: "Guidance Therapy", path: "/therapy" },
-    { label: "Therapy Speech", path: "/therapy/speech" },
-    { label: "Therapy Hand", path: "/therapy/hand" },
-    { label: "Therapy Breathing", path: "/therapy/breathing" },
-    { label: "Therapy Movement", path: "/therapy/movement" },
-    { label: "Therapy Awareness", path: "/therapy/awareness" },
-    { label: "Therapy Spiral", path: "/therapy/spiral" },
-    { label: "Brain Games", path: "/brain-games" },
-    { label: "AI Chatbot", path: "/ai-chatbot" },
-    { label: "Doctor Login", path: "/doctor-login" },
-    { label: "Doctor Dashboard", path: "/doctor-dashboard" },
-    { label: "Doctor Patient View", path: "/doctor-patient" },
-    { label: "Progression Forecast", path: "/progression-forecast" },
-    { label: "Wearable Integration", path: "/wearable-integration" },
-    { label: "Find Specialist", path: "/find-specialist" },
-    { label: "Postural Sway", path: "/postural-sway" },
-    { label: "Daily Tasks", path: "/daily-tasks" },
-    { label: "Patient Form", path: "/patient-form" },
-    { label: "Find Nearby Doctor", path: "/find-nearby-doctor" },
+  const sidebarSections = [
+    {
+      title: "Home",
+      icon: HomeIcon,
+      path: "/",
+    },
+    {
+      title: "Patient Assessment",
+      icon: TestTube,
+      items: [
+        { label: "Take Test", path: "/take-test" },
+        { label: "Real-Time Assist", path: "/real-time-assist" },
+        { label: "Futuristic Assessment", path: "/futuristic-assessment" },
+        { label: "Postural Sway", path: "/postural-sway" },
+      ],
+    },
+    {
+      title: "Dashboard",
+      icon: BarChart3,
+      items: [
+        { label: "Dashboard", path: "/dashboard" },
+        { label: "Progression Forecast", path: "/progression-forecast" },
+      ],
+    },
+    {
+      title: "Education & Learning",
+      icon: GraduationCap,
+      items: [
+        { label: "Education", path: "/education" },
+        { label: "Brain Games", path: "/brain-games" },
+        { label: "AI Chatbot", path: "/ai-chatbot" },
+      ],
+    },
+    {
+      title: "Therapy & Rehabilitation",
+      icon: HeartPulse,
+      items: [
+        { label: "Guidance Therapy", path: "/guidance-therapy" },
+        { label: "Therapy Speech", path: "/therapy-speech" },
+        { label: "Therapy Hand", path: "/therapy/hand" },
+        { label: "Therapy Breathing", path: "/therapy/breathing" },
+        { label: "Therapy Movement", path: "/therapy/movement" },
+        { label: "Therapy Spiral", path: "/therapy/spiral" },
+      ],
+    },
+    {
+      title: "Patient Support",
+      icon: Users,
+      items: [
+        { label: "Caregiver Connect", path: "/caregiver-connect" },
+        { label: "Daily Tasks", path: "/daily-tasks" },
+      ],
+    },
+    {
+      title: "Doctor Portal",
+      icon: UserCog,
+      items: [
+        { label: "Doctor Login", path: "/doctor-login" },
+        { label: "Doctor Dashboard", path: "/doctor-dashboard" },
+        { label: "Doctor Patient View", path: "/doctor-patient-view" },
+      ],
+    },
+    {
+      title: "Medical Services",
+      icon: Stethoscope,
+      items: [
+        { label: "Find Specialist", path: "/find-specialist" },
+        { label: "Find Nearby Doctor", path: "/find-nearby-doctor" },
+      ],
+    },
   ];
+
+  const toggleSidebarSection = (title: string) => {
+    setOpenSidebarSection((current) => (current === title ? null : title));
+  };
+
+  const isActivePath = (path: string) => {
+    if (path === "/") return location === "/";
+    return location === path || location.startsWith(`${path}/`);
+  };
 
   const stages = [
     { label: "Early Stage", color: "text-green-500", icon: "🟢", desc: "Mild symptoms, often overlooked. Tremors might start." },
@@ -161,17 +209,9 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <Button variant="ghost" onClick={() => setLocation("/")} data-testid="nav-home" className="text-white hover:bg-white/10">Home</Button>
-            <Button variant="ghost" onClick={() => setLocation("/patient-form")} data-testid="nav-predict" className="text-white hover:bg-white/10">Take Test</Button>
+            <Button variant="ghost" onClick={() => setLocation("/ai-chatbot")} data-testid="nav-ai-chatbot" className="text-white hover:bg-white/10">AI Chat</Button>
+            <Button variant="ghost" onClick={() => setLocation("/take-test")} data-testid="nav-predict" className="text-white hover:bg-white/10">Take Test</Button>
             <Button variant="ghost" onClick={() => setLocation("/dashboard")} data-testid="nav-dashboard" className="text-white hover:bg-white/10">Dashboard</Button>
-            <Button
-              variant="outline"
-              className="border-white/30 text-white hover:bg-white/10"
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </Button>
           </div>
         </motion.nav>
 
@@ -205,19 +245,81 @@ export default function Home() {
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="space-y-2">
-                  {sidebarLinks.map((item) => (
-                    <button
-                      key={item.path}
-                      onClick={() => {
-                        setLocation(item.path);
-                        setSidebarOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/5 transition"
-                    >
-                      {item.label}
-                    </button>
-                  ))}
+                <div className="space-y-5">
+                  {sidebarSections.map((section) => {
+                    const hasItems = Boolean(section.items && section.items.length > 0);
+                    const isOpen = openSidebarSection === section.title;
+                    const isActive = hasItems
+                      ? section.items?.some((item) => isActivePath(item.path))
+                      : section.path
+                        ? isActivePath(section.path)
+                        : false;
+                    const Icon = section.icon;
+
+                    return (
+                      <div key={section.title}>
+                        <button
+                          onClick={() => {
+                            if (hasItems) {
+                              toggleSidebarSection(section.title);
+                            } else if (section.path) {
+                              setLocation(section.path);
+                              setSidebarOpen(false);
+                            }
+                          }}
+                          className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.2em] transition ${
+                            isActive
+                              ? "bg-cyan-400/15 text-cyan-200 border border-cyan-300/30"
+                              : "bg-white/5 text-cyan-200/80 border border-white/5 hover:bg-white/10 hover:text-white"
+                          }`}
+                        >
+                          <span className="flex items-center gap-3">
+                            <Icon className="h-4 w-4 text-cyan-200/90" />
+                            {section.title}
+                          </span>
+                          {hasItems ? (
+                            <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                          ) : null}
+                        </button>
+
+                        {hasItems ? (
+                          <AnimatePresence initial={false}>
+                            {isOpen ? (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2, ease: "easeOut" }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-2 space-y-2 pl-5">
+                                  {section.items?.map((item) => {
+                                    const activeItem = isActivePath(item.path);
+                                    return (
+                                      <button
+                                        key={item.path}
+                                        onClick={() => {
+                                          setLocation(item.path);
+                                          setSidebarOpen(false);
+                                        }}
+                                        className={`w-full text-left px-4 py-2.5 rounded-xl text-sm transition ${
+                                          activeItem
+                                            ? "bg-cyan-400/15 text-white border border-cyan-300/30"
+                                            : "bg-white/5 text-white/80 border border-white/5 hover:bg-white/10 hover:text-white"
+                                        }`}
+                                      >
+                                        {item.label}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </motion.div>
+                            ) : null}
+                          </AnimatePresence>
+                        ) : null}
+                      </div>
+                    );
+                  })}
                 </div>
               </motion.aside>
             </>
@@ -515,7 +617,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             <motion.div 
               whileHover={{ y: -10 }}
-              onClick={() => setLocation("/assist")}
+              onClick={() => setLocation("/real-time-assist")}
               className="p-8 bg-slate-900 text-white rounded-3xl border border-white/5 shadow-2xl cursor-pointer group"
             >
               <div className="p-4 bg-primary rounded-2xl w-fit mb-6 text-black group-hover:scale-110 transition-transform">
@@ -530,7 +632,7 @@ export default function Home() {
 
             <motion.div 
               whileHover={{ y: -10 }}
-              onClick={() => setLocation("/caregiver")}
+              onClick={() => setLocation("/caregiver-connect")}
               className="p-8 bg-white rounded-3xl border border-border shadow-xl cursor-pointer group"
             >
               <div className="p-4 bg-blue-100 rounded-2xl w-fit mb-6 text-blue-600 group-hover:scale-110 transition-transform">
@@ -545,7 +647,7 @@ export default function Home() {
 
             <motion.div 
               whileHover={{ y: -10 }}
-              onClick={() => setLocation("/therapy")}
+              onClick={() => setLocation("/guidance-therapy")}
               className="p-8 bg-slate-900 rounded-3xl border border-white/10 shadow-xl cursor-pointer group"
             >
               <div className="p-4 bg-primary rounded-2xl w-fit mb-6 text-black group-hover:scale-110 transition-transform">

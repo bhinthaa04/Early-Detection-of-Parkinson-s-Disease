@@ -3,6 +3,7 @@ import { addPatient, getPatientPredictions } from "../controllers/patientControl
 import { addDoctor } from "../controllers/doctorController";
 import { addPrediction } from "../controllers/predictionController";
 import { addReport } from "../controllers/reportController";
+import { addPatientTest, getPatientTests } from "../controllers/patientTestsController";
 import { pingDb } from "../db";
 
 export const apiRouter = Router();
@@ -21,4 +22,6 @@ apiRouter.post("/patients", addPatient);
 apiRouter.post("/doctors", addDoctor);
 apiRouter.post("/predictions", addPrediction);
 apiRouter.post("/reports", addReport);
+apiRouter.post("/patient-tests", addPatientTest);
 apiRouter.get("/patients/:patientId/predictions", getPatientPredictions);
+apiRouter.get("/patient-tests", getPatientTests);

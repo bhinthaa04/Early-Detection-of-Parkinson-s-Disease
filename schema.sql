@@ -62,3 +62,22 @@ CREATE TABLE IF NOT EXISTS reports (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS patient_tests (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  patient_name VARCHAR(120) NULL,
+  patient_id INT UNSIGNED NOT NULL,
+  test_date DATETIME NOT NULL,
+  confidence_score DECIMAL(5,2) NOT NULL,
+  risk_level VARCHAR(20) NOT NULL,
+  result VARCHAR(20) NOT NULL,
+  stage VARCHAR(80) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_patient_tests_patient_id (patient_id),
+  KEY idx_patient_tests_test_date (test_date),
+  CONSTRAINT fk_patient_tests_patient
+    FOREIGN KEY (patient_id) REFERENCES patients (patient_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);

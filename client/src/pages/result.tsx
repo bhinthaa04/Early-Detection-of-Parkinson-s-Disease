@@ -9,7 +9,8 @@ import { DiseaseStageCard } from "@/components/disease-stage-card";
 import { Precautions } from "@/components/precautions";
 import { DoctorCTA } from "@/components/doctor-cta";
 import { EmergencyAlert } from "@/components/emergency-alert";
-import { apiService, PredictionResponse } from "@/lib/api-service";
+import { apiService, PredictionResponse, type GenerateReportPayload } from "@/lib/api-service";
+import { formatReportDateTime, readPatientData } from "@/lib/patient-data";
 import { StepProgress } from "@/components/step-progress";
 import { BackendConfigButton } from "@/components/backend-config";
 import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
@@ -117,24 +118,75 @@ export default function Result() {
     if (!result) return;
     
     setDownloadingReport(true);
-    try {
-      const blob = await apiService.downloadReport(result);
-      
-      // Download the PDF file
+    const patientData = readPatientData();
+    const generatedAt = formatReportDateTime();
+    const riskLevel = !result.prediction
+      ? "Low"
+      : result.confidence >= 0.8
+        ? "High"
+        : result.confidence >= 0.6
+          ? "Moderate"
+          : "Low";
+    const status = result.prediction ? "Positive" : "Negative";
+    const safeName = patientData?.name?.trim().replace(/\s+/g, "_");
+    const filename = safeName ? `${safeName}_Parkinson_Report.pdf` : `parkinson-report-${Date.now()}.pdf`;
+
+    const triggerDownload = (blob: Blob) => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `parkinson-report-${Date.now()}.pdf`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+    };
+
+    try {
+      if (patientData) {
+        const payload: GenerateReportPayload = {
+          ...patientData,
+          test_type: "AI-based Multimodal Screening",
+          input_data: "Spiral Drawing Image, Voice Sample",
+          test_date_time: generatedAt,
+          test_id: String(Date.now()),
+          status,
+          confidence_score: Number((result.confidence * 100).toFixed(1)),
+          disease_stage: result.stage,
+          risk_level: riskLevel,
+          report_generated_at: generatedAt,
+          generated_by: "NeuroScan AI",
+          report_format: "PDF",
+          report_language: "English",
+          privacy_notice:
+            "This AI screening supports early detection but does not replace clinical diagnosis. Data is encrypted in transit and not retained after report generation.",
+        };
+
+        const blob = await apiService.generateReport(payload);
+        triggerDownload(blob);
+      } else {
+        const blob = await apiService.downloadReport(result);
+        triggerDownload(blob);
+      }
       
       toast({
         title: "Success",
         description: "Report downloaded successfully",
       });
     } catch (error) {
+      if (patientData) {
+        try {
+          const blob = await apiService.downloadReport(result, patientData);
+          triggerDownload(blob);
+          toast({
+            title: "Success",
+            description: "Report downloaded successfully",
+          });
+          return;
+        } catch {
+          // fall through to error toast below
+        }
+      }
       toast({
         title: "Error",
         description: "Failed to download report",

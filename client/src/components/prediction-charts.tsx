@@ -18,7 +18,7 @@ type HistoryItem = {
   prediction: string;
   confidence: number;
   stage: string;
-  risk?: "Low" | "Moderate" | "High";
+  risk?: "Low" | "Moderate" | "Medium" | "High";
   rawDate?: string;
 };
 
@@ -29,16 +29,13 @@ type ChartPoint = {
   risk: "Low" | "Moderate" | "High";
 };
 
-const fallbackHistory: HistoryItem[] = [
-  { id: 1, date: "Dec 05", prediction: "Negative", confidence: 45, stage: "Healthy", risk: "Low" },
-  { id: 2, date: "Dec 08", prediction: "Negative", confidence: 52, stage: "Healthy", risk: "Low" },
-  { id: 3, date: "Dec 12", prediction: "Positive", confidence: 68, stage: "Early", risk: "Moderate" },
-  { id: 4, date: "Dec 15", prediction: "Positive", confidence: 72, stage: "Early", risk: "Moderate" },
-  { id: 5, date: "Dec 18", prediction: "Positive", confidence: 78, stage: "Moderate", risk: "High" },
-];
-
 function normalizeRisk(item: HistoryItem): "Low" | "Moderate" | "High" {
-  if (item.risk) return item.risk;
+  if (item.risk) {
+    const label = item.risk.toLowerCase();
+    if (label === "high") return "High";
+    if (label === "medium" || label === "moderate") return "Moderate";
+    return "Low";
+  }
   const positive = item.prediction.toLowerCase() === "positive";
   if (!positive) return "Low";
   if (item.confidence >= 80) return "High";
@@ -63,10 +60,19 @@ function parseHistory(value: string | null): HistoryItem[] {
   }
 }
 
-export function PredictionCharts() {
-  const [history, setHistory] = useState<HistoryItem[]>(fallbackHistory);
+interface PredictionChartsProps {
+  history?: HistoryItem[];
+}
+
+export function PredictionCharts({ history: historyProp }: PredictionChartsProps) {
+  const [history, setHistory] = useState<HistoryItem[]>(historyProp ?? []);
 
   useEffect(() => {
+    if (historyProp !== undefined) {
+      setHistory(historyProp);
+      return;
+    }
+
     const stored = parseHistory(localStorage.getItem("predictionHistory"));
     if (stored.length > 0) {
       const ordered = [...stored].sort((a, b) => {
@@ -75,12 +81,23 @@ export function PredictionCharts() {
         return ad - bd;
       });
       setHistory(ordered.slice(-20));
+    } else {
+      setHistory([]);
     }
-  }, []);
+  }, [historyProp]);
+
+  const orderedHistory = useMemo(() => {
+    const items = [...history];
+    return items.sort((a, b) => {
+      const ad = a.rawDate ? new Date(a.rawDate).getTime() : 0;
+      const bd = b.rawDate ? new Date(b.rawDate).getTime() : 0;
+      return ad - bd;
+    });
+  }, [history]);
 
   const chartData = useMemo<ChartPoint[]>(
     () =>
-      history.map((item) => {
+      orderedHistory.map((item) => {
         const risk = normalizeRisk(item);
         return {
           date: item.date,
@@ -89,8 +106,9 @@ export function PredictionCharts() {
           risk,
         };
       }),
-    [history],
+    [orderedHistory],
   );
+  const hasData = chartData.length > 0;
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -101,30 +119,36 @@ export function PredictionCharts() {
             <p className="mt-1 text-xs text-black">Date vs confidence score trend</p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
-                <XAxis dataKey="date" />
-                <YAxis domain={[0, 100]} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#f8fafc",
-                    border: "1px solid #e0e7ff",
-                    borderRadius: "8px",
-                  }}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="confidence"
-                  name="Confidence %"
-                  stroke="#06b6d4"
-                  strokeWidth={3}
-                  dot={{ fill: "#06b6d4", r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {hasData ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
+                  <XAxis dataKey="date" />
+                  <YAxis domain={[0, 100]} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#f8fafc",
+                      border: "1px solid #e0e7ff",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="confidence"
+                    name="Confidence %"
+                    stroke="#06b6d4"
+                    strokeWidth={3}
+                    dot={{ fill: "#06b6d4", r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-[250px] items-center justify-center text-sm text-slate-600">
+                No test history yet. Run a new test.
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
@@ -136,37 +160,43 @@ export function PredictionCharts() {
             <p className="mt-1 text-xs text-black">Low to High progression over time</p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
-                <XAxis dataKey="date" />
-                <YAxis
-                  domain={[1, 3]}
-                  ticks={[1, 2, 3]}
-                  tickFormatter={(value) => (value === 1 ? "Low" : value === 2 ? "Moderate" : "High")}
-                />
-                <Tooltip
-                  formatter={(value) =>
-                    value === 1 ? "Low" : value === 2 ? "Moderate" : "High"
-                  }
-                  contentStyle={{
-                    backgroundColor: "#f8fafc",
-                    border: "1px solid #e0e7ff",
-                    borderRadius: "8px",
-                  }}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="riskValue"
-                  name="Risk Trend"
-                  stroke="#f97316"
-                  strokeWidth={3}
-                  dot={{ fill: "#f97316", r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {hasData ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
+                  <XAxis dataKey="date" />
+                  <YAxis
+                    domain={[1, 3]}
+                    ticks={[1, 2, 3]}
+                    tickFormatter={(value) => (value === 1 ? "Low" : value === 2 ? "Moderate" : "High")}
+                  />
+                  <Tooltip
+                    formatter={(value) =>
+                      value === 1 ? "Low" : value === 2 ? "Moderate" : "High"
+                    }
+                    contentStyle={{
+                      backgroundColor: "#f8fafc",
+                      border: "1px solid #e0e7ff",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="riskValue"
+                    name="Risk Trend"
+                    stroke="#f97316"
+                    strokeWidth={3}
+                    dot={{ fill: "#f97316", r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-[250px] items-center justify-center text-sm text-slate-600">
+                No test history yet. Run a new test.
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>

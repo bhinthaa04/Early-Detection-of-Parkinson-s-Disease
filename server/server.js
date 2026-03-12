@@ -6,6 +6,7 @@ import patientsRouter from "./routes/patients.js";
 import doctorsRouter from "./routes/doctors.js";
 import predictionsRouter from "./routes/predictions.js";
 import reportsRouter from "./routes/reports.js";
+import patientTestsRouter from "./routes/patient-tests.js";
 import { checkDatabaseConnection } from "./db.js";
 
 const app = express();
@@ -43,10 +44,12 @@ app.use("/patients", patientsRouter);
 app.use("/doctors", doctorsRouter);
 app.use("/predictions", predictionsRouter);
 app.use("/reports", reportsRouter);
+app.use("/patient-tests", patientTestsRouter);
 app.use("/api/patients", patientsRouter);
 app.use("/api/doctors", doctorsRouter);
 app.use("/api/predictions", predictionsRouter);
 app.use("/api/reports", reportsRouter);
+app.use("/api/patient-tests", patientTestsRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: `Route not found: ${req.method} ${req.originalUrl}` });

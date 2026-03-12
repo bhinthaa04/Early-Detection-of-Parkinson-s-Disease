@@ -10,6 +10,7 @@ import {
   Brain, Heart, Activity, Moon, Zap
 } from "lucide-react";
 import { useLocation } from "wouter";
+import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
 
 interface Message {
   id: string;
@@ -129,8 +130,55 @@ export default function AIChatbot() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen relative overflow-hidden font-sans">
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 transition-opacity duration-1000"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <motion.div
+          animate={{
+            x: [0, 50, 0],
+            opacity: [0.1, 0.3, 0.1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -30, 0],
+            opacity: [0.05, 0.2, 0.05],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-[100px]"
+        />
+
+        <svg className="absolute inset-0 w-full h-full opacity-10">
+          <motion.path
+            d="M0 100 Q 250 50 500 100 T 1000 100"
+            stroke="currentColor"
+            strokeWidth="1"
+            fill="transparent"
+            className="text-primary"
+            animate={{
+              x: [-20, 20, -20],
+              opacity: [0.2, 0.5, 0.2]
+            }}
+            transition={{ duration: 10, repeat: Infinity }}
+          />
+        </svg>
+      </div>
+
+      <div className="max-w-6xl mx-auto p-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -139,7 +187,7 @@ export default function AIChatbot() {
           <Button
             variant="ghost"
             onClick={() => setLocation("/")}
-            className="mb-4"
+            className="mb-4 text-white hover:bg-white/10"
           >
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
           </Button>
@@ -149,18 +197,17 @@ export default function AIChatbot() {
               <Bot className="w-8 h-8" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">AI Symptom Assistant</h1>
-              <p className="text-gray-600">Get answers to your Parkinson's disease questions</p>
+              <h1 className="text-3xl font-bold text-white">AI Symptom Assistant</h1>
+              <p className="text-white/70">Get answers to your Parkinson's disease questions</p>
             </div>
           </div>
         </motion.div>
 
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Chat Interface */}
-          <div className="lg:col-span-3">
-            <Card className="h-[600px] flex flex-col">
-              <CardHeader className="border-b">
-                <CardTitle className="flex items-center gap-2">
+          <div className="space-y-8">
+            {/* Chat Interface */}
+            <Card className="h-[600px] flex flex-col bg-slate-900/80 border border-white/10 text-white">
+              <CardHeader className="border-b border-white/10">
+                <CardTitle className="flex items-center gap-2 text-white">
                   <MessageCircle className="w-5 h-5" />
                   Chat with AI Assistant
                 </CardTitle>
@@ -181,14 +228,14 @@ export default function AIChatbot() {
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                             message.sender === 'user'
                               ? 'bg-primary text-black'
-                              : 'bg-gray-100 text-gray-600'
+                              : 'bg-white/10 text-white'
                           }`}>
                             {message.sender === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                           </div>
                           <div className={`max-h-64 overflow-y-auto rounded-2xl px-4 py-2 ${
                             message.sender === 'user'
-                              ? 'bg-primary text-black'
-                              : 'bg-gray-100 text-gray-900'
+                              ? 'bg-primary text-white'
+                              : 'bg-white/10 text-white border border-white/10'
                           }`}>
                             <p className="whitespace-pre-wrap break-words text-sm">{message.content}</p>
                             <p className="text-xs opacity-70 mt-1">
@@ -205,14 +252,14 @@ export default function AIChatbot() {
                         animate={{ opacity: 1 }}
                         className="flex gap-3 justify-start"
                       >
-                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">
                           <Bot className="w-4 h-4" />
                         </div>
-                        <div className="bg-gray-100 rounded-2xl px-4 py-2">
+                        <div className="bg-white/10 rounded-2xl px-4 py-2 border border-white/10">
                           <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                            <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" />
+                            <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                            <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                           </div>
                         </div>
                       </motion.div>
@@ -222,7 +269,7 @@ export default function AIChatbot() {
                 </ScrollArea>
 
                 {/* Input */}
-                <div className="border-t p-4">
+                <div className="border-t border-white/10 p-4">
                   <div className="flex gap-2">
                     <Input
                       placeholder="Ask me anything about Parkinson's disease..."
@@ -230,7 +277,7 @@ export default function AIChatbot() {
                       onChange={(e) => setInputMessage(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputMessage)}
                       disabled={isTyping}
-                      className="flex-1"
+                      className="flex-1 bg-white/10 text-white placeholder:text-white/60 border-white/10 focus-visible:ring-cyan-300/50"
                     />
                     <Button
                       onClick={() => sendMessage(inputMessage)}
@@ -243,74 +290,73 @@ export default function AIChatbot() {
                 </div>
               </CardContent>
             </Card>
-          </div>
 
-          {/* Quick Questions Sidebar */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Quick Questions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {quickQuestions.map((question, idx) => (
-                  <Button
-                    key={idx}
-                    variant="ghost"
-                    className="w-full text-left justify-start h-auto p-3 whitespace-normal"
-                    onClick={() => sendMessage(question)}
-                    disabled={isTyping}
-                  >
-                    <span className="text-sm">{question}</span>
-                  </Button>
-                ))}
-              </CardContent>
-            </Card>
+            {/* Info Sections below chat */}
+            <div className="grid gap-6 lg:grid-cols-3">
+              <Card className="bg-slate-900/80 border border-white/10 text-white">
+                <CardHeader>
+                  <CardTitle className="text-lg text-white">Quick Questions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {quickQuestions.map((question, idx) => (
+                    <Button
+                      key={idx}
+                      variant="ghost"
+                      className="w-full text-left justify-start h-auto p-3 whitespace-normal text-white/90 hover:bg-white/10"
+                      onClick={() => sendMessage(question)}
+                      disabled={isTyping}
+                    >
+                      <span className="text-sm">{question}</span>
+                    </Button>
+                  ))}
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Brain className="w-5 h-5" />
-                  Important Note
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600">
-                  This AI assistant provides general information about Parkinson's disease.
-                  It is not a substitute for professional medical advice, diagnosis, or treatment.
-                </p>
-                <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-xs text-yellow-800">
-                    Always consult with your healthcare provider for personalized medical advice.
+              <Card className="bg-slate-900/80 border border-white/10 text-white">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Brain className="w-5 h-5" />
+                    Important Note
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-white/70">
+                    This AI assistant provides general information about Parkinson's disease.
+                    It is not a substitute for professional medical advice, diagnosis, or treatment.
                   </p>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="mt-3 p-3 bg-yellow-500/10 border border-yellow-400/30 rounded-lg">
+                    <p className="text-xs text-yellow-200">
+                      Always consult with your healthcare provider for personalized medical advice.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Helpful Resources</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                  <Heart className="w-4 h-4 text-red-500" />
-                  <span className="text-sm">Parkinson's Foundation</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                  <Activity className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">Michael J. Fox Foundation</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                  <Moon className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm">Sleep Foundation</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                  <Zap className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm">Exercise Guidelines</span>
-                </div>
-              </CardContent>
-            </Card>
+              <Card className="bg-slate-900/80 border border-white/10 text-white">
+                <CardHeader>
+                  <CardTitle className="text-lg text-white">Helpful Resources</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-2 p-2 hover:bg-white/10 rounded cursor-pointer">
+                    <Heart className="w-4 h-4 text-red-500" />
+                    <span className="text-sm">Parkinson's Foundation</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 hover:bg-white/10 rounded cursor-pointer">
+                    <Activity className="w-4 h-4 text-green-500" />
+                    <span className="text-sm">Michael J. Fox Foundation</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 hover:bg-white/10 rounded cursor-pointer">
+                    <Moon className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm">Sleep Foundation</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 hover:bg-white/10 rounded cursor-pointer">
+                    <Zap className="w-4 h-4 text-purple-500" />
+                    <span className="text-sm">Exercise Guidelines</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
       </div>
     </div>
   );

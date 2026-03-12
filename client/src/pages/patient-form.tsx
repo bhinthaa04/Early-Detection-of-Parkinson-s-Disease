@@ -92,7 +92,7 @@ export default function PatientForm() {
         db_patient_id: dbPatientId,
       });
       sessionStorage.removeItem("predictionResult");
-      setLocation("/prediction");
+      setLocation("/take-test");
     } catch (error) {
       toast({
         title: "Failed to save patient",
@@ -267,7 +267,7 @@ export default function PatientForm() {
           </div>
 
           <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
-            After submit, the app will redirect to Prediction and automatically continue with: Upload data, Analyze, Display result, Generate report.
+            After submit, the app will redirect to Take Test and automatically continue with: Upload data, Analyze, Display result, Generate report.
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
@@ -277,7 +277,7 @@ export default function PatientForm() {
             </Button>
 
             <Button type="submit" className="bg-[#2c5ba9] hover:bg-[#244a8f]" disabled={isSubmitting}>
-              {isSubmitting ? "Saving Patient..." : "Continue to Prediction"}
+              {isSubmitting ? "Saving Patient..." : "Continue to Take Test"}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
