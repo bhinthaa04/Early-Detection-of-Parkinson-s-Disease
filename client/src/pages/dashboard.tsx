@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, TrendingUp, Users, ClipboardList, Home } from "lucide-react";
 import { useLocation } from "wouter";
-import { PredictionCharts } from "@/components/prediction-charts";
 import { PredictionHistory } from "@/components/prediction-history";
+import { PredictionCharts } from "@/components/prediction-charts";
 import { DoctorFinder } from "@/components/doctor-finder";
 import { BackendConfigButton } from "@/components/backend-config";
 import { apiService, type PatientTestRecord } from "@/lib/api-service";
@@ -68,7 +69,17 @@ function riskBadgeClass(value?: string): string {
   return "bg-green-100 text-green-700";
 }
 
-function mapTestToHistory(test: PatientTestRecord): HistoryItem {
+type AllTestsItem = {
+  id: number;
+  patient_name: string;
+  test_date: string;
+  result: string;
+  stage: string | null;
+  confidence_score: number;
+  risk_level: string;
+};
+
+function mapTestToHistory(test: AllTestsItem): HistoryItem {
   const testDate = new Date(test.test_date);
   const hasValidDate = !Number.isNaN(testDate.getTime());
   return {
@@ -106,16 +117,21 @@ export default function Dashboard() {
     setIsLoadingHistory(true);
     setHistoryError(null);
 
-    const patientData = readPatientData();
-    if (!patientData?.db_patient_id) {
-      setHistory([]);
-      setIsLoadingHistory(false);
-      return;
-    }
-
     try {
-      const tests = await apiService.getPatientTests(patientData.db_patient_id);
-      const mapped = tests.map(mapTestToHistory);
+      const response = await fetch('/api/patient-tests');
+      if (!response.ok) {
+        throw new Error('Failed to fetch patient history');
+      }
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error('JSON parse error:', text);
+        data = [];
+      }
+      console.log("Dashboard Data:", data); // Debug log
+      const mapped = data.map(mapTestToHistory);
       const sorted = mapped.sort((a, b) => {
         const ad = historyDate(a)?.getTime() ?? 0;
         const bd = historyDate(b)?.getTime() ?? 0;
@@ -321,7 +337,7 @@ export default function Dashboard() {
           })}
         </div>
 
-        {/* Charts Section */}
+        {/* Charts */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -422,7 +438,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="space-y-6"
+            className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6"
           >
             <Card className="glass-panel">
               <CardHeader>
@@ -449,8 +465,19 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <Button variant="outline" className="w-full rounded-lg" data-testid="btn-schedule-checkup">
+                <Button
+                  variant="outline"
+                  className="w-full rounded-lg"
+                  data-testid="btn-schedule-checkup"
+                  onClick={() => setLocation("/schedule-checkup")}
+                >
                   Schedule Checkup
+                </Button>
+                <Button
+                  className="w-full rounded-lg"
+                  onClick={() => setLocation("/view-specialists")}
+                >
+                  View Specialists
                 </Button>
               </CardContent>
             </Card>
@@ -524,23 +551,6 @@ export default function Dashboard() {
           <DoctorFinder />
         </motion.div>
 
-        {/* Navigation */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="flex justify-center"
-        >
-          <Button
-            variant="outline"
-            className="rounded-full px-6"
-            onClick={() => setLocation("/")}
-            data-testid="btn-back-home-dashboard"
-          >
-            <Home className="w-5 h-5 mr-2" />
-            Back to Home
-          </Button>
-        </motion.div>
       </div>
     </div>
   );

@@ -5,8 +5,9 @@ import {
   BarChart3, Info, AlertTriangle, ChevronDown, 
   ChevronUp, HeartPulse, User, MapPin, 
   Play, X, Sparkles, Users, BookOpen, Menu,
-  Home as HomeIcon, TestTube, GraduationCap, Stethoscope, UserCog, Search
+  Home as HomeIcon, TestTube, GraduationCap, Stethoscope, UserCog, Search, ClipboardList, MessageSquare, ClipboardCheck, History, LayoutDashboard
 } from "lucide-react";
+
 import { useLocation } from "wouter";
 import { BackendConfigButton } from "@/components/backend-config";
 import heroBg from "@assets/generated_images/hopeful_medical_background_with_brain_waves_and_pulses.png";
@@ -56,7 +57,6 @@ export default function Home() {
         { label: "Take Test", path: "/take-test" },
         { label: "Real-Time Assist", path: "/real-time-assist" },
         { label: "Futuristic Assessment", path: "/futuristic-assessment" },
-        { label: "Postural Sway", path: "/postural-sway" },
       ],
     },
     {
@@ -109,7 +109,6 @@ export default function Home() {
       title: "Medical Services",
       icon: Stethoscope,
       items: [
-        { label: "Find Specialist", path: "/find-specialist" },
         { label: "Find Nearby Doctor", path: "/find-nearby-doctor" },
       ],
     },
@@ -209,9 +208,22 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <Button variant="ghost" onClick={() => setLocation("/ai-chatbot")} data-testid="nav-ai-chatbot" className="text-white hover:bg-white/10">AI Chat</Button>
-            <Button variant="ghost" onClick={() => setLocation("/take-test")} data-testid="nav-predict" className="text-white hover:bg-white/10">Take Test</Button>
-            <Button variant="ghost" onClick={() => setLocation("/dashboard")} data-testid="nav-dashboard" className="text-white hover:bg-white/10">Dashboard</Button>
+            <Button variant="ghost" className="flex items-center gap-2 text-white hover:bg-white/10" onClick={() => setLocation("/ai-chatbot")} data-testid="nav-ai-chatbot">
+              <MessageSquare className="h-4 w-4" />
+              AI Chat
+            </Button>
+            <Button variant="ghost" className="flex items-center gap-2 text-white hover:bg-white/10" onClick={() => setLocation("/take-test")} data-testid="nav-predict">
+              <ClipboardCheck className="h-4 w-4" />
+              Take Test
+            </Button>
+            <Button variant="ghost" className="flex items-center gap-2 text-white hover:bg-white/10" onClick={() => setLocation("/patient-history")}>
+              <History className="h-4 w-4" />
+              Patient History
+            </Button>
+            <Button variant="ghost" className="flex items-center gap-2 text-white hover:bg-white/10" onClick={() => setLocation("/dashboard")} data-testid="nav-dashboard">
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </Button>
           </div>
         </motion.nav>
 

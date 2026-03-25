@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { List, Map, MapPin, Phone, Search, Star } from "lucide-react";
+import { DoctorFinderPagination } from "./doctor-finder-pagination";
+import { SPECIALIST_DOCTORS } from "@/data/specialists";
 
 type Doctor = {
   id: number;
@@ -20,107 +22,21 @@ type Doctor = {
 };
 
 const doctors: Doctor[] = [
-  {
-    id: 1,
-    name: "PS Neuro Centre",
-    doctorName: "Dr. P. Muthukumaran (Neurologist)",
-    hospital: "PS Neuro Centre",
-    location: "Tirunelveli, Tamil Nadu",
-    address: "Tiruchendur Main Rd, Palayamkottai, Tirunelveli, Tamil Nadu 627002",
-    phone: "+91 462 4220087",
-    rating: 4.4,
-    specialty: "Neurology, Parkinson's disease, movement disorders",
-    mapQuery: "PS Neuro Centre, Tiruchendur Main Rd, Palayamkottai, Tirunelveli, Tamil Nadu 627002",
-  },
-  {
-    id: 2,
-    name: "Sankar Neuro Clinic",
-    hospital: "Sankar Neuro Clinic",
-    location: "Tirunelveli, Tamil Nadu",
-    address: "N Bypass Rd, Barani Nagar, Tirunelveli, Tamil Nadu 627003",
-    phone: "+91 73050 28840",
-    rating: 4.4,
-    specialty: "Parkinson's disease, tremor, nerve disorders",
-    mapQuery: "Sankar Neuro Clinic, N Bypass Rd, Barani Nagar, Tirunelveli, Tamil Nadu 627003",
-  },
-  {
-    id: 3,
-    name: "Dr. Raja S. Vignesh Neuro Clinic",
-    hospital: "Dr. Raja S. Vignesh Neuro Clinic",
-    location: "Tirunelveli, Tamil Nadu",
-    address: "Perumalpuram, Tirunelveli, Tamil Nadu 627007",
-    rating: 4.8,
-    specialty: "Neurology, Parkinson's treatment",
-    mapQuery: "Dr. Raja S. Vignesh Neuro Clinic, Perumalpuram, Tirunelveli, Tamil Nadu 627007",
-  },
-  {
-    id: 4,
-    name: "K.G. Neuro Clinic",
-    hospital: "K.G. Neuro Clinic",
-    location: "Tirunelveli, Tamil Nadu",
-    address: "Tiruchendur Main Rd, Palayamkottai, Tirunelveli",
-    phone: "+91 89038 58737",
-    specialty: "Neurology consultation",
-    mapQuery: "K.G. Neuro Clinic, Tiruchendur Main Rd, Palayamkottai, Tirunelveli",
-  },
-  {
-    id: 5,
-    name: "Shifa Hospitals",
-    hospital: "Shifa Hospitals",
-    location: "Tirunelveli, Tamil Nadu",
-    address: "Kailasapuram, Tirunelveli Junction",
-    phone: "+91 94421 39292",
-    specialty: "Neurology Department - Parkinson's treatment",
-    mapQuery: "Shifa Hospitals, Kailasapuram, Tirunelveli Junction",
-  },
-  {
-    id: 6,
-    name: "Dr. U. Meenakshisundaram",
-    hospital: "MGM Healthcare / Apollo Hospitals",
-    location: "Chennai, Tamil Nadu",
-    experience: "35+ years",
-    address: "MGM Healthcare / Apollo Hospitals, Chennai, Tamil Nadu",
-    specialty: "Parkinson's disease, stroke, movement disorders, neuromuscular diseases",
-    mapQuery: "MGM Healthcare, Chennai, Tamil Nadu",
-  },
-  {
-    id: 7,
-    name: "Dr. P. Vijayashankar",
-    hospital: "Apollo Hospitals, Greams Road / Sunway Medical Centre",
-    location: "Chennai, Tamil Nadu",
-    address: "Apollo Hospitals, Greams Road, Chennai, Tamil Nadu",
-    specialty: "Parkinson's disease, deep brain stimulation, movement disorders",
-    mapQuery: "Apollo Hospitals, Greams Road, Chennai, Tamil Nadu",
-  },
-  {
-    id: 8,
-    name: "Dr. Shankar Balakrishnan",
-    hospital: "Rela Institute & Medical Centre",
-    location: "Chennai, Tamil Nadu",
-    experience: "18+ years",
-    address: "Rela Institute & Medical Centre, Chennai, Tamil Nadu",
-    specialty: "Movement disorders, neuro-rehabilitation, Parkinson's disease treatment",
-    mapQuery: "Rela Institute & Medical Centre, Chennai, Tamil Nadu",
-  },
-  {
-    id: 9,
-    name: "Dr. Prof. P. Vijayashankar",
-    hospital: "Apollo Hospitals Greams Road",
-    location: "Chennai, Tamil Nadu",
-    experience: "10+ years",
-    address: "Apollo Hospitals, Greams Road, Chennai, Tamil Nadu",
-    specialty: "Parkinson's disease, epilepsy, neurological disorders",
-    mapQuery: "Apollo Hospitals, Greams Road, Chennai, Tamil Nadu",
-  },
-  {
-    id: 10,
-    name: "Dr. C. U. Velmurugendran",
-    hospital: "Sri Ramachandra Medical College and Research Institute",
-    location: "Chennai, Tamil Nadu",
-    address: "Sri Ramachandra Medical College and Research Institute, Chennai, Tamil Nadu",
-    specialty: "Neurology research, neurological disorders including Parkinson's disease",
-    mapQuery: "Sri Ramachandra Medical College and Research Institute, Chennai, Tamil Nadu",
-  },
+  ...SPECIALIST_DOCTORS.map((doctor) => ({
+    id: doctor.id,
+    name: doctor.name,
+    doctorName: `${doctor.name} (${doctor.specialty})`,
+    hospital: doctor.clinic,
+    location: `${doctor.location}, Tamil Nadu`,
+    experience: `${doctor.experience}+ years`,
+    address: `${doctor.clinic}, ${doctor.location}, Tamil Nadu`,
+    rating: doctor.rating,
+    specialty:
+      doctor.specialty === "Neurologist"
+        ? "Medication Management (Neurology)"
+        : "Advanced Procedures & Movement Disorders",
+    mapQuery: `${doctor.clinic}, ${doctor.location}, Tamil Nadu`,
+  })),
 ];
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
@@ -162,6 +78,15 @@ export function DoctorFinder() {
         .toLowerCase()
         .includes(normalizedQuery),
     );
+  }, [normalizedQuery]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 5;
+  const startIndex = (currentPage - 1) * cardsPerPage;
+  const visibleDoctors = filteredDoctors.slice(startIndex, startIndex + cardsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
   }, [normalizedQuery]);
 
   useEffect(() => {
@@ -304,8 +229,8 @@ export function DoctorFinder() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h3 className="text-2xl font-heading font-bold text-white">Tirunelveli Neurology Specialists</h3>
-          <p className="text-sm text-white/70">Parkinson's treatment and movement disorder clinics</p>
+          <h3 className="text-2xl font-heading font-bold text-white">Thoothukudi & Tirunelveli Neurology Specialists</h3>
+          <p className="text-sm text-white/70">Medication management and advanced movement-disorder care</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -338,102 +263,106 @@ export function DoctorFinder() {
           />
         </div>
         <div className="px-4 py-2 bg-white/10 text-white rounded-full text-sm font-medium">
-          {filteredDoctors.length} clinics
+          {filteredDoctors.length} specialists
         </div>
       </div>
 
       {view === "list" ? (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-6">
           {filteredDoctors.length === 0 ? (
-            <Card className="bg-white text-black border border-slate-200">
-              <CardContent className="p-6 text-center text-sm text-slate-600">
+            <Card className="glass-panel">
+              <CardContent className="p-8 text-center text-sm text-slate-600">
                 No clinics match your search. Try a different location or specialty.
               </CardContent>
             </Card>
           ) : (
-            filteredDoctors.map((doctor, idx) => (
-              <motion.div
-                key={doctor.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-              >
-                <Card
-                  className={`bg-white text-black border border-slate-200 transition-shadow hover:shadow-md ${
-                    selectedDoctor?.id === doctor.id ? "ring-2 ring-primary" : ""
-                  }`}
-                  onClick={() => setSelectedDoctor(doctor)}
-                >
-                  <CardContent className="p-5 space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h4 className="font-heading text-lg font-semibold text-black">{doctor.name}</h4>
-                        {doctor.doctorName ? (
-                          <p className="text-sm text-slate-600">{doctor.doctorName}</p>
-                        ) : null}
-                        {doctor.hospital ? (
-                          <p className="text-sm text-slate-600">{doctor.hospital}</p>
-                        ) : null}
-                        {doctor.location ? (
-                          <p className="text-xs text-slate-500">{doctor.location}</p>
-                        ) : null}
-                        {doctor.experience ? (
-                          <p className="text-xs text-slate-500">Experience: {doctor.experience}</p>
-                        ) : null}
-                        <p className="text-sm font-medium text-primary">{doctor.specialty}</p>
+            <>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {visibleDoctors.map((doctor, idx) => (
+                  <motion.div
+                    key={doctor.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                  >
+                    <Card
+                      className={`glass-panel p-6 space-y-4 cursor-pointer hover:shadow-2xl transition-all border-slate-200/50 ${
+                        selectedDoctor?.id === doctor.id ? "ring-4 ring-primary/30 shadow-2xl" : ""
+                      }`}
+                      onClick={() => setSelectedDoctor(doctor)}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <h4 className="font-heading text-lg font-bold text-slate-900">{doctor.name}</h4>
+                          {doctor.doctorName && <p className="text-sm text-slate-700">{doctor.doctorName}</p>}
+                          {doctor.hospital && <p className="text-sm font-medium text-slate-700">{doctor.hospital}</p>}
+                          {doctor.location && <p className="text-xs text-slate-500">{doctor.location}</p>}
+                          {doctor.experience && <p className="text-xs text-slate-500">Exp: {doctor.experience}</p>}
+                          <p className="text-sm font-semibold text-primary mt-1">{doctor.specialty}</p>
+                        </div>
+                        {doctor.rating && (
+                          <div className="flex items-center gap-1 bg-amber-100/80 px-3 py-1.5 rounded-full">
+                            <Star className="h-4 w-4 text-amber-600 fill-current" />
+                            <span className="text-sm font-bold text-amber-800">
+                              {doctor.rating.toFixed(1)}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-1">
-                        <Star className="h-4 w-4 text-yellow-600 fill-current" />
-                        <span className="text-sm font-semibold text-yellow-700">
-                          {doctor.rating ? doctor.rating.toFixed(1) : "Not rated"}
-                        </span>
-                      </div>
-                    </div>
 
-                    <div className="space-y-2 text-sm text-slate-700">
-                      <div className="flex items-start gap-2">
-                        <MapPin className="mt-0.5 h-4 w-4 text-primary" />
-                        <span>{doctor.address}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-primary" />
-                        <span>{doctor.phone || "Not provided"}</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openMap(doctor);
-                          }}
-                        >
-                          Open in Maps
-                        </Button>
-                        {doctor.phone ? (
+                      <div className="space-y-2 text-sm text-slate-700 pt-2 border-t border-slate-200/50">
+                        <div className="flex items-start gap-2">
+                          <MapPin className="mt-1 h-4 w-4 text-primary shrink-0" />
+                          <span className="text-slate-600 leading-relaxed">{doctor.address}</span>
+                        </div>
+                        {doctor.phone && (
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-primary shrink-0" />
+                            <span className="text-slate-600 font-mono">{doctor.phone}</span>
+                          </div>
+                        )}
+                        <div className="flex gap-2 pt-2">
                           <Button
+                            variant="outline"
                             size="sm"
-                            className="h-8"
+                            className="h-9 flex-1 border-slate-300 hover:border-primary"
                             onClick={(e) => {
                               e.stopPropagation();
-                              callDoctor(doctor.phone);
+                              openMap(doctor);
                             }}
                           >
-                            Call
+                            Maps
                           </Button>
-                        ) : null}
+                          {doctor.phone && (
+                            <Button
+                              size="sm"
+                              className="h-9 flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                callDoctor(doctor.phone);
+                              }}
+                            >
+                              Call
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+              <DoctorFinderPagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(filteredDoctors.length / cardsPerPage)}
+                onPageChange={setCurrentPage}
+              />
+            </>
           )}
         </div>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-3">
-          <Card className="glass-panel lg:col-span-2">
+        <div className="space-y-6">
+          {/* Map View - Full Width */}
+          <Card className="glass-panel">
             <CardHeader>
               <CardTitle className="text-lg">Map View</CardTitle>
             </CardHeader>
@@ -473,7 +402,8 @@ export function DoctorFinder() {
             </CardContent>
           </Card>
 
-          <div className="space-y-4">
+          {/* Selected Clinic and Clinics List - Below Map */}
+          <div className="grid gap-6 lg:grid-cols-2">
             <Card className="glass-panel">
               <CardHeader>
                 <CardTitle className="text-lg">Selected Clinic</CardTitle>
@@ -537,7 +467,7 @@ export function DoctorFinder() {
               <CardHeader>
                 <CardTitle className="text-lg">Clinics</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-2 max-h-96 overflow-y-auto">
                 {filteredDoctors.map((doctor) => (
                   <button
                     key={doctor.id}

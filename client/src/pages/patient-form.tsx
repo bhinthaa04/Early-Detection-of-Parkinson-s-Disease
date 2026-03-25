@@ -20,6 +20,7 @@ const initialFormData: PatientData = {
   patient_id: "",
   contact: "",
   email: "",
+  address: "",
   medical_history: "",
   symptoms: "",
   family_history: "No",
@@ -85,6 +86,7 @@ export default function PatientForm() {
         gender: patientPayload.gender,
         phone: patientPayload.contact,
         email: patientPayload.email,
+        address: patientPayload.address,
       });
 
       savePatientData({
@@ -194,6 +196,18 @@ export default function PatientForm() {
                 value={formData.contact}
                 onChange={handleChange}
                 placeholder="+1 234 567 890"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Address</label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                rows={2}
+                placeholder="Enter patient address"
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>

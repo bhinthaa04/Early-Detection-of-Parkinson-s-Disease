@@ -35,6 +35,10 @@ import DailyTasks from "@/pages/daily-tasks";
 import NotFound from "@/pages/not-found";
 import PatientForm from "@/pages/patient-form";
 import FindNearbyDoctor from "@/pages/find-nearby-doctor";
+import PatientHistory from "@/pages/patient-history";
+import ScheduleCheckup from "@/pages/schedule-checkup";
+import ViewSpecialists from "@/pages/view-specialists";
+import BookingSuccess from "@/pages/booking-success";
 import { MainFooter } from "@/components/main-footer";
 
 function Router() {
@@ -66,9 +70,13 @@ function Router() {
       <Route path="/find-specialist" component={FindSpecialist} />
       <Route path="/postural-sway" component={PosturalSwayAnalysis} />
       <Route path="/daily-tasks" component={DailyTasks} />
-      <Route path="/patient-history" component={Dashboard} />
+      <Route path="/patient-history" component={PatientHistory} />
       <Route path="/patient-form" component={PatientForm} />
       <Route path="/find-nearby-doctor" component={FindNearbyDoctor} />
+      <Route path="/schedule-checkup" component={ScheduleCheckup} />
+      <Route path="/view-specialists" component={ViewSpecialists} />
+      <Route path="/booking-success/:bookingId" component={BookingSuccess} />
+      <Route path="/booking-success" component={BookingSuccess} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -85,6 +93,7 @@ function App() {
     (prefix) => location === prefix || location.startsWith(`${prefix}/`),
   );
   const hideBackButton = location === "/";
+
   const hideSidebarTrigger = location === "/";
 
   return (

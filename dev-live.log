@@ -1,0 +1,8 @@
+
+> rest-express@1.0.0 dev
+> cross-env NODE_ENV=development tsx server/index.ts
+
+3:25:28 PM [express] serving on port 5000
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+3:25:38 PM [express] GET /api/patient-tests 304 in 146ms :: [{"id":4,"patient_name":"Esha ","test_date":"2026-03-25T09:49:54.000Z","result":"Negative","stage":"Early","confidence_score":"58.00","risk_level":"Low"},{"id":3,"patient_name":"Esha ","test_date":"2026-03-25T06:58:04.000Z","result":"Positive","stage":"Early Stage (1-2)","confidence_score":"57.00","risk_level":"Low"},{"id":2,"patient_name":"Suvarna Bhinthaa K","test_date":"2026-03-17T10:13:38.000Z","result":"Negative","stage":"None","confidence_score":"56.00","risk_level":"Low"},{"id":1,"patient_name":"Suvarna Bhinthaa K","test_date":"2026-03-16T07:10:07.000Z","result":"Negative","stage":"None","confidence_score":"54.00","risk_level":"Low"}]
+[2m3:27:19 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/find-nearby-doctor.tsx, /src/index.css[22m

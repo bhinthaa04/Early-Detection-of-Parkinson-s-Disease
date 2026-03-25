@@ -17,7 +17,6 @@ import {
   Loader2,
   LocateFixed,
   Play,
-  QrCode,
   ShieldAlert,
   Stethoscope,
 } from "lucide-react";
@@ -352,16 +351,6 @@ export default function Prediction() {
   const stageOrder: Array<"None" | "Early" | "Moderate" | "Severe"> = ["None", "Early", "Moderate", "Severe"];
   const currentStageIndex = stageOrder.indexOf(stage);
 
-  const verificationNeedsPublicUrl = useMemo(() => {
-    if (!verificationBaseUrl) return false;
-
-    try {
-      return isLocalHost(new URL(verificationBaseUrl).hostname);
-    } catch {
-      return false;
-    }
-  }, [verificationBaseUrl]);
-
   const verifyUrl = useMemo(() => {
     if (!verificationBaseUrl) return "";
     const params = new URLSearchParams();
@@ -376,10 +365,6 @@ export default function Prediction() {
     if (testMeta?.rawDate) params.set("test_date", testMeta.rawDate);
     return `${verificationBaseUrl}/result?${params.toString()}`;
   }, [patientData?.patient_id, result, stage, testMeta?.id, testMeta?.rawDate, verificationBaseUrl]);
-
-  const qrUrl = verifyUrl
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(verifyUrl)}`
-    : "";
 
   const interpretation = result
     ? isPositive
@@ -1171,23 +1156,7 @@ export default function Prediction() {
               </div>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-2 text-[#2c5ba9]"><QrCode className="h-5 w-5" /><h4 className="text-lg font-semibold">Report Verification QR</h4></div>
-                <div className="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-                  {qrUrl ? <img src={qrUrl} alt="Report verification QR code" className="h-36 w-36 rounded border border-slate-200 bg-white p-2" /> : null}
-                  <div className="text-sm text-slate-700">
-                    <p>Scan to verify report authenticity.</p>
-                    {verificationNeedsPublicUrl ? (
-                      <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-800">
-                        Mobile scanning will not work while the QR points to `localhost`. Set the backend/app URL to your laptop's LAN IP like `http://192.168.x.x:5000` in Backend Configuration, then regenerate the QR.
-                      </p>
-                    ) : null}
-                    <a className="mt-2 block text-blue-600 underline" href={verifyUrl} target="_blank" rel="noreferrer">Open verification link</a>
-                  </div>
-                </div>
-              </div>
-
+            <div className="grid gap-6">
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="flex items-center gap-2 text-[#2c5ba9]"><History className="h-5 w-5" /><h4 className="text-lg font-semibold">Previous Test Comparison</h4></div>
                 <div className="mt-4 text-sm text-slate-700">

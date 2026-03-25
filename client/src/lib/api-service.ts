@@ -105,6 +105,41 @@ export interface CreatePatientTestPayload {
   stage?: string;
 }
 
+export interface CreateAppointmentPayload {
+  patientName: string;
+  phoneNumber: string;
+  reason: string;
+  doctorId: number;
+  date: string;
+  time: string;
+  patientId: number;
+  reportId?: number | null;
+}
+
+export interface AppointmentResponse {
+  success: boolean;
+  bookingId: string;
+  status: "pending" | "confirmed";
+}
+
+export interface AppointmentDetails {
+  bookingId: string;
+  patient_id: number;
+  report_id: number | null;
+  patient_name: string;
+  phone_number: string;
+  visit_reason: string | null;
+  doctor_id: number;
+  appointment_date: string;
+  time_slot: string;
+  status: "pending" | "confirmed";
+  created_at: string;
+  doctor_name?: string | null;
+  prediction_result?: string | null;
+  stage?: string | null;
+  confidence_score?: number | null;
+}
+
 export const apiService = {
   async createPatient(payload: CreatePatientPayload): Promise<number> {
     const response = await fetch(API_ENDPOINTS.patients, {
@@ -239,6 +274,89 @@ export const apiService = {
     }
 
     return response.json() as Promise<PatientTestRecord[]>;
+  },
+
+  async createAppointment(payload: CreateAppointmentPayload): Promise<AppointmentResponse> {
+    const requestAppointment = async (url: string): Promise<AppointmentResponse> => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const contentType = response.headers.get("content-type") || "";
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "Unknown error");
+        throw new Error(`Appointment Error: HTTP ${response.status}: ${errorText || response.statusText}`);
+      }
+
+      if (!contentType.includes("application/json")) {
+        const bodyPreview = (await response.text().catch(() => "")).slice(0, 120);
+        throw new Error(`Appointment Error: Expected JSON but received non-JSON response. ${bodyPreview}`);
+      }
+
+      return response.json() as Promise<AppointmentResponse>;
+    };
+
+    try {
+      return await requestAppointment(API_ENDPOINTS.appointmentsBook);
+    } catch (error) {
+      // Common local-dev case: frontend-only server on :5000 returns HTML for /api routes.
+      try {
+        const fallbackUrl = "http://127.0.0.1:5001/api/appointments/book";
+        if (API_ENDPOINTS.appointmentsBook !== fallbackUrl) {
+          return await requestAppointment(fallbackUrl);
+        }
+      } catch {
+        // Ignore fallback error and rethrow original.
+      }
+
+      const message = error instanceof Error ? error.message : "Failed to create appointment";
+      throw new Error(message);
+    }
+  },
+
+  async getAppointmentByBookingId(bookingId: string): Promise<AppointmentDetails> {
+    const requestAppointment = async (url: string): Promise<AppointmentDetails> => {
+      const response = await fetch(url, {
+        method: "GET",
+      });
+
+      const contentType = response.headers.get("content-type") || "";
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "Unknown error");
+        throw new Error(`Appointment Fetch Error: HTTP ${response.status}: ${errorText || response.statusText}`);
+      }
+
+      if (!contentType.includes("application/json")) {
+        const bodyPreview = (await response.text().catch(() => "")).slice(0, 120);
+        throw new Error(`Appointment Fetch Error: Expected JSON but received non-JSON response. ${bodyPreview}`);
+      }
+
+      return response.json() as Promise<AppointmentDetails>;
+    };
+
+    const primaryUrl = `${API_ENDPOINTS.appointmentsBase}/${encodeURIComponent(bookingId)}`;
+
+    try {
+      return await requestAppointment(primaryUrl);
+    } catch (error) {
+      try {
+        const fallbackUrl = `http://127.0.0.1:5001/api/appointments/${encodeURIComponent(bookingId)}`;
+        if (primaryUrl !== fallbackUrl) {
+          return await requestAppointment(fallbackUrl);
+        }
+      } catch {
+        // Ignore fallback error and rethrow original.
+      }
+
+      const message = error instanceof Error ? error.message : "Failed to fetch appointment";
+      throw new Error(message);
+    }
   },
 
   async predict(imageFile: File, audioFile: File): Promise<PredictionResponse> {

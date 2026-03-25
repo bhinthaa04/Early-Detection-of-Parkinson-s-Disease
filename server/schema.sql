@@ -80,3 +80,50 @@ CREATE TABLE IF NOT EXISTS patient_tests (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS patient_reports (
+  report_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  patient_id INT UNSIGNED NOT NULL,
+  patient_name VARCHAR(120) NOT NULL,
+  prediction_result VARCHAR(20) NOT NULL,
+  stage VARCHAR(80) NULL,
+  confidence_score DECIMAL(5,2) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (report_id),
+  KEY idx_patient_reports_patient_id (patient_id),
+  KEY idx_patient_reports_created_at (created_at),
+  CONSTRAINT fk_patient_reports_patient
+    FOREIGN KEY (patient_id) REFERENCES patients (patient_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS appointments (
+  appointment_id VARCHAR(20) NOT NULL,
+  patient_id INT UNSIGNED NOT NULL,
+  report_id INT UNSIGNED NULL,
+  patient_name VARCHAR(120) NOT NULL,
+  phone_number VARCHAR(30) NOT NULL,
+  visit_reason TEXT NULL,
+  doctor_id INT UNSIGNED NOT NULL,
+  appointment_date DATE NOT NULL,
+  time_slot VARCHAR(30) NOT NULL,
+  status ENUM('pending', 'confirmed') NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (appointment_id),
+  KEY idx_appointments_patient_id (patient_id),
+  KEY idx_appointments_doctor_id (doctor_id),
+  KEY idx_appointments_report_id (report_id),
+  CONSTRAINT fk_appointments_patient
+    FOREIGN KEY (patient_id) REFERENCES patients (patient_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_appointments_doctor
+    FOREIGN KEY (doctor_id) REFERENCES doctors (doctor_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_appointments_report
+    FOREIGN KEY (report_id) REFERENCES patient_reports (report_id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+);

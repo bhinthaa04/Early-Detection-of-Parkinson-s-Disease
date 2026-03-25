@@ -3,6 +3,9 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, FileText } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiService, type PredictionResponse } from "@/lib/api-service";
+import { readPatientData } from "@/lib/patient-data";
 
 interface HistoryItem {
   id: number;
@@ -51,8 +54,12 @@ function riskClass(risk: "Low" | "Moderate" | "High"): string {
 }
 
 export function PredictionHistory({ history: historyProp }: PredictionHistoryProps) {
+  const { toast } = useToast();
   const [history, setHistory] = useState<HistoryItem[]>(historyProp ?? []);
   const [currentPage, setCurrentPage] = useState(0);
+  const [loadingReportId, setLoadingReportId] = useState<number | null>(null);
+  const [reportUrl, setReportUrl] = useState<string | null>(null);
+  const [isReportOpen, setIsReportOpen] = useState(false);
   const itemsPerPage = 4;
 
   useEffect(() => {
@@ -87,6 +94,41 @@ export function PredictionHistory({ history: historyProp }: PredictionHistoryPro
       setCurrentPage(safePage);
     }
   }, [currentPage, safePage]);
+
+  const viewReport = async (item: HistoryItem) => {
+    setLoadingReportId(item.id);
+    try {
+      const patientData = readPatientData();
+      const prediction: PredictionResponse = {
+        prediction: item.prediction.toLowerCase() === "positive",
+        confidence: item.confidence / 100,
+        stage: item.stage,
+      };
+      const blob = await apiService.downloadReport(prediction, patientData ?? undefined);
+      const url = URL.createObjectURL(blob);
+
+      // Show in-app preview instead of triggering download
+      setReportUrl(url);
+      setIsReportOpen(true);
+    } catch (error) {
+      toast({
+        title: "Report error",
+        description: "Failed to open report.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingReportId(null);
+    }
+  };
+
+  const closeReport = () => {
+    if (reportUrl) {
+      URL.revokeObjectURL(reportUrl);
+      setReportUrl(null);
+    }
+    setIsReportOpen(false);
+  };
+
   const pageStart = safePage * itemsPerPage;
   const pageItems = normalizedHistory.slice(pageStart, pageStart + itemsPerPage);
   const hasHistory = normalizedHistory.length > 0;
@@ -151,9 +193,16 @@ export function PredictionHistory({ history: historyProp }: PredictionHistoryPro
                   </div>
 
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" className="rounded-lg" data-testid={`btn-view-report-${item.id}`}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-lg"
+                      data-testid={`btn-view-report-${item.id}`}
+                      onClick={() => viewReport(item)}
+                      disabled={loadingReportId === item.id}
+                    >
                       <FileText className="mr-1 h-4 w-4" />
-                      Report
+                      {loadingReportId === item.id ? "Opening..." : "View Report"}
                     </Button>
                   </div>
                 </div>
@@ -196,6 +245,24 @@ export function PredictionHistory({ history: historyProp }: PredictionHistoryPro
           </div>
         </div>
       )}
+
+      {isReportOpen && reportUrl ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="relative w-full max-w-4xl h-[80vh] rounded-xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-200 p-3">
+              <div className="text-sm font-semibold">Patient Report</div>
+              <Button size="sm" variant="ghost" onClick={closeReport}>
+                Close
+              </Button>
+            </div>
+            <iframe
+              src={reportUrl}
+              className="w-full h-full"
+              title="Patient Report"
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

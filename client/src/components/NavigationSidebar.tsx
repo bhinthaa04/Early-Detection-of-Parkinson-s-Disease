@@ -16,13 +16,11 @@ import {
   ChevronDown,
   Home,
   Stethoscope,
-  TrendingUp,
   Gamepad2,
   Heart,
   ClipboardList,
   UserCog,
   MapPin,
-  Search,
   GraduationCap,
   TestTube,
   HeartPulse,
@@ -56,18 +54,8 @@ const navSections: NavSection[] = [
       { label: "Take Test", path: "/take-test", icon: ClipboardList },
       { label: "Real-Time Assist", path: "/real-time-assist", icon: Activity },
       { label: "Futuristic Assessment", path: "/futuristic-assessment", icon: Brain },
-      { label: "Postural Sway", path: "/postural-sway", icon: TrendingUp },
     ],
   },
-      {
-        title: "Dashboard",
-        icon: LayoutDashboard,
-        items: [
-          { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-          { label: "Patient History", path: "/patient-history", icon: History },
-          { label: "Progression Forecast", path: "/progression-forecast", icon: TrendingUp },
-        ],
-      },
   {
     title: "Education & Learning",
     icon: GraduationCap,
@@ -75,6 +63,7 @@ const navSections: NavSection[] = [
       { label: "Education", path: "/education", icon: BookOpen },
       { label: "Brain Games", path: "/brain-games", icon: Gamepad2 },
       { label: "AI Chatbot", path: "/ai-chatbot", icon: Sparkles },
+      { label: "Patient History", path: "/patient-history", icon: ClipboardList },
     ],
   },
   {
@@ -110,7 +99,6 @@ const navSections: NavSection[] = [
     title: "Medical Services",
     icon: Stethoscope,
     items: [
-      { label: "Find Specialist", path: "/find-specialist", icon: Search },
       { label: "Find Nearby Doctor", path: "/find-nearby-doctor", icon: MapPin },
     ],
   },
@@ -220,7 +208,7 @@ export function NavigationSidebar({ isOpen, onClose, profileEmail, onSignOut }: 
                           className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-[0.2em] transition-all ${
                             isActive
                               ? "bg-blue-500/15 text-blue-200"
-                              : "text-blue-400/80 hover:bg-white/5 hover:text-white"
+                              : "text-slate-200 hover:bg-white/5 hover:text-white"
                           }`}
                         >
                           <div className="flex items-center gap-3">
@@ -295,4 +283,3 @@ export function NavigationSidebar({ isOpen, onClose, profileEmail, onSignOut }: 
     </AnimatePresence>
   );
 }
-

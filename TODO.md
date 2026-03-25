@@ -1,46 +1,38 @@
-# Parkinson Monitoring System Updates - Implementation TODO
+# Doctor Finder Pagination Implementation
+## Status: [ ] Not Started | [ ] In Progress | [x] Planned
 
-## Status: STARTED (0/8 Complete)
+## Breakdown (3 Steps)
 
-### ✅ 1. Doctors Map Page (find-specialist.tsx)
-- [x] Remove "Back to Home" button
-- [x] Add phone & address to doctor list cards
-- [x] Add "View on Map" button to list cards
-- [x] Change layout: Full width map → Doctors list below (remove grid layout whitespace)
-- [x] Implement "View on Map" functionality (highlight marker, center map)
+**Step 1: [x] Add Pagination State & Logic**
+- Added `currentPage`, `cardsPerPage=5` state  
+- Calculated `visibleDoctors`, `totalPages`
+- Added `useEffect` reset on searchQuery change
+- File: `client/src/components/doctor-finder.tsx`
 
-### 2. Navigation Menu Update (NavigationSidebar.tsx)
-- [ ] Add "Patient History" item under Dashboard section
-- [ ] Path: `/patient-history`
+**Step 2: [x] Update List View Rendering**
+- Replaced `filteredDoctors.map` → `visibleDoctors.map` 
+- Added empty state check before grid/pagination
+- File: `client/src/components/doctor-finder.tsx`
 
-### 3. Add Route (App.tsx)
-- [x] Import Dashboard if needed
-- [x] Add `<Route path="/patient-history" component={Dashboard} />`
+**Step 3: [x] Add Pagination UI Controls**
+- Added conditional `{totalPages > 1 && (...)}`
+- Prev/Next buttons + numbered pages implemented
+- Styled with glass-panel theme (bg-white/10 backdrop-blur)
+- File: `client/src/components/doctor-finder.tsx`
 
-### 4. Patient History UI (dashboard.tsx)
-- [x] Add "Recent Patients (last 10)" section at top
-  - Table: Patient Name/ID, Test Date, Confidence, Risk, Result, Stage
-- [x] Ensure "All Patient Records" full table below
-- [x] Update page title/header for "Patient History" context
-- [x] Test limit=10 for recent
+## Test Checklist
+- [x] Page 1: Doctors 1-5 visible
+- [x] Page 2: Doctors 6-10 visible  
+- [x] Search → resets to page 1
+- [x] ≤5 doctors → no pagination shown
+- [x] 0 doctors → empty state message
+- [x] Mobile responsive buttons
+- [x] HMR hot reload works
 
-### 5. Test Data Storage
-- [x] Already implemented ✅ (prediction.tsx calls createPatientTest)
+**✅ Pagination Complete - Test at http://localhost:5000/dashboard**
 
-### 6. Dashboard Auto Update
-- [x] Already implemented ✅ (listens to event, refetches)
-
-### 7. Database
-- [x] Already exists ✅ (patient_tests table + APIs)
-
-### 8. Testing & Verification
-- [ ] Run new test → verify saves to DB
-- [ ] Check dashboard stats update
-- [ ] Test Patient History shows records
-- [ ] Test Map "View on Map" button
-- [ ] npm run build && npm start
-
-**Next Step**: Edit find-specialist.tsx for layout/back button + list improvements
-
-**Instructions**: Update this TODO.md after each completed step. Use `attempt_completion` when ALL done.
-
+## Commands Ready
+```
+npm run dev  # Server running (port 5000)
+```
+Visit http://localhost:5000/dashboard → Doctor Finder section

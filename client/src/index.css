@@ -48,6 +48,26 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
   }
+
+  /* Contrast guardrails for common dark/light containers */
+  .bg-black,
+  .bg-black\/60,
+  .bg-black\/90,
+  .bg-slate-900,
+  .bg-slate-900\/50,
+  .bg-slate-900\/95,
+  .bg-slate-800,
+  .bg-slate-800\/50 {
+    color: hsl(210 40% 98%);
+  }
+
+  .bg-white,
+  .bg-white\/70,
+  .bg-white\/80,
+  .bg-slate-50,
+  .bg-slate-100 {
+    color: hsl(222 47% 11%);
+  }
 }
 
 .glass-panel {

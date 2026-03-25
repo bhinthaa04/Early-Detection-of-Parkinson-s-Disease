@@ -1,152 +1,122 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Globe2,
   MapPin,
-  Phone,
   SlidersHorizontal,
-  Sparkles,
   Star,
   CalendarCheck2,
+  Stethoscope,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SPECIALIST_DOCTORS } from "@/data/specialists";
 
 type Language = "en" | "ta";
-
-type Doctor = {
-  id: number;
-  name: string;
-  specialtyEn: string;
-  specialtyTa: string;
-  hospitalEn: string;
-  hospitalTa: string;
-  address: string;
-  phone: string;
-  rating: number;
-  distanceKm: number;
-  nextSlotEn: string;
-  nextSlotTa: string;
-  aiRecommended?: boolean;
-};
-
-const doctors: Doctor[] = [
-  {
-    id: 1,
-    name: "Dr. Priya Natarajan",
-    specialtyEn: "Movement Disorder Neurologist",
-    specialtyTa: "இயக்கக் கோளாறு நரம்பியல் நிபுணர்",
-    hospitalEn: "NeuroCare Medical Center",
-    hospitalTa: "நியூரோகேர் மருத்துவ மையம்",
-    address: "T. Nagar, Chennai",
-    phone: "+91 44 4012 8890",
-    rating: 4.9,
-    distanceKm: 2.1,
-    nextSlotEn: "Today, 5:30 PM",
-    nextSlotTa: "இன்று, மாலை 5:30",
-    aiRecommended: true,
-  },
-  {
-    id: 2,
-    name: "Dr. Arun Kumar",
-    specialtyEn: "Parkinson's Specialist",
-    specialtyTa: "பார்கின்சன் நிபுணர்",
-    hospitalEn: "City Neuro Institute",
-    hospitalTa: "சிட்டி நியூரோ இன்ஸ்டிட்யூட்",
-    address: "Velachery, Chennai",
-    phone: "+91 44 4312 2201",
-    rating: 4.8,
-    distanceKm: 4.7,
-    nextSlotEn: "Tomorrow, 10:15 AM",
-    nextSlotTa: "நாளை, காலை 10:15",
-  },
-  {
-    id: 3,
-    name: "Dr. Meena Raj",
-    specialtyEn: "Senior Neurologist",
-    specialtyTa: "மூத்த நரம்பியல் நிபுணர்",
-    hospitalEn: "Apollo Specialty Clinic",
-    hospitalTa: "அப்போலோ சிறப்பு மருத்துவமனை",
-    address: "Adyar, Chennai",
-    phone: "+91 44 4098 1100",
-    rating: 4.6,
-    distanceKm: 6.3,
-    nextSlotEn: "Tomorrow, 4:00 PM",
-    nextSlotTa: "நாளை, மாலை 4:00",
-  },
-  {
-    id: 4,
-    name: "Dr. Suresh Babu",
-    specialtyEn: "Clinical Neurologist",
-    specialtyTa: "மருத்துவ நரம்பியல் நிபுணர்",
-    hospitalEn: "Lifeline Neurology Hub",
-    hospitalTa: "லைஃப்லைன் நியூராலஜி மையம்",
-    address: "Anna Nagar, Chennai",
-    phone: "+91 44 2781 5502",
-    rating: 4.4,
-    distanceKm: 8.9,
-    nextSlotEn: "Friday, 11:45 AM",
-    nextSlotTa: "வெள்ளி, காலை 11:45",
-  },
-];
+type CareTrack = "all" | "medication" | "advanced";
 
 const copy = {
   en: {
     title: "Find Nearby Doctor",
-    subtitle: "Modern Parkinson's care discovery with smart AI guidance",
+    subtitle: "Thoothukudi & Tirunelveli Parkinson's and neurology specialists",
     back: "Back to Result",
     language: "Language",
     filterTitle: "Filters",
     distance: "Max Distance",
     rating: "Min Rating",
+    careTrack: "Care Path",
+    medication: "Medication Management",
+    advanced: "Advanced Procedures",
+    all: "All",
     mapTitle: "Map View",
     mapHint: "Selected doctor location preview",
-    aiBadge: "AI Recommended",
     kmAway: "km away",
-    call: "Call",
     book: "Book Appointment",
     mapOpen: "Open in Maps",
     results: "Doctors found",
+    focus: "Primary Focus",
   },
   ta: {
     title: "அருகிலுள்ள மருத்துவரை கண்டுபிடிக்கவும்",
-    subtitle: "AI வழிகாட்டுதலுடன் பார்கின்சன் சிகிச்சை மருத்துவர் தேடல்",
+    subtitle: "தூத்துக்குடி மற்றும் திருநெல்வேலி நரம்பியல் நிபுணர்கள்",
     back: "விளைவுக்கு திரும்ப",
     language: "மொழி",
     filterTitle: "வடிகட்டிகள்",
     distance: "அதிகபட்ச தூரம்",
     rating: "குறைந்தபட்ச மதிப்பீடு",
+    careTrack: "சிகிச்சை வகை",
+    medication: "மருந்து மேலாண்மை",
+    advanced: "மேம்பட்ட செயல்முறைகள்",
+    all: "அனைத்தும்",
     mapTitle: "வரைபட காட்சி",
-    mapHint: "தேர்ந்தெடுக்கப்பட்ட மருத்துவரின் இடம்",
-    aiBadge: "AI பரிந்துரை",
+    mapHint: "தேர்ந்தெடுக்கப்பட்ட மருத்துவர்",
     kmAway: "கி.மீ தூரம்",
-    call: "அழைக்க",
     book: "நியமனம் பதிவு",
     mapOpen: "வரைபடத்தில் திற",
     results: "கிடைத்த மருத்துவர்கள்",
+    focus: "முதன்மை கவனம்",
   },
 } as const;
 
+function primaryFocus(specialty: "Neurologist" | "Parkinson's Specialist") {
+  return specialty === "Neurologist"
+    ? "Medication management and neurological monitoring"
+    : "Advanced procedures and movement-disorder care";
+}
+
 export default function FindNearbyDoctor() {
   const [language, setLanguage] = useState<Language>("en");
-  const [maxDistance, setMaxDistance] = useState(10);
+  const [maxDistance, setMaxDistance] = useState(15);
   const [minRating, setMinRating] = useState(4.0);
-  const [selectedDoctorId, setSelectedDoctorId] = useState<number>(1);
+  const [careTrack, setCareTrack] = useState<CareTrack>("all");
+  const [selectedDoctorId, setSelectedDoctorId] = useState<number>(SPECIALIST_DOCTORS[0]?.id ?? 1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 6;
 
   const t = copy[language];
 
-  const filteredDoctors = useMemo(
-    () =>
-      doctors
-        .filter((doctor) => doctor.distanceKm <= maxDistance && doctor.rating >= minRating)
-        .sort((a, b) => Number(Boolean(b.aiRecommended)) - Number(Boolean(a.aiRecommended))),
-    [maxDistance, minRating],
-  );
+  const filteredDoctors = useMemo(() => {
+    return SPECIALIST_DOCTORS.filter((doctor) => {
+      const matchesDistance = doctor.distanceKm <= maxDistance;
+      const matchesRating = doctor.rating >= minRating;
+      const matchesTrack =
+        careTrack === "all" ||
+        (careTrack === "medication" && doctor.specialty === "Neurologist") ||
+        (careTrack === "advanced" && doctor.specialty === "Parkinson's Specialist");
+      return matchesDistance && matchesRating && matchesTrack;
+    });
+  }, [careTrack, maxDistance, minRating]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [maxDistance, minRating, careTrack]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredDoctors.length / cardsPerPage));
+
+  const paginatedDoctors = useMemo(() => {
+    const start = (currentPage - 1) * cardsPerPage;
+    return filteredDoctors.slice(start, start + cardsPerPage);
+  }, [filteredDoctors, currentPage]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    if (!paginatedDoctors.length) return;
+    if (!paginatedDoctors.some((doctor) => doctor.id === selectedDoctorId)) {
+      setSelectedDoctorId(paginatedDoctors[0].id);
+    }
+  }, [paginatedDoctors, selectedDoctorId]);
 
   const selectedDoctor =
-    filteredDoctors.find((doctor) => doctor.id === selectedDoctorId) || filteredDoctors[0] || doctors[0];
+    filteredDoctors.find((doctor) => doctor.id === selectedDoctorId) ||
+    filteredDoctors[0] ||
+    SPECIALIST_DOCTORS[0];
 
-  const mapQuery = encodeURIComponent(`${selectedDoctor.address} ${selectedDoctor.hospitalEn}`);
+  const mapQuery = encodeURIComponent(`${selectedDoctor.clinic} ${selectedDoctor.location}`);
 
   return (
     <div className="relative z-10 min-h-screen bg-slate-100 px-4 py-8 text-slate-900">
@@ -200,7 +170,7 @@ export default function FindNearbyDoctor() {
                 <input
                   type="range"
                   min={1}
-                  max={15}
+                  max={20}
                   step={1}
                   value={maxDistance}
                   onChange={(e) => setMaxDistance(Number(e.target.value))}
@@ -220,6 +190,26 @@ export default function FindNearbyDoctor() {
                   onChange={(e) => setMinRating(Number(e.target.value))}
                   className="w-full accent-[#2c5ba9]"
                 />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">{t.careTrack}</label>
+                <div className="grid grid-cols-1 gap-2">
+                  <Button variant={careTrack === "all" ? "default" : "outline"} onClick={() => setCareTrack("all")}>
+                    {t.all}
+                  </Button>
+                  <Button
+                    variant={careTrack === "medication" ? "default" : "outline"}
+                    onClick={() => setCareTrack("medication")}
+                  >
+                    {t.medication}
+                  </Button>
+                  <Button
+                    variant={careTrack === "advanced" ? "default" : "outline"}
+                    onClick={() => setCareTrack("advanced")}
+                  >
+                    {t.advanced}
+                  </Button>
+                </div>
               </div>
               <p className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700">
                 {filteredDoctors.length} {t.results}
@@ -245,89 +235,107 @@ export default function FindNearbyDoctor() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              {filteredDoctors.map((doctor) => {
-                const doctorMapQuery = encodeURIComponent(`${doctor.address} ${doctor.hospitalEn}`);
+              {paginatedDoctors.map((doctor) => {
+                const doctorMapQuery = encodeURIComponent(`${doctor.clinic} ${doctor.location}`);
                 return (
-                <motion.article
-                  key={doctor.id}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`rounded-2xl border p-4 shadow-sm transition ${doctor.id === selectedDoctor.id ? "border-[#2c5ba9] bg-blue-50/40" : "border-slate-200 bg-white"}`}
-                  onClick={() => setSelectedDoctorId(doctor.id)}
-                >
-                  <div className="mb-3 flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="text-base font-semibold text-slate-900">{doctor.name}</h3>
-                      <p className="text-sm text-[#2c5ba9]">
-                        {language === "en" ? doctor.specialtyEn : doctor.specialtyTa}
+                  <motion.article
+                    key={doctor.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`rounded-2xl border p-4 shadow-sm transition ${doctor.id === selectedDoctor.id ? "border-[#2c5ba9] bg-blue-50/40" : "border-slate-200 bg-white"}`}
+                    onClick={() => setSelectedDoctorId(doctor.id)}
+                  >
+                    <div className="mb-3 flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="text-base font-semibold text-slate-900">{doctor.name}</h3>
+                        <p className="text-sm text-[#2c5ba9]">{doctor.specialty}</p>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-slate-700">{doctor.clinic}</p>
+                    <div className="mt-3 space-y-1 text-sm text-slate-600">
+                      <p className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-[#2c5ba9]" />
+                        {doctor.location}
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-[#2c5ba9]" />
+                        {doctor.distanceKm} {t.kmAway}
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Star className="h-4 w-4 text-amber-500" />
+                        {doctor.rating.toFixed(1)} / 5.0
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <CalendarCheck2 className="h-4 w-4 text-[#2c5ba9]" />
+                        {doctor.availability}
+                      </p>
+                      <p className="flex items-start gap-2">
+                        <Stethoscope className="mt-0.5 h-4 w-4 text-[#2c5ba9]" />
+                        <span>
+                          {t.focus}: {primaryFocus(doctor.specialty)}
+                        </span>
                       </p>
                     </div>
-                    {doctor.aiRecommended ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">
-                        <Sparkles className="h-3 w-3" />
-                        {t.aiBadge}
-                      </span>
-                    ) : null}
-                  </div>
 
-                  <p className="text-sm text-slate-700">{language === "en" ? doctor.hospitalEn : doctor.hospitalTa}</p>
-                  <div className="mt-3 space-y-1 text-sm text-slate-600">
-                    <p className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-[#2c5ba9]" />
-                      {doctor.distanceKm} {t.kmAway}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <Star className="h-4 w-4 text-amber-500" />
-                      {doctor.rating.toFixed(1)} / 5.0
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <CalendarCheck2 className="h-4 w-4 text-[#2c5ba9]" />
-                      {language === "en" ? doctor.nextSlotEn : doctor.nextSlotTa}
-                    </p>
-                  </div>
-
-                  <div className="mt-4 flex gap-2">
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        className="h-10 flex-1 bg-[#2c5ba9] hover:bg-[#244a8f]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(doctor.googleSearchUrl, "_blank", "noopener,noreferrer");
+                        }}
+                      >
+                        <CalendarCheck2 className="h-4 w-4" />
+                        {t.book}
+                      </Button>
+                    </div>
                     <Button
-                      variant="outline"
-                      className="h-10 flex-1"
+                      variant="ghost"
+                      className="mt-2 h-9 w-full text-[#2c5ba9]"
                       onClick={(e) => {
                         e.stopPropagation();
-                        window.open(`tel:${doctor.phone}`);
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${doctorMapQuery}`, "_blank", "noopener,noreferrer");
                       }}
                     >
-                      <Phone className="h-4 w-4" />
-                      {t.call}
+                      <MapPin className="h-4 w-4" />
+                      {t.mapOpen}
                     </Button>
-                    <Button
-                      className="h-10 flex-1 bg-[#2c5ba9] hover:bg-[#244a8f]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(
-                          `https://www.google.com/search?q=${encodeURIComponent(`${doctor.name} ${doctor.hospitalEn} appointment`)}`,
-                          "_blank",
-                          "noopener,noreferrer",
-                        );
-                      }}
-                    >
-                      <CalendarCheck2 className="h-4 w-4" />
-                      {t.book}
-                    </Button>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    className="mt-2 h-9 w-full text-[#2c5ba9]"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.open(`https://www.google.com/maps/search/?api=1&query=${doctorMapQuery}`, "_blank", "noopener,noreferrer");
-                    }}
-                  >
-                    <MapPin className="h-4 w-4" />
-                    {t.mapOpen}
-                  </Button>
-                </motion.article>
+                  </motion.article>
                 );
               })}
             </div>
+
+            {filteredDoctors.length > 0 ? (
+              <div className="mt-5 flex items-center justify-center gap-2">
+                <Button
+                  variant="outline"
+                  className="rounded-xl border-slate-300"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    className={`h-9 w-9 rounded-xl p-0 ${currentPage === page ? "bg-[#2c5ba9] text-white" : "border-slate-300"}`}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  className="rounded-xl border-slate-300"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            ) : null}
           </div>
         </section>
       </div>
