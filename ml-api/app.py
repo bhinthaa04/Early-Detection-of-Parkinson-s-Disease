@@ -1182,7 +1182,7 @@ def index():
     })
 
 if __name__ == '__main__':
-print("=" * 50)
+    print("=" * 50)
     print("Parkinson's Disease Prediction ML API")
     print("=" * 50)
     print("Running on http://127.0.0.1:8000")
