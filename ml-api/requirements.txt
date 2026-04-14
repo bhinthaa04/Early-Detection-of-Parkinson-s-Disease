@@ -7,5 +7,3 @@ tensorflow
 reportlab
 werkzeug
 pillow
-scipy
-gunicorn==22.0.0
