@@ -1,11 +1,8 @@
-tensorflow-cpu==2.13.0
 flask==3.0.3
 flask-cors==4.0.0
 numpy==1.24.4
 opencv-python-headless==4.8.1.78
 librosa==0.10.1
 reportlab==4.0.7
-werkzeug==2.3.7
 pillow==10.0.1
-scipy==1.11.4
 gunicorn==21.2.0
