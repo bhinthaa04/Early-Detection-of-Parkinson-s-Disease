@@ -14,3 +14,7 @@ client/build
 .local
 attached_assets/*
 !attached_assets/.gitkeep
+!attached_assets/generated_images/
+!attached_assets/generated_images/**
+!attached_assets/generated_videos/
+!attached_assets/generated_videos/**
