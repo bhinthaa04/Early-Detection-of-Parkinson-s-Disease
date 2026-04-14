@@ -97,3 +97,23 @@ Running on http://127.0.0.1:8000
  * Restarting with watchdog (windowsapi)
  * Debugger is active!
  * Debugger PIN: 217-266-074
+ * Detected change in 'c:\\Users\\suvarna bhinthaa K\\Downloads\\Parkinson-Predictor (2)\\Parkinson-Predictor\\ml-api\\test_pdf.py', reloading
+==================================================
+Parkinson's Disease Prediction ML API
+==================================================
+Running on http://127.0.0.1:8000
+==================================================
+ * Restarting with watchdog (windowsapi)
+ * Debugger is active!
+ * Debugger PIN: 217-266-074
+ * Detected change in 'c:\\Users\\suvarna bhinthaa K\\Downloads\\Parkinson-Predictor (2)\\Parkinson-Predictor\\ml-api\\app.py', reloading
+==================================================
+Parkinson's Disease Prediction ML API
+==================================================
+Running on http://127.0.0.1:8000
+==================================================
+ * Restarting with watchdog (windowsapi)
+  File "c:\Users\suvarna bhinthaa K\Downloads\Parkinson-Predictor (2)\Parkinson-Predictor\ml-api\app.py", line 1190
+    port=int(os.environ.get("PORT", 10000)), debug=False
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Maybe you meant '==' or ':=' instead of '='?

@@ -1186,5 +1186,6 @@ if __name__ == '__main__':
     print("Parkinson's Disease Prediction ML API")
     print("=" * 50)
     print("Running on http://127.0.0.1:8000")
-    print("=" * 50)
-    app.run(host='0.0.0.0', port=8000, debug=True)
+print("=" * 50)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port, debug=False)
