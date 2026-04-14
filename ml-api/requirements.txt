@@ -2,7 +2,7 @@ flask
 flask-cors
 numpy
 opencv-python-headless==4.10.0.84
-librosa
+librosa==0.10.2.post1
 tensorflow
 reportlab
 werkzeug
