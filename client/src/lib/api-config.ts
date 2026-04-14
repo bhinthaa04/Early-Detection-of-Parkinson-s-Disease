@@ -1,11 +1,13 @@
 const isBrowser = typeof window !== 'undefined';
-const envBackendUrl = import.meta.env.VITE_BACKEND_URL;
+const envBackendUrl =
+  import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_API_URL;
 
 const defaultBackendUrl = isBrowser ? window.location.origin : 'http://localhost:5000';
 
 // In development, we want the frontend to call the same origin by default.
 // This avoids hardcoded IPs like 192.168.x.x and works when the app is served from localhost:5000.
-let BACKEND_URL = envBackendUrl ?? defaultBackendUrl;
+const normalizedEnvBackendUrl = envBackendUrl?.trim().replace(/\/+$/, "");
+let BACKEND_URL = normalizedEnvBackendUrl || defaultBackendUrl;
 
 export const API_BASE_URL = BACKEND_URL;
 
