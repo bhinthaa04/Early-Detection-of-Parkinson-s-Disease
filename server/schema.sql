@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS patient_tests (
   risk_level VARCHAR(20) NOT NULL,
   result VARCHAR(20) NOT NULL,
   stage VARCHAR(80) NULL,
+  test_type VARCHAR(80) NULL,
+  report_url VARCHAR(500) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_patient_tests_patient_id (patient_id),
@@ -125,5 +127,41 @@ CREATE TABLE IF NOT EXISTS appointments (
   CONSTRAINT fk_appointments_report
     FOREIGN KEY (report_id) REFERENCES patient_reports (report_id)
     ON DELETE SET NULL
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS doctor_notes (
+  note_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  patient_id INT UNSIGNED NOT NULL,
+  doctor_id INT UNSIGNED NOT NULL,
+  note TEXT NOT NULL,
+  note_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (note_id),
+  KEY idx_doctor_notes_patient_id (patient_id),
+  KEY idx_doctor_notes_doctor_id (doctor_id),
+  KEY idx_doctor_notes_note_date (note_date),
+  CONSTRAINT fk_doctor_notes_patient
+    FOREIGN KEY (patient_id) REFERENCES patients (patient_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_doctor_notes_doctor
+    FOREIGN KEY (doctor_id) REFERENCES doctors (doctor_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS medications (
+  medication_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  patient_id INT UNSIGNED NOT NULL,
+  medicine_name VARCHAR(160) NOT NULL,
+  dosage VARCHAR(80) NULL,
+  frequency VARCHAR(80) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (medication_id),
+  KEY idx_medications_patient_id (patient_id),
+  CONSTRAINT fk_medications_patient
+    FOREIGN KEY (patient_id) REFERENCES patients (patient_id)
+    ON DELETE CASCADE
     ON UPDATE CASCADE
 );

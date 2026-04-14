@@ -16,7 +16,6 @@ import medicalInfographic from "@assets/generated_images/medical_brain_infograph
 import { useState, useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Float, Sphere, MeshDistortMaterial } from "@react-three/drei";
-import parkinsonsVideo from "@assets/generated_videos/parkinsons_edu.mp4";
 
 function BrainModel() {
   const meshRef = useRef<any>(null);
@@ -56,7 +55,6 @@ export default function Home() {
       items: [
         { label: "Take Test", path: "/take-test" },
         { label: "Real-Time Assist", path: "/real-time-assist" },
-        { label: "Futuristic Assessment", path: "/futuristic-assessment" },
       ],
     },
     {
@@ -64,7 +62,6 @@ export default function Home() {
       icon: BarChart3,
       items: [
         { label: "Dashboard", path: "/dashboard" },
-        { label: "Progression Forecast", path: "/progression-forecast" },
       ],
     },
     {
@@ -72,7 +69,6 @@ export default function Home() {
       icon: GraduationCap,
       items: [
         { label: "Education", path: "/education" },
-        { label: "Brain Games", path: "/brain-games" },
         { label: "AI Chatbot", path: "/ai-chatbot" },
       ],
     },
@@ -93,7 +89,6 @@ export default function Home() {
       icon: Users,
       items: [
         { label: "Caregiver Connect", path: "/caregiver-connect" },
-        { label: "Daily Tasks", path: "/daily-tasks" },
       ],
     },
     {
@@ -101,8 +96,6 @@ export default function Home() {
       icon: UserCog,
       items: [
         { label: "Doctor Login", path: "/doctor-login" },
-        { label: "Doctor Dashboard", path: "/doctor-dashboard" },
-        { label: "Doctor Patient View", path: "/doctor-patient-view" },
       ],
     },
     {
@@ -395,11 +388,14 @@ export default function Home() {
                     >
                       <X className="w-6 h-6" />
                     </button>
-                    <video 
-                      src={parkinsonsVideo} 
-                      controls 
-                      autoPlay 
-                      className="w-full h-full object-contain"
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src="https://www.youtube.com/embed/2JPD7HQmZVc?autoplay=1&rel=0&modestbranding=1"
+                      title="Parkinson's Disease Overview"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      className="w-full h-full"
                     />
                   </motion.div>
                 </div>

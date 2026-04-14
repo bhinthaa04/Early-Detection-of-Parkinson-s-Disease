@@ -56,7 +56,7 @@ export default function CaregiverConnect() {
       />
       
       <div className="container mx-auto px-4 py-8 relative z-10">
-        <Button variant="ghost" onClick={() => setLocation("/")} className="mb-6 text-gray-800 hover:bg-gray-100">
+        <Button variant="ghost" onClick={() => setLocation("/")} className="mb-6 text-white hover:bg-white/10">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
         </Button>
 
@@ -65,8 +65,8 @@ export default function CaregiverConnect() {
             <Users className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-3xl font-heading font-bold text-gray-900">Caregiver & Doctor Connect</h1>
-            <p className="text-gray-600">Managing the patient's support ecosystem</p>
+            <h1 className="text-3xl font-heading font-bold text-white">Caregiver & Doctor Connect</h1>
+            <p className="text-white/80">Managing the patient's support ecosystem</p>
           </div>
         </div>
 

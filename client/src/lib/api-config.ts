@@ -18,8 +18,12 @@ export const API_ENDPOINTS = {
   doctors: `${BACKEND_URL}/api/doctors`,
   predictions: `${BACKEND_URL}/api/predictions`,
   reports: `${BACKEND_URL}/api/reports`,
+  reportsByTestBase: `${BACKEND_URL}/api/reports`,
   patientTests: `${BACKEND_URL}/api/patient-tests`,
+  doctorNotes: `${BACKEND_URL}/api/doctor-notes`,
+  medications: `${BACKEND_URL}/api/medications`,
   appointmentsBook: `${BACKEND_URL}/api/appointments/book`,
+  appointmentsCreate: `${BACKEND_URL}/api/appointments`,
   appointmentsBase: `${BACKEND_URL}/api/appointments`,
   predict: `${BACKEND_URL}/predict`,
   downloadReport: `${BACKEND_URL}/download-report`,
@@ -32,8 +36,12 @@ export function setBackendURL(url: string) {
   API_ENDPOINTS.doctors = `${url}/api/doctors`;
   API_ENDPOINTS.predictions = `${url}/api/predictions`;
   API_ENDPOINTS.reports = `${url}/api/reports`;
+  API_ENDPOINTS.reportsByTestBase = `${url}/api/reports`;
   API_ENDPOINTS.patientTests = `${url}/api/patient-tests`;
+  API_ENDPOINTS.doctorNotes = `${url}/api/doctor-notes`;
+  API_ENDPOINTS.medications = `${url}/api/medications`;
   API_ENDPOINTS.appointmentsBook = `${url}/api/appointments/book`;
+  API_ENDPOINTS.appointmentsCreate = `${url}/api/appointments`;
   API_ENDPOINTS.appointmentsBase = `${url}/api/appointments`;
   API_ENDPOINTS.predict = `${url}/predict`;
   API_ENDPOINTS.downloadReport = `${url}/download-report`;

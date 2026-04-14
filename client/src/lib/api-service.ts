@@ -103,6 +103,8 @@ export interface CreatePatientTestPayload {
   riskLevel: string;
   result: string;
   stage?: string;
+  testType?: string;
+  reportUrl?: string;
 }
 
 export interface CreateAppointmentPayload {
@@ -138,6 +140,7 @@ export interface AppointmentDetails {
   prediction_result?: string | null;
   stage?: string | null;
   confidence_score?: number | null;
+  patient_email?: string | null;
 }
 
 export const apiService = {
@@ -235,12 +238,19 @@ export const apiService = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        patientId: payload.patientId,
         patient_id: payload.patientId,
+        testDate: payload.testDate,
         test_date: payload.testDate,
+        confidence: payload.confidenceScore,
+        confidenceScore: payload.confidenceScore,
         confidence_score: payload.confidenceScore,
+        riskLevel: payload.riskLevel,
         risk_level: payload.riskLevel,
         result: payload.result,
         stage: payload.stage ?? null,
+        test_type: payload.testType ?? "Multimodal",
+        report_url: payload.reportUrl ?? null,
       }),
     });
 
@@ -259,6 +269,7 @@ export const apiService = {
 
   async getPatientTests(patientId: number, limit?: number): Promise<PatientTestRecord[]> {
     const params = new URLSearchParams();
+    params.set('patientId', String(patientId));
     params.set('patient_id', String(patientId));
     if (limit && Number.isFinite(limit)) {
       params.set('limit', String(limit));
@@ -302,12 +313,17 @@ export const apiService = {
     };
 
     try {
-      return await requestAppointment(API_ENDPOINTS.appointmentsBook);
+      return await requestAppointment(API_ENDPOINTS.appointmentsCreate);
     } catch (error) {
+      try {
+        return await requestAppointment(API_ENDPOINTS.appointmentsBook);
+      } catch {
+        // Ignore compatibility fallback error and continue to localhost fallback.
+      }
       // Common local-dev case: frontend-only server on :5000 returns HTML for /api routes.
       try {
         const fallbackUrl = "http://127.0.0.1:5001/api/appointments/book";
-        if (API_ENDPOINTS.appointmentsBook !== fallbackUrl) {
+        if (API_ENDPOINTS.appointmentsCreate !== fallbackUrl) {
           return await requestAppointment(fallbackUrl);
         }
       } catch {

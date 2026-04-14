@@ -1,0 +1,90 @@
+==================================================
+Parkinson's Disease Prediction ML API
+==================================================
+Running on http://127.0.0.1:8000
+==================================================
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.134.56.105:8000
+Press CTRL+C to quit
+ * Restarting with watchdog (windowsapi)
+ * Debugger is active!
+ * Debugger PIN: 217-266-074
+127.0.0.1 - - [27/Mar/2026 10:00:46] "HEAD /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Mar/2026 10:01:52] "POST /generate-report HTTP/1.1" 200 -
+127.0.0.1 - - [27/Mar/2026 10:01:52] "GET /download-report?test_id=demo HTTP/1.1" 200 -
+127.0.0.1 - - [27/Mar/2026 10:05:50] "POST /generate-report HTTP/1.1" 200 -
+ * Detected change in 'c:\\Users\\suvarna bhinthaa K\\Downloads\\Parkinson-Predictor (2)\\Parkinson-Predictor\\ml-api\\app.py', reloading
+==================================================
+Parkinson's Disease Prediction ML API
+==================================================
+Running on http://127.0.0.1:8000
+==================================================
+ * Restarting with watchdog (windowsapi)
+ * Debugger is active!
+ * Debugger PIN: 217-266-074
+127.0.0.1 - - [27/Mar/2026 10:37:32] "HEAD /health HTTP/1.1" 200 -
+ * Detected change in 'c:\\Users\\suvarna bhinthaa K\\Downloads\\Parkinson-Predictor (2)\\Parkinson-Predictor\\ml-api\\test_pdf.py', reloading
+==================================================
+Parkinson's Disease Prediction ML API
+==================================================
+Running on http://127.0.0.1:8000
+==================================================
+ * Restarting with watchdog (windowsapi)
+ * Debugger is active!
+ * Debugger PIN: 217-266-074
+ * Detected change in 'c:\\Users\\suvarna bhinthaa K\\Downloads\\Parkinson-Predictor (2)\\Parkinson-Predictor\\ml-api\\app.py', reloading
+==================================================
+Parkinson's Disease Prediction ML API
+==================================================
+Running on http://127.0.0.1:8000
+==================================================
+ * Restarting with watchdog (windowsapi)
+ * Debugger is active!
+ * Debugger PIN: 217-266-074
+127.0.0.1 - - [27/Mar/2026 11:50:35] "POST /predict HTTP/1.1" 200 -
+127.0.0.1 - - [27/Mar/2026 11:50:58] "POST /generate-report HTTP/1.1" 200 -
+127.0.0.1 - - [27/Mar/2026 13:45:46] "POST /predict HTTP/1.1" 200 -
+127.0.0.1 - - [27/Mar/2026 13:46:09] "POST /generate-report HTTP/1.1" 200 -
+ * Detected change in 'c:\\Users\\suvarna bhinthaa K\\Downloads\\Parkinson-Predictor (2)\\Parkinson-Predictor\\ml-api\\app.py', reloading
+==================================================
+Parkinson's Disease Prediction ML API
+==================================================
+Running on http://127.0.0.1:8000
+==================================================
+ * Restarting with watchdog (windowsapi)
+ * Debugger is active!
+ * Debugger PIN: 217-266-074
+ * Detected change in 'c:\\Users\\suvarna bhinthaa K\\Downloads\\Parkinson-Predictor (2)\\Parkinson-Predictor\\ml-api\\app.py', reloading
+==================================================
+Parkinson's Disease Prediction ML API
+==================================================
+Running on http://127.0.0.1:8000
+==================================================
+Exception in thread Thread-2 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\suvarna bhinthaa K\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 1045, in _bootstrap_inner
+ * Restarting with watchdog (windowsapi)
+ * Debugger is active!
+ * Debugger PIN: 217-266-074
+ * Detected change in 'c:\\Users\\suvarna bhinthaa K\\Downloads\\Parkinson-Predictor (2)\\Parkinson-Predictor\\ml-api\\app.py', reloading
+==================================================
+Parkinson's Disease Prediction ML API
+==================================================
+Running on http://127.0.0.1:8000
+==================================================
+ * Restarting with watchdog (windowsapi)
+ * Debugger is active!
+ * Debugger PIN: 217-266-074
+ * Detected change in 'c:\\Users\\suvarna bhinthaa K\\Downloads\\Parkinson-Predictor (2)\\Parkinson-Predictor\\ml-api\\app.py', reloading
+==================================================
+Parkinson's Disease Prediction ML API
+==================================================
+Running on http://127.0.0.1:8000
+==================================================
+ * Restarting with watchdog (windowsapi)
+ * Debugger is active!
+ * Debugger PIN: 217-266-074

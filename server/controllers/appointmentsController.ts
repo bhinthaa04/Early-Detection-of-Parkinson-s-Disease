@@ -11,6 +11,12 @@ function generateBookingId() {
   return `BK-${date}-${random}`;
 }
 
+function toPositiveInt(value: unknown): number | null {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+  return Math.floor(parsed);
+}
+
 async function ensureAppointmentTables() {
   if (tablesEnsured) return;
 
@@ -69,29 +75,62 @@ async function ensureAppointmentTables() {
 }
 
 export async function bookAppointment(req: Request, res: Response) {
-  const {
-    patientName,
-    phoneNumber,
-    reason,
-    doctorId,
-    date,
-    time,
-    patientId,
-    reportId,
-  } = req.body ?? {};
+  const body = req.body ?? {};
 
-  if (!patientName || !phoneNumber || !doctorId || !date || !time || !patientId) {
+  const patientId = Number(body.patientId ?? body.patient_id);
+  const doctorId = Number(body.doctorId ?? body.doctor_id);
+  const normalizedDate =
+    (typeof body.date === "string" && body.date.trim()) ||
+    (typeof body.appointment_date === "string" && body.appointment_date.trim()) ||
+    "";
+  const normalizedTime =
+    (typeof body.time === "string" && body.time.trim()) ||
+    (typeof body.time_slot === "string" && body.time_slot.trim()) ||
+    "";
+  const normalizedReason =
+    (typeof body.reason === "string" && body.reason.trim()) ||
+    (typeof body.visit_reason === "string" && body.visit_reason.trim()) ||
+    null;
+  const normalizedStatus = typeof body.status === "string" && body.status.trim() ? body.status.trim() : "pending";
+
+  let normalizedPatientName =
+    (typeof body.patientName === "string" && body.patientName.trim()) ||
+    (typeof body.patient_name === "string" && body.patient_name.trim()) ||
+    "";
+  let normalizedPhoneNumber =
+    (typeof body.phoneNumber === "string" && body.phoneNumber.trim()) ||
+    (typeof body.phone_number === "string" && body.phone_number.trim()) ||
+    "";
+
+  if (!patientId || Number.isNaN(patientId) || !doctorId || Number.isNaN(doctorId) || !normalizedDate || !normalizedTime) {
     return res.status(400).json({
-      error: "patientName, phoneNumber, doctorId, date, time, and patientId are required",
+      error: "patientId, doctorId, date, and time are required",
     });
   }
 
   try {
     await ensureAppointmentTables();
 
+    const [patientRows] = await pool.execute<RowDataPacket[]>(
+      `SELECT full_name, phone FROM patients WHERE patient_id = ? LIMIT 1`,
+      [patientId],
+    );
+
+    const patient = patientRows[0];
+    if (!patient) {
+      return res.status(404).json({ error: "patient not found" });
+    }
+
+    if (!normalizedPatientName) {
+      normalizedPatientName = String(patient.full_name ?? "Unknown Patient");
+    }
+    if (!normalizedPhoneNumber) {
+      normalizedPhoneNumber = String(patient.phone ?? "N/A");
+    }
+
     const bookingId = generateBookingId();
 
-    let linkedReportId = reportId ?? null;
+    let linkedReportId = body.reportId ?? body.report_id ?? null;
     if (!linkedReportId) {
       const [latestReportRows] = await pool.execute<RowDataPacket[]>(
         `SELECT report_id
@@ -107,24 +146,25 @@ export async function bookAppointment(req: Request, res: Response) {
     await pool.execute<ResultSetHeader>(
       `INSERT INTO appointments
        (appointment_id, patient_id, report_id, patient_name, phone_number, visit_reason, doctor_id, appointment_date, time_slot, status, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [
         bookingId,
         patientId,
         linkedReportId,
-        patientName,
-        phoneNumber,
-        reason ?? null,
+        normalizedPatientName,
+        normalizedPhoneNumber,
+        normalizedReason,
         doctorId,
-        date,
-        time,
+        normalizedDate,
+        normalizedTime,
+        normalizedStatus,
       ],
     );
 
     res.status(201).json({
       success: true,
       bookingId,
-      status: "pending",
+      status: normalizedStatus,
     });
   } catch (err) {
     console.error("bookAppointment error", err);
@@ -132,8 +172,90 @@ export async function bookAppointment(req: Request, res: Response) {
   }
 }
 
+export async function getAllAppointments(req: Request, res: Response) {
+  const page = toPositiveInt(req.query.page);
+  const limit = toPositiveInt(req.query.limit);
+  const usePagination = page !== null && limit !== null;
+
+  try {
+    await ensureAppointmentTables();
+
+    const baseQuery = `
+      SELECT
+        a.appointment_id AS bookingId,
+        a.patient_id,
+        a.report_id,
+        COALESCE(p.full_name, a.patient_name) AS patient_name,
+        a.phone_number,
+        p.email AS patient_email,
+        a.visit_reason,
+        a.doctor_id,
+        a.appointment_date,
+        a.time_slot,
+        a.status,
+        a.created_at,
+        d.full_name AS doctor_name,
+        pr.prediction_result,
+        pr.stage,
+        pr.confidence_score
+       FROM appointments a
+       LEFT JOIN patients p ON p.patient_id = a.patient_id
+       LEFT JOIN doctors d ON d.doctor_id = a.doctor_id
+       LEFT JOIN patient_reports pr ON pr.report_id = a.report_id
+    `;
+
+    if (usePagination && page && limit) {
+      const offset = (page - 1) * limit;
+
+      const [countRows] = await pool.execute<RowDataPacket[]>(
+        `SELECT
+           COUNT(*) AS total,
+           SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pendingCount,
+           SUM(CASE WHEN appointment_date = CURDATE() THEN 1 ELSE 0 END) AS todayCount
+         FROM appointments`,
+        [],
+      );
+
+      const total = Number(countRows[0]?.total ?? 0);
+      const pendingCount = Number(countRows[0]?.pendingCount ?? 0);
+      const todayCount = Number(countRows[0]?.todayCount ?? 0);
+      const totalPages = Math.max(1, Math.ceil(total / limit));
+
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `${baseQuery}
+         ORDER BY a.created_at DESC
+         LIMIT ${limit} OFFSET ${offset}`,
+        [],
+      );
+
+      return res.json({
+        data: rows,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          pendingCount,
+          todayCount,
+        },
+      });
+    }
+
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      `${baseQuery}
+       ORDER BY a.created_at DESC`,
+      [],
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("getAllAppointments error", err);
+    res.status(500).json({ error: "failed to fetch appointments" });
+  }
+}
+
 export async function getAppointmentById(req: Request, res: Response) {
-  const bookingId = req.params.bookingId;
+  const bookingId = typeof req.params.bookingId === "string" ? req.params.bookingId.trim() : "";
 
   if (!bookingId) {
     return res.status(400).json({ error: "bookingId is required" });
@@ -147,8 +269,9 @@ export async function getAppointmentById(req: Request, res: Response) {
         a.appointment_id AS bookingId,
         a.patient_id,
         a.report_id,
-        a.patient_name,
+        COALESCE(p.full_name, a.patient_name) AS patient_name,
         a.phone_number,
+        p.email AS patient_email,
         a.visit_reason,
         a.doctor_id,
         a.appointment_date,
@@ -160,6 +283,7 @@ export async function getAppointmentById(req: Request, res: Response) {
         pr.stage,
         pr.confidence_score
        FROM appointments a
+       LEFT JOIN patients p ON p.patient_id = a.patient_id
        LEFT JOIN doctors d ON d.doctor_id = a.doctor_id
        LEFT JOIN patient_reports pr ON pr.report_id = a.report_id
        WHERE a.appointment_id = ?
@@ -169,12 +293,12 @@ export async function getAppointmentById(req: Request, res: Response) {
 
     const appointment = rows[0];
     if (!appointment) {
-      return res.status(404).json({ error: "Appointment not found" });
+      return res.status(404).json({ error: "appointment not found" });
     }
 
     res.json(appointment);
   } catch (err) {
     console.error("getAppointmentById error", err);
-    res.status(500).json({ error: "Failed to fetch appointment" });
+    res.status(500).json({ error: "failed to fetch appointment" });
   }
 }
